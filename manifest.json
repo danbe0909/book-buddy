@@ -1,0 +1,15 @@
+{
+  "name": "BookBuddy AI",
+  "short_name": "BookBuddy",
+  "start_url": "/book-buddy/",
+  "display": "standalone",
+  "background_color": "#FF8E72",
+  "theme_color": "#FF8E72",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
