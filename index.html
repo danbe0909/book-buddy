@@ -85,7 +85,7 @@
         .notice-empty { text-align: center; color: #bbb; font-size: 13px; padding: 10px 0; }
         .notice-teacher-edit { background: #fff8e1; border: 2px solid #ffd54f; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
 
-        /* ✅ TOP5 독서왕 카드 스타일 */
+        /* ✅ TOP7 독서왕 카드 스타일 */
         .top5-card {
             background: linear-gradient(135deg, #fff9f0 0%, #fff3e0 100%);
             border: 3px solid #ffcc80;
@@ -128,7 +128,7 @@
         .top5-bar-fill { height: 8px; border-radius: 10px; background: linear-gradient(90deg, #ff8e72, #ffac41); transition: width 0.6s ease; }
         .top5-count { font-size: 14px; font-weight: bold; color: var(--primary-dark); min-width: 30px; text-align: right; }
         .top5-empty { text-align: center; color: #bbb; font-size: 13px; padding: 10px 0; }
-        .top5-class-label { font-size: 11px; color: #bbb; text-align: center; margin-bottom: 10px; }
+        .top5-class-label { font-size: 15px; color: #aaa; text-align: center; margin-bottom: 10px; font-weight: bold; }
 
         /* ✅ 독서 캘린더 (잔디 심기) */
         .cal-card { background: linear-gradient(135deg, #f0fff4 0%, #e8f5e9 100%); border: 3px solid #a5d6a7; border-radius: 25px; padding: 20px; margin-bottom: 18px; box-shadow: 0 6px 0px rgba(165,214,167,0.4); }
@@ -323,7 +323,7 @@
                 <!-- ✅ TOP 5 독서왕 카드 (로그인 섹션 내, 학년/반 선택 시 표시) -->
                 <div id="top5Card" class="top5-card hidden">
                     <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
-                    <div style="font-size:11px;color:#aaa;text-align:center;margin-top:-6px;margin-bottom:4px;" id="top5MonthLabel"></div>
+                    <div style="font-size:15px;color:#aaa;text-align:center;margin-top:-4px;margin-bottom:4px;font-weight:bold;" id="top5MonthLabel"></div>
                     <div id="top5ClassLabel" class="top5-class-label"></div>
                     <div id="top5List"><div class="top5-empty">독서 기록이 없습니다.</div></div>
                 </div>
@@ -379,7 +379,7 @@
             <!-- ✅ 로그인 후 writeSection 내 TOP 5 독서왕 -->
             <div id="top5CardWrite" class="top5-card">
                 <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
-                <div style="font-size:11px;color:#aaa;text-align:center;margin-top:-6px;margin-bottom:4px;" id="top5MonthLabelWrite"></div>
+                <div style="font-size:15px;color:#aaa;text-align:center;margin-top:-4px;margin-bottom:4px;font-weight:bold;" id="top5MonthLabelWrite"></div>
                 <div id="top5ClassLabelWrite" class="top5-class-label"></div>
                 <div id="top5ListWrite"><div class="top5-empty">독서 기록이 없습니다.</div></div>
                 <div id="myRankBox" style="display:none; margin-top:10px; padding:10px 14px; background:linear-gradient(135deg,#fff0ec,#ffe8df); border:1.5px solid #ff8e72; border-radius:12px; text-align:center; font-size:13px; color:#c0522a;">
@@ -562,9 +562,9 @@
         students = Object.keys(rawData).map(k => ({ id: k, ...rawData[k], isPending: false }));
         syncHeaderAndStats(); renderAll(); updateLoginSelect();
         if(currentSid) { renderHistory(); renderChart(currentSid); updateWelcomeMsg(currentSid); renderCalendar(currentSid); }
-        // ✅ 학생 데이터 갱신 시 TOP5도 갱신
-        renderTop5FromFilter();
-        if (currentSid) renderTop5ForStudent();
+        // ✅ 학생 데이터 갱신 시 TOP7도 갱신
+        renderTop7FromFilter();
+        if (currentSid) renderTop7ForStudent();
     });
     db.ref('pendingStudents_v2').on('value', snap => { pendingData = snap.val() || {}; renderAll(); updateLoginSelect(); });
     db.ref('teacherAccounts_v2').on('value', snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); });
@@ -592,7 +592,7 @@
     }
 
     // ✅ TOP 5 독서왕 렌더링 함수
-    function renderTop5(listEl, labelEl, grade, classNum) {
+    function renderTop7(listEl, labelEl, grade, classNum) {
         if (!grade || !classNum) {
             listEl.innerHTML = '<div class="top5-empty">학년/반을 선택하면 독서왕을 확인할 수 있어요!</div>';
             labelEl.innerText = '';
@@ -609,13 +609,23 @@
         const thisMonthYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         const thisMonthPrefix = thisMonthYM + '-'; // 기존 변수명 유지 (하위 호환)
         const ranked = classStudents
-            .map(s => ({
-                name: s.name,
-                // ✅ timezone 문제 방지: ISO 문자열 앞 7자리로 직접 비교
-                count: s.books ? Object.values(s.books).filter(b => b.date && b.date.substring(0, 7) === thisMonthPrefix.substring(0, 7)).length : 0,
-                id: s.id
-            }))
-            .sort((a, b) => b.count - a.count)
+            .map(s => {
+                const thisMonthBooks = s.books ? Object.values(s.books).filter(b => b.date && b.date.substring(0, 7) === thisMonthPrefix.substring(0, 7)) : [];
+                // ✅ 이번 달 독서 중 가장 빠른(오래된) 날짜 추출 → 동점자 우선순위 기준
+                const earliestDate = thisMonthBooks.length > 0
+                    ? thisMonthBooks.map(b => b.date.substring(0, 10)).sort()[0]
+                    : '9999-99-99';
+                return {
+                    name: s.name,
+                    count: thisMonthBooks.length,
+                    earliestDate,
+                    id: s.id
+                };
+            })
+            .sort((a, b) => {
+                if (b.count !== a.count) return b.count - a.count; // 독서량 많은 순
+                return a.earliestDate < b.earliestDate ? -1 : a.earliestDate > b.earliestDate ? 1 : 0; // 동수면 먼저 읽은 학생 우선
+            })
             .slice(0, 7);
 
         const maxCount = ranked[0].count;
@@ -678,8 +688,8 @@
                 let myDisplayRank = 1;
                 for (let i = 0; i < myIdx; i++) { if (allRanked[i].count > allRanked[myIdx].count) myDisplayRank++; }
                 const myCount = allRanked[myIdx].count;
-                const isInTop5 = myIdx < 7 && ranked.some(s => s.id === currentSid);
-                if (!isInTop5) {
+                const isInTop7 = myIdx < 7 && ranked.some(s => s.id === currentSid);
+                if (!isInTop7) {
                     myRankBox.style.display = 'block';
                     myRankText.innerHTML = `📖 나의 순위: <strong>${myDisplayRank}위</strong> · ${myCount}권 읽음`;
                 } else {
@@ -687,10 +697,10 @@
                 }
             }
         }
-    } // ✅ renderTop5 함수 닫기
+    } // ✅ renderTop7 함수 닫기
 
-    // ✅ 로그인 화면 필터 기반 TOP5
-    function renderTop5FromFilter() {
+    // ✅ 로그인 화면 필터 기반 TOP7
+    function renderTop7FromFilter() {
         const g = document.getElementById('loginFilterGrade').value;
         const c = document.getElementById('loginFilterClass').value;
         const card = document.getElementById('top5Card');
@@ -698,16 +708,16 @@
         const labelEl = document.getElementById('top5ClassLabel');
         if (!g || !c) { card.classList.add('hidden'); return; }
         card.classList.remove('hidden');
-        renderTop5(listEl, labelEl, g, c);
+        renderTop7(listEl, labelEl, g, c);
     }
 
-    // ✅ 로그인 후 내 반 TOP5
-    function renderTop5ForStudent() {
+    // ✅ 로그인 후 내 반 TOP7
+    function renderTop7ForStudent() {
         if (!currentSid) return;
         const s = rawData[currentSid]; if (!s) return;
         const listEl = document.getElementById('top5ListWrite');
         const labelEl = document.getElementById('top5ClassLabelWrite');
-        renderTop5(listEl, labelEl, s.grade, s.classNum);
+        renderTop7(listEl, labelEl, s.grade, s.classNum);
     }
 
     function setTeacherPassword() {
@@ -948,7 +958,7 @@
     function loadClassSpecificInfo() {
         syncHeaderAndStats();
         updateLoginSelect();
-        renderTop5FromFilter(); // ✅ 학년/반 변경 시 TOP5 갱신
+        renderTop7FromFilter(); // ✅ 학년/반 변경 시 TOP7 갱신
     }
 
     // ✅ 수정: 승인 대기 학생도 드롭다운에 표시 (선택 불가)
@@ -976,7 +986,7 @@
             updateWelcomeMsg(sid);
             document.getElementById('welcomeClass').innerText = `${rawData[sid].grade}학년 ${rawData[sid].classNum}반`;
             renderHistory(); renderChart(sid); renderStudentNotice();
-            renderTop5ForStudent(); // ✅ 로그인 시 TOP5 렌더링
+            renderTop7ForStudent(); // ✅ 로그인 시 TOP7 렌더링
             // ✅ 캘린더 초기화 (이번 달로 리셋)
             calYear = new Date().getFullYear();
             calMonth = new Date().getMonth();
@@ -989,7 +999,7 @@
         cancelEditBook();
         document.getElementById('loginSection').classList.remove('hidden');
         document.getElementById('writeSection').classList.add('hidden');
-        renderTop5FromFilter(); // ✅ 로그아웃 시 로그인화면 TOP5 갱신
+        renderTop7FromFilter(); // ✅ 로그아웃 시 로그인화면 TOP7 갱신
     }
     function switchStudentTab(tab) {
         document.getElementById('panelLogin').classList.toggle('hidden', tab !== 'login');
@@ -1113,7 +1123,9 @@
             db.ref(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
                 .then(() => { alert("수정되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         } else {
-            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: new Date().toISOString() };
+            const _now = new Date();
+            const _localDate = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}T${String(_now.getHours()).padStart(2,'0')}:${String(_now.getMinutes()).padStart(2,'0')}:${String(_now.getSeconds()).padStart(2,'0')}`;
+            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: _localDate };
             db.ref(`classData_v2/students/${currentSid}/books`).push(bookData)
                 .then(() => { alert("저장되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         }
@@ -1381,11 +1393,14 @@
         if (!s || !s.books) return map;
         Object.values(s.books).forEach(b => {
             if (!b.date) return;
-            // ✅ timezone 문제 방지: ISO 문자열 앞 10자리(YYYY-MM-DD) 직접 추출
-            const key = b.date.length >= 10 ? b.date.substring(0, 10) : (() => {
+            // ✅ timezone 문제 방지: UTC ISO(Z) 문자열은 로컬 날짜로 변환, 로컬 형식은 앞 10자리 직접 추출
+            let key;
+            if (b.date.endsWith('Z') || b.date.includes('+')) {
                 const d = new Date(b.date);
-                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            })();
+                key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            } else {
+                key = b.date.substring(0, 10);
+            }
             map[key] = (map[key] || 0) + 1;
         });
         return map;
