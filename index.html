@@ -605,12 +605,14 @@
             return;
         }
         const now = new Date();
-        const thisMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-`;
+        // ✅ "2026-04" 형식으로 직접 비교
+        const thisMonthYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const thisMonthPrefix = thisMonthYM + '-'; // 기존 변수명 유지 (하위 호환)
         const ranked = classStudents
             .map(s => ({
                 name: s.name,
-                // ✅ key가 아닌 value.date로 이달 기록 카운팅
-                count: s.books ? Object.values(s.books).filter(b => b.date && b.date.startsWith(thisMonthPrefix)).length : 0,
+                // ✅ timezone 문제 방지: ISO 문자열 앞 7자리로 직접 비교
+                count: s.books ? Object.values(s.books).filter(b => b.date && b.date.substring(0, 7) === thisMonthPrefix.substring(0, 7)).length : 0,
                 id: s.id
             }))
             .sort((a, b) => b.count - a.count)
@@ -666,8 +668,8 @@
             const allRanked = classStudents
                 .map(s => ({
                     name: s.name,
-                    // ✅ key가 아닌 value.date로 이달 기록 카운팅
-                    count: s.books ? Object.values(s.books).filter(b => b.date && b.date.startsWith(thisMonthPrefix)).length : 0,
+                    // ✅ timezone 문제 방지: ISO 문자열 앞 7자리로 직접 비교
+                    count: s.books ? Object.values(s.books).filter(b => b.date && b.date.substring(0, 7) === thisMonthPrefix.substring(0, 7)).length : 0,
                     id: s.id
                 }))
                 .sort((a, b) => b.count - a.count);
@@ -1231,8 +1233,16 @@
         }
         if (s.books) {
             Object.values(s.books).forEach(b => {
-                const bDate = new Date(b.date);
-                const bKey = `${bDate.getFullYear()}-${String(bDate.getMonth() + 1).padStart(2, '0')}`;
+                // ✅ timezone 문제 방지: ISO 문자열에서 직접 연-월 추출 (new Date() 변환 없이)
+                if (!b.date) return;
+                let bKey;
+                if (b.date.length >= 7) {
+                    // "2026-04-01T..." 또는 "2026-04-01" 형식에서 앞 7자리(YYYY-MM) 추출
+                    bKey = b.date.substring(0, 7);
+                } else {
+                    const bDate = new Date(b.date);
+                    bKey = `${bDate.getFullYear()}-${String(bDate.getMonth() + 1).padStart(2, '0')}`;
+                }
                 const index = monthKeys.indexOf(bKey);
                 if (index !== -1) dataValues[index]++;
             });
@@ -1370,8 +1380,12 @@
         const s = rawData[sid];
         if (!s || !s.books) return map;
         Object.values(s.books).forEach(b => {
-            const d = new Date(b.date);
-            const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            if (!b.date) return;
+            // ✅ timezone 문제 방지: ISO 문자열 앞 10자리(YYYY-MM-DD) 직접 추출
+            const key = b.date.length >= 10 ? b.date.substring(0, 10) : (() => {
+                const d = new Date(b.date);
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            })();
             map[key] = (map[key] || 0) + 1;
         });
         return map;
