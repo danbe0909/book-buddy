@@ -1093,10 +1093,25 @@
     function db_saveBook() {
         const t = document.getElementById('bookTitle').value.trim(), r = document.getElementById('bookRating').value, v = document.getElementById('bookReview').value;
         if(!t) return alert("제목을 입력하세요.");
-        const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: new Date().toISOString() };
-        const path = `classData_v2/students/${currentSid}/books` + (editingBookId ? `/${editingBookId}` : '');
-        const ref = editingBookId ? db.ref(path).update(bookData) : db.ref(path).push(bookData);
-        ref.then(() => { alert(editingBookId ? "수정되었습니다!" : "저장되었습니다!"); cancelEditBook(); renderChart(currentSid); });
+
+        if (editingBookId) {
+            // ✅ 수정 시: 원래 날짜(date) 유지, 제목/별점/감상/이미지만 업데이트
+            const origDate = rawData[currentSid].books[editingBookId].date;
+            const bookData = {
+                title: t,
+                rating: r,
+                review: v,
+                images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null,
+                date: origDate  // ✅ 원래 날짜 그대로 유지
+            };
+            db.ref(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
+                .then(() => { alert("수정되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
+        } else {
+            // ✅ 새 기록 추가 시: 현재 날짜로 저장
+            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: new Date().toISOString() };
+            db.ref(`classData_v2/students/${currentSid}/books`).push(bookData)
+                .then(() => { alert("저장되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
+        }
     }
 
     function editBook(bid) {
