@@ -607,7 +607,12 @@
         const now = new Date();
         const thisMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-`;
         const ranked = classStudents
-            .map(s => ({ name: s.name, count: s.books ? Object.keys(s.books).filter(k => k.startsWith(thisMonthPrefix)).length : 0, id: s.id }))
+            .map(s => ({
+                name: s.name,
+                // ✅ key가 아닌 value.date로 이달 기록 카운팅
+                count: s.books ? Object.values(s.books).filter(b => b.date && b.date.startsWith(thisMonthPrefix)).length : 0,
+                id: s.id
+            }))
             .sort((a, b) => b.count - a.count)
             .slice(0, 7);
 
@@ -659,7 +664,12 @@
         const myRankText = document.getElementById('myRankText');
         if (myRankBox && myRankText && currentSid) {
             const allRanked = classStudents
-                .map(s => ({ name: s.name, count: s.books ? Object.keys(s.books).filter(k => k.startsWith(thisMonthPrefix)).length : 0, id: s.id }))
+                .map(s => ({
+                    name: s.name,
+                    // ✅ key가 아닌 value.date로 이달 기록 카운팅
+                    count: s.books ? Object.values(s.books).filter(b => b.date && b.date.startsWith(thisMonthPrefix)).length : 0,
+                    id: s.id
+                }))
                 .sort((a, b) => b.count - a.count);
             const myIdx = allRanked.findIndex(s => s.id === currentSid);
             if (myIdx !== -1) {
@@ -1095,19 +1105,12 @@
         if(!t) return alert("제목을 입력하세요.");
 
         if (editingBookId) {
-            // ✅ 수정 시: 원래 날짜(date) 유지, 제목/별점/감상/이미지만 업데이트
+            // ✅ 수정 시: 원래 날짜(date) 유지
             const origDate = rawData[currentSid].books[editingBookId].date;
-            const bookData = {
-                title: t,
-                rating: r,
-                review: v,
-                images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null,
-                date: origDate  // ✅ 원래 날짜 그대로 유지
-            };
+            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: origDate };
             db.ref(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
                 .then(() => { alert("수정되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         } else {
-            // ✅ 새 기록 추가 시: 현재 날짜로 저장
             const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: new Date().toISOString() };
             db.ref(`classData_v2/students/${currentSid}/books`).push(bookData)
                 .then(() => { alert("저장되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
@@ -1222,12 +1225,14 @@
         const labels = [], dataValues = Array(period).fill(0), monthKeys = [];
         for (let i = period - 1; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            labels.push(`${d.getMonth() + 1}월`); monthKeys.push(`${d.getFullYear()}-${d.getMonth()}`);
+            labels.push(`${d.getMonth() + 1}월`);
+            // ✅ getMonth()는 0~11 반환이므로, 실제 월(1~12)을 padStart로 맞춰 date와 일치시킴
+            monthKeys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
         }
         if (s.books) {
             Object.values(s.books).forEach(b => {
                 const bDate = new Date(b.date);
-                const bKey = `${bDate.getFullYear()}-${bDate.getMonth()}`;
+                const bKey = `${bDate.getFullYear()}-${String(bDate.getMonth() + 1).padStart(2, '0')}`;
                 const index = monthKeys.indexOf(bKey);
                 if (index !== -1) dataValues[index]++;
             });
