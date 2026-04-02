@@ -954,10 +954,10 @@
     // ✅ 수정: 승인 대기 학생도 드롭다운에 표시 (선택 불가)
     function updateLoginSelect() {
         const g = document.getElementById('loginFilterGrade').value, c = document.getElementById('loginFilterClass').value, sel = document.getElementById('loginSelect');
-        if (!g && !c) { sel.innerHTML = '<option value="">-- 학년/반을 고르세요 --</option>'; return; }
+        if (!g && !c) { sel.innerHTML = '<option value="">-- 학년/반을 선택하세요 --</option>'; return; }
         const app = students.filter(s => String(s.grade) === g && String(s.classNum) === c);
         const pending = Object.values(pendingData).filter(s => String(s.grade) === g && String(s.classNum) === c);
-        let html = '<option value="">-- 이름을 고르세요 --</option>';
+        let html = '<option value="">-- 이름을 선택하세요 --</option>';
         html += app.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         if (pending.length > 0) {
             html += `<option disabled>──────────────</option>`;
