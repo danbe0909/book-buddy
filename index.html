@@ -322,7 +322,7 @@
 
                 <!-- ✅ TOP 5 독서왕 카드 (로그인 섹션 내, 학년/반 선택 시 표시) -->
                 <div id="top5Card" class="top5-card hidden">
-                    <div class="top5-title">🏆 우리 반 독서왕 TOP 5</div>
+                    <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
                     <div style="font-size:11px;color:#aaa;text-align:center;margin-top:-6px;margin-bottom:4px;" id="top5MonthLabel"></div>
                     <div id="top5ClassLabel" class="top5-class-label"></div>
                     <div id="top5List"><div class="top5-empty">독서 기록이 없습니다.</div></div>
@@ -378,10 +378,13 @@
 
             <!-- ✅ 로그인 후 writeSection 내 TOP 5 독서왕 -->
             <div id="top5CardWrite" class="top5-card">
-                <div class="top5-title">🏆 우리 반 독서왕 TOP 5</div>
+                <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
                 <div style="font-size:11px;color:#aaa;text-align:center;margin-top:-6px;margin-bottom:4px;" id="top5MonthLabelWrite"></div>
                 <div id="top5ClassLabelWrite" class="top5-class-label"></div>
                 <div id="top5ListWrite"><div class="top5-empty">독서 기록이 없습니다.</div></div>
+                <div id="myRankBox" style="display:none; margin-top:10px; padding:10px 14px; background:linear-gradient(135deg,#fff0ec,#ffe8df); border:1.5px solid #ff8e72; border-radius:12px; text-align:center; font-size:13px; color:#c0522a;">
+                    <span id="myRankText"></span>
+                </div>
             </div>
             
             <div class="card">
@@ -606,11 +609,11 @@
         const ranked = classStudents
             .map(s => ({ name: s.name, count: s.books ? Object.keys(s.books).filter(k => k.startsWith(thisMonthPrefix)).length : 0, id: s.id }))
             .sort((a, b) => b.count - a.count)
-            .slice(0, 5);
+            .slice(0, 7);
 
         const maxCount = ranked[0].count;
-        const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-        const rankClasses = ['rank-1', 'rank-2', 'rank-3', '', ''];
+        const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣'];
+        const rankClasses = ['rank-1', 'rank-2', 'rank-3', '', '', '', ''];
 
         const cnVal = allClassNames[`${grade}-${classNum}`];
         const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${grade}학년 ${classNum}반`;
@@ -650,7 +653,28 @@
             </div>`;
         });
         listEl.innerHTML = html;
-    }
+
+        // 나의 순위 표시 (학생 로그인 시에만)
+        const myRankBox = document.getElementById('myRankBox');
+        const myRankText = document.getElementById('myRankText');
+        if (myRankBox && myRankText && currentSid) {
+            const allRanked = classStudents
+                .map(s => ({ name: s.name, count: s.books ? Object.keys(s.books).filter(k => k.startsWith(thisMonthPrefix)).length : 0, id: s.id }))
+                .sort((a, b) => b.count - a.count);
+            const myIdx = allRanked.findIndex(s => s.id === currentSid);
+            if (myIdx !== -1) {
+                let myDisplayRank = 1;
+                for (let i = 0; i < myIdx; i++) { if (allRanked[i].count > allRanked[myIdx].count) myDisplayRank++; }
+                const myCount = allRanked[myIdx].count;
+                const isInTop5 = myIdx < 7 && ranked.some(s => s.id === currentSid);
+                if (!isInTop5) {
+                    myRankBox.style.display = 'block';
+                    myRankText.innerHTML = `📖 나의 순위: <strong>${myDisplayRank}위</strong> · ${myCount}권 읽음`;
+                } else {
+                    myRankBox.style.display = 'none';
+                }
+            }
+        }
 
     // ✅ 로그인 화면 필터 기반 TOP5
     function renderTop5FromFilter() {
