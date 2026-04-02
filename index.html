@@ -4,15 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BookBuddy AI - 스마트 독서 기록장</title>
-    <link rel="manifest" href="manifest.json">
-        <link rel="apple-touch-icon" href="icon.png">
-        <meta name="theme-color" content="#FF8E72">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script>
-    var db = null;
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #ff8e72;
@@ -48,8 +42,7 @@
         .grade-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
         .grade-row select { margin-bottom: 0; }
         .hidden { display: none !important; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(3px); }
-        .modal .card { transform: none !important; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(3px); }
         #myChart { background-color: rgba(255,255,255,0.3); border-radius: 15px; padding: 5px; }
         .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .title-row h3 { font-size: 18px; margin: 0; color: var(--primary-dark); }
@@ -330,6 +323,7 @@
                 <!-- ✅ TOP 5 독서왕 카드 (로그인 섹션 내, 학년/반 선택 시 표시) -->
                 <div id="top5Card" class="top5-card hidden">
                     <div class="top5-title">🏆 우리 반 독서왕 TOP 5</div>
+                    <div style="font-size:11px;color:#aaa;text-align:center;margin-top:-6px;margin-bottom:4px;" id="top5MonthLabel"></div>
                     <div id="top5ClassLabel" class="top5-class-label"></div>
                     <div id="top5List"><div class="top5-empty">독서 기록이 없습니다.</div></div>
                 </div>
@@ -385,6 +379,7 @@
             <!-- ✅ 로그인 후 writeSection 내 TOP 5 독서왕 -->
             <div id="top5CardWrite" class="top5-card">
                 <div class="top5-title">🏆 우리 반 독서왕 TOP 5</div>
+                <div style="font-size:11px;color:#aaa;text-align:center;margin-top:-6px;margin-bottom:4px;" id="top5MonthLabelWrite"></div>
                 <div id="top5ClassLabelWrite" class="top5-class-label"></div>
                 <div id="top5ListWrite"><div class="top5-empty">독서 기록이 없습니다.</div></div>
             </div>
@@ -537,36 +532,44 @@
 </div>
 
 <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAs2K3MZXNjE0S3KaNdoS_w8o5sZW7PXe0",
+        authDomain: "bookbuddy-1dfa8.firebaseapp.com",
+        databaseURL: "https://bookbuddy-1dfa8-default-rtdb.firebaseio.com",
+        projectId: "bookbuddy-1dfa8",
+        storageBucket: "bookbuddy-1dfa8.firebasestorage.app",
+        messagingSenderId: "108963110129",
+        appId: "1:108963110129:web:8bb7600de8bbca89ba9d50"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-
-    var students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, currentSid = null, myChart = null;
-    var currentTeacher = null;
-    var selectedImagesBase64 = [];
-    var editingBookId = null;
-    var classNotices = {};
+    let students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, currentSid = null, myChart = null;
+    let currentTeacher = null;
+    let selectedImagesBase64 = [];
+    let editingBookId = null;
+    let classNotices = {};
     // ✅ 캘린더 상태
-    var calYear = new Date().getFullYear();
-    var calMonth = new Date().getMonth(); // 0-indexed
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth(); // 0-indexed
 
-    function startListeners() {
-        db.ref('classNames_v2').on('value', snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); });
-        db.ref('classData_v2/students').on('value', snap => {
-            rawData = snap.val() || {};
-            students = Object.keys(rawData).map(k => ({ id: k, ...rawData[k], isPending: false }));
-            syncHeaderAndStats(); renderAll(); updateLoginSelect();
-            if(currentSid) { renderHistory(); renderChart(currentSid); updateWelcomeMsg(currentSid); renderCalendar(currentSid); }
-            // ✅ 학생 데이터 갱신 시 TOP5도 갱신
-            renderTop5FromFilter();
-            if (currentSid) renderTop5ForStudent();
-        });
-        db.ref('pendingStudents_v2').on('value', snap => { pendingData = snap.val() || {}; renderAll(); updateLoginSelect(); });
-        db.ref('teacherAccounts_v2').on('value', snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); });
-        db.ref('classNotices_v2').on('value', snap => {
-            classNotices = snap.val() || {};
-            renderNoticePreview();
-            if (currentSid) renderStudentNotice();
-        });
-    }
+    db.ref('classNames_v2').on('value', snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); });
+    db.ref('classData_v2/students').on('value', snap => {
+        rawData = snap.val() || {};
+        students = Object.keys(rawData).map(k => ({ id: k, ...rawData[k], isPending: false }));
+        syncHeaderAndStats(); renderAll(); updateLoginSelect();
+        if(currentSid) { renderHistory(); renderChart(currentSid); updateWelcomeMsg(currentSid); renderCalendar(currentSid); }
+        // ✅ 학생 데이터 갱신 시 TOP5도 갱신
+        renderTop5FromFilter();
+        if (currentSid) renderTop5ForStudent();
+    });
+    db.ref('pendingStudents_v2').on('value', snap => { pendingData = snap.val() || {}; renderAll(); updateLoginSelect(); });
+    db.ref('teacherAccounts_v2').on('value', snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); });
+    db.ref('classNotices_v2').on('value', snap => {
+        classNotices = snap.val() || {};
+        renderNoticePreview();
+        if (currentSid) renderStudentNotice();
+    });
 
     function getReadingBadge(bookCount) {
         if (bookCount >= 100) return '🏆';
@@ -598,8 +601,10 @@
             labelEl.innerText = '';
             return;
         }
+        const now = new Date();
+        const thisMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-`;
         const ranked = classStudents
-            .map(s => ({ name: s.name, count: s.books ? Object.keys(s.books).length : 0, id: s.id }))
+            .map(s => ({ name: s.name, count: s.books ? Object.keys(s.books).filter(k => k.startsWith(thisMonthPrefix)).length : 0, id: s.id }))
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
@@ -610,6 +615,8 @@
         const cnVal = allClassNames[`${grade}-${classNum}`];
         const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${grade}학년 ${classNum}반`;
         labelEl.innerText = className;
+        const monthLabelEl = listEl === document.getElementById('top5List') ? document.getElementById('top5MonthLabel') : document.getElementById('top5MonthLabelWrite');
+        if (monthLabelEl) monthLabelEl.innerText = `${now.getMonth() + 1}월 기준`;
 
         if (maxCount === 0) {
             listEl.innerHTML = '<div class="top5-empty">아직 독서 기록이 없어요. 첫 번째 독서왕이 되어보세요! 📚</div>';
@@ -1400,29 +1407,6 @@
         if (calMonth > 11) { calMonth = 0; calYear++; }
         renderCalendar(currentSid);
     }
-
-
-
-    document.addEventListener('DOMContentLoaded', function() {
-        try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp({
-                    apiKey: "AIzaSyAs2K3MZXNjE0S3KaNdoS_w8o5sZW7PXe0",
-                    authDomain: "bookbuddy-1dfa8.firebaseapp.com",
-                    databaseURL: "https://bookbuddy-1dfa8-default-rtdb.firebaseio.com",
-                    projectId: "bookbuddy-1dfa8",
-                    storageBucket: "bookbuddy-1dfa8.firebasestorage.app",
-                    messagingSenderId: "108963110129",
-                    appId: "1:108963110129:web:8bb7600de8bbca89ba9d50"
-                });
-            }
-            db = firebase.database();
-            startListeners();
-        } catch(e) {
-            console.error("Firebase 초기화 실패:", e);
-            alert('Firebase 연결 실패. 인터넷 연결을 확인해주세요.');
-        }
-    });
 </script>
 </body>
 </html>
