@@ -4,30 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BookBuddy AI - 스마트 독서 기록장</title>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.1/compat/app.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.1/compat/database.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script>
     var db = null;
-    function initFirebase() {
-        try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp({
-                    apiKey: "AIzaSyAs2K3MZXNjE0S3KaNdoS_w8o5sZW7PXe0",
-                    authDomain: "bookbuddy-1dfa8.firebaseapp.com",
-                    databaseURL: "https://bookbuddy-1dfa8-default-rtdb.firebaseio.com",
-                    projectId: "bookbuddy-1dfa8",
-                    storageBucket: "bookbuddy-1dfa8.firebasestorage.app",
-                    messagingSenderId: "108963110129",
-                    appId: "1:108963110129:web:8bb7600de8bbca89ba9d50"
-                });
-            }
-            db = firebase.database();
-            return true;
-        } catch(e) {
-            console.error("Firebase 초기화 실패:", e);
-            return false;
-        }
-    }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -1421,10 +1401,23 @@
 
 
     document.addEventListener('DOMContentLoaded', function() {
-        if (initFirebase()) {
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({
+                    apiKey: "AIzaSyAs2K3MZXNjE0S3KaNdoS_w8o5sZW7PXe0",
+                    authDomain: "bookbuddy-1dfa8.firebaseapp.com",
+                    databaseURL: "https://bookbuddy-1dfa8-default-rtdb.firebaseio.com",
+                    projectId: "bookbuddy-1dfa8",
+                    storageBucket: "bookbuddy-1dfa8.firebasestorage.app",
+                    messagingSenderId: "108963110129",
+                    appId: "1:108963110129:web:8bb7600de8bbca89ba9d50"
+                });
+            }
+            db = firebase.database();
             startListeners();
-        } else {
-            alert('Firebase 연결에 실패했습니다. 네트워크를 확인해주세요.');
+        } catch(e) {
+            console.error("Firebase 초기화 실패:", e);
+            alert('Firebase 연결 실패. 인터넷 연결을 확인해주세요.');
         }
     });
 </script>
