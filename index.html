@@ -4,9 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BookBuddy AI - 스마트 독서 기록장</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.1/compat/app.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.1/compat/database.min.js"></script>
+    <script>
+    var db = (function() {
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({
+                    apiKey: "AIzaSyAs2K3MZXNjE0S3KaNdoS_w8o5sZW7PXe0",
+                    authDomain: "bookbuddy-1dfa8.firebaseapp.com",
+                    databaseURL: "https://bookbuddy-1dfa8-default-rtdb.firebaseio.com",
+                    projectId: "bookbuddy-1dfa8",
+                    storageBucket: "bookbuddy-1dfa8.firebasestorage.app",
+                    messagingSenderId: "108963110129",
+                    appId: "1:108963110129:web:8bb7600de8bbca89ba9d50"
+                });
+            }
+            return firebase.database();
+        } catch(e) {
+            console.error("Firebase 초기화 실패:", e);
+            return null;
+        }
+    })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --primary: #ff8e72;
@@ -42,7 +63,8 @@
         .grade-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
         .grade-row select { margin-bottom: 0; }
         .hidden { display: none !important; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(3px); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(3px); }
+        .modal .card { transform: none !important; }
         #myChart { background-color: rgba(255,255,255,0.3); border-radius: 15px; padding: 5px; }
         .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .title-row h3 { font-size: 18px; margin: 0; color: var(--primary-dark); }
@@ -530,44 +552,36 @@
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAs2K3MZXNjE0S3KaNdoS_w8o5sZW7PXe0",
-        authDomain: "bookbuddy-1dfa8.firebaseapp.com",
-        databaseURL: "https://bookbuddy-1dfa8-default-rtdb.firebaseio.com",
-        projectId: "bookbuddy-1dfa8",
-        storageBucket: "bookbuddy-1dfa8.firebasestorage.app",
-        messagingSenderId: "108963110129",
-        appId: "1:108963110129:web:8bb7600de8bbca89ba9d50"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
 
-    let students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, currentSid = null, myChart = null;
-    let currentTeacher = null;
-    let selectedImagesBase64 = [];
-    let editingBookId = null;
-    let classNotices = {};
+
+    var students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, currentSid = null, myChart = null;
+    var currentTeacher = null;
+    var selectedImagesBase64 = [];
+    var editingBookId = null;
+    var classNotices = {};
     // ✅ 캘린더 상태
-    let calYear = new Date().getFullYear();
-    let calMonth = new Date().getMonth(); // 0-indexed
+    var calYear = new Date().getFullYear();
+    var calMonth = new Date().getMonth(); // 0-indexed
 
-    db.ref('classNames_v2').on('value', snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); });
-    db.ref('classData_v2/students').on('value', snap => {
-        rawData = snap.val() || {};
-        students = Object.keys(rawData).map(k => ({ id: k, ...rawData[k], isPending: false }));
-        syncHeaderAndStats(); renderAll(); updateLoginSelect();
-        if(currentSid) { renderHistory(); renderChart(currentSid); updateWelcomeMsg(currentSid); renderCalendar(currentSid); }
-        // ✅ 학생 데이터 갱신 시 TOP5도 갱신
-        renderTop5FromFilter();
-        if (currentSid) renderTop5ForStudent();
-    });
-    db.ref('pendingStudents_v2').on('value', snap => { pendingData = snap.val() || {}; renderAll(); updateLoginSelect(); });
-    db.ref('teacherAccounts_v2').on('value', snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); });
-    db.ref('classNotices_v2').on('value', snap => {
-        classNotices = snap.val() || {};
-        renderNoticePreview();
-        if (currentSid) renderStudentNotice();
-    });
+    function startListeners() {
+        db.ref('classNames_v2').on('value', snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); });
+        db.ref('classData_v2/students').on('value', snap => {
+            rawData = snap.val() || {};
+            students = Object.keys(rawData).map(k => ({ id: k, ...rawData[k], isPending: false }));
+            syncHeaderAndStats(); renderAll(); updateLoginSelect();
+            if(currentSid) { renderHistory(); renderChart(currentSid); updateWelcomeMsg(currentSid); renderCalendar(currentSid); }
+            // ✅ 학생 데이터 갱신 시 TOP5도 갱신
+            renderTop5FromFilter();
+            if (currentSid) renderTop5ForStudent();
+        });
+        db.ref('pendingStudents_v2').on('value', snap => { pendingData = snap.val() || {}; renderAll(); updateLoginSelect(); });
+        db.ref('teacherAccounts_v2').on('value', snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); });
+        db.ref('classNotices_v2').on('value', snap => {
+            classNotices = snap.val() || {};
+            renderNoticePreview();
+            if (currentSid) renderStudentNotice();
+        });
+    }
 
     function getReadingBadge(bookCount) {
         if (bookCount >= 100) return '🏆';
@@ -1401,6 +1415,12 @@
         if (calMonth > 11) { calMonth = 0; calYear++; }
         renderCalendar(currentSid);
     }
+
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        startListeners();
+    });
 </script>
 </body>
 </html>
