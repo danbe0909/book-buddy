@@ -7,7 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.1/compat/app.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.1/compat/database.min.js"></script>
     <script>
-    var db = (function() {
+    var db = null;
+    function initFirebase() {
         try {
             if (!firebase.apps.length) {
                 firebase.initializeApp({
@@ -20,12 +21,13 @@
                     appId: "1:108963110129:web:8bb7600de8bbca89ba9d50"
                 });
             }
-            return firebase.database();
+            db = firebase.database();
+            return true;
         } catch(e) {
             console.error("Firebase 초기화 실패:", e);
-            return null;
+            return false;
         }
-    })();
+    }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -1419,7 +1421,11 @@
 
 
     document.addEventListener('DOMContentLoaded', function() {
-        startListeners();
+        if (initFirebase()) {
+            startListeners();
+        } else {
+            alert('Firebase 연결에 실패했습니다. 네트워크를 확인해주세요.');
+        }
     });
 </script>
 </body>
