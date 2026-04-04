@@ -169,7 +169,7 @@
 
 <div class="mode-selector">
     <button id="sModeBtn" class="mode-btn active" onclick="executeSwitch('student')">👶 학생 접속</button>
-    <button id="tModeBtn" class="mode-btn" onclick="trySwitchMode('teacher')">👩‍🏫 교사 관리 🔒</button>
+    <button id="tModeBtn" class="mode-btn" onclick="openTeacherModal()">👩‍🏫 교사 관리 🔒</button>
 </div>
 
 <header>
@@ -184,39 +184,41 @@
 
         <div id="superAdminPanel" class="hidden">
             <div class="card" style="border-color:#764ba2;">
-                <h4 style="margin:0 0 12px 0; color:#764ba2; font-size:18px;">👑 반별 교사 계정 관리</h4>
-                <p style="font-size:13px; color:#888; margin:0 0 12px 0;">각 반 담임교사의 로그인 비밀번호를 설정하고 확인합니다.</p>
-                <div class="grade-row">
-                    <select id="teacherMgmtGrade">
-                        <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
-                        <option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option>
-                    </select>
-                    <select id="teacherMgmtClass">
-                        <option value="1">1반</option><option value="2">2반</option><option value="3">3반</option>
-                        <option value="4">4반</option><option value="5">5반</option><option value="6">6반</option>
-                    </select>
+                <h4 style="margin:0 0 12px 0; color:#764ba2; font-size:18px;">⚙️ 관리자 설정</h4>
+                <p style="font-size:13px; color:#888; margin:0 0 12px 0;">관리자 비밀번호를 변경합니다. (기본값: 0000)</p>
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <input type="password" id="newSignupCodeInput" placeholder="새 관리자 비밀번호" style="margin-bottom:0;">
+                    <button class="btn-main" style="width:90px; background:#764ba2; box-shadow:0 4px 0px #4a0e7a; font-size:15px;" onclick="updateAdminPasswordFromSuper()">변경</button>
                 </div>
-                <div style="display:flex; gap:8px;">
-                    <input type="password" id="teacherMgmtPw" placeholder="해당 반 교사 비밀번호 설정" style="margin-bottom:0;">
-                    <button class="btn-main" style="width:90px; background:#764ba2; box-shadow:0 4px 0px #4a0e7a; font-size:15px;" onclick="setTeacherPassword()">저장</button>
+            </div>
+
+            <div class="card" style="border-color:#e53935;">
+                <h4 style="margin:0 0 6px 0; color:#e53935; font-size:18px;">🗑️ 학교 코드 삭제</h4>
+                <p style="font-size:13px; color:#888; margin:0 0 14px 0;">더 이상 사용하지 않는 학교 코드와 해당 코드의 <strong>모든 데이터(학생·교사·독서기록)</strong>를 완전 삭제합니다.</p>
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <input type="text" id="deleteSchoolCodeInput" placeholder="삭제할 학교 코드 입력" style="margin-bottom:0; border-color:#ffcdd2;">
+                    <button class="btn-main" style="width:90px; background:#e53935; box-shadow:0 4px 0px #b71c1c; font-size:15px; white-space:nowrap;" onclick="deleteSchoolCode()">삭제</button>
                 </div>
-                <hr style="border:0; border-top:2px solid var(--border); margin:16px 0 12px 0;">
-                <div id="teacherAccountList"><p style="color:#aaa; font-size:13px; text-align:center;">등록된 교사 계정 없음</p></div>
+                <div style="background:#fff3f3; border:1px solid #ffcdd2; border-radius:10px; padding:10px; font-size:12px; color:#c62828;">
+                    ⚠️ 삭제 후 복구 불가능합니다. 신중하게 사용하세요.
+                </div>
+                <div id="schoolCodeList" style="margin-top:14px;"></div>
             </div>
         </div>
 
         <div id="teacherPwPanel" class="hidden">
             <div class="card" style="border-color:#f5576c;">
-                <h4 style="margin:0 0 12px 0; color:#f5576c; font-size:18px;">🔑 담임교사 비밀번호 변경</h4>
-                <p style="font-size:13px; color:#888; margin:0 0 12px 0;">로그인 시 사용하는 비밀번호를 변경합니다.</p>
-                <div style="display:flex; gap:8px;">
+                <h4 style="margin:0 0 12px 0; color:#f5576c; font-size:18px;">🔑 내 계정 설정</h4>
+                <p style="font-size:13px; color:#888; margin:0 0 12px 0;">비밀번호를 변경하거나 계정을 삭제합니다.</p>
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
                     <input type="password" id="newTeacherPwInput" placeholder="새 비밀번호 입력" style="margin-bottom:0;">
                     <button class="btn-main" style="width:90px; background:#f5576c; box-shadow:0 4px 0px #c0392b; font-size:15px;" onclick="updateTeacherOwnPassword()">변경</button>
                 </div>
+                <button class="btn-del" style="width:100%; padding:12px; font-size:14px; border-radius:15px;" onclick="deleteMyTeacherAccount()">🗑️ 내 계정 삭제 (탈퇴)</button>
             </div>
         </div>
 
-        <div class="card" style="border-color:#ffd54f;">
+        <div id="teacherNoticeCard" class="card" style="border-color:#ffd54f;">
             <h4 style="margin:0 0 12px 0; color:#e65100; font-size:18px;">📢 공지사항 관리</h4>
             <p style="font-size:13px; color:#888; margin:0 0 12px 0;">학생 로그인 후 해당 반 공지사항이 표시됩니다.</p>
             <div class="notice-teacher-edit">
@@ -229,7 +231,7 @@
             <div id="noticePreview" class="notice-empty">저장된 공지사항이 없습니다.</div>
         </div>
 
-        <div class="card" style="border-color:#4cc9f0;">
+        <div id="teacherClassNameCard" class="card" style="border-color:#4cc9f0;">
             <h4 style="margin:0 0 12px 0; color:#0077b6; font-size:18px;">🏫 반별 학급 이름 관리</h4>
             <div class="grade-row">
                 <select id="editNameGrade" onchange="syncHeaderAndStats()">
@@ -247,7 +249,7 @@
             </div>
         </div>
 
-        <div class="card stat-card">
+        <div id="teacherStatCard" class="card stat-card">
             <div id="statTitle" style="text-align:center; font-size:14px; margin-bottom:10px; font-weight:bold; color:rgba(0,0,0,0.5);">선택된 학급 통계</div>
             <div style="display:flex; justify-content:space-around; text-align:center; font-weight:bold;">
                 <div><div style="opacity:0.9; font-size:13px;">등록 학생</div><div id="statTotalStudents" style="font-size:24px;">0명</div></div>
@@ -289,7 +291,7 @@
                 <h4 style="margin:0 0 12px 0; color:var(--primary-dark); font-size:16px;">➕ 학생 직접 추가</h4>
                 <input type="text" id="newName" placeholder="이름">
                 <div class="grade-row">
-                    <select id="newGrade"><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option></select>
+                    <select id="newGrade" onchange="updateAddStudentSelects()"><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option></select>
                     <select id="newClass"><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option></select>
                 </div>
                 <input type="password" id="newPw" placeholder="비밀번호">
@@ -299,7 +301,23 @@
     </div>
 
     <div id="studentView">
-        <div id="loginSection">
+        <!-- ✅ 학교 코드 입력 화면 -->
+        <div id="schoolCodeSection">
+            <div class="card" style="border-color:#ff8e72; text-align:center;">
+                <div style="font-size:48px; margin-bottom:8px;">🏫</div>
+                <h3 style="margin:0 0 6px 0; color:var(--primary-dark); font-size:20px;">학교 코드를 입력하세요</h3>
+                <p style="font-size:13px; color:#aaa; margin:0 0 18px 0;">선생님께 받은 학교 코드를 입력하면<br>우리 학교 독서 기록장으로 접속됩니다.</p>
+                <input type="text" id="schoolCodeInput" placeholder="학교 코드 입력 (예: haedong2025)" style="text-align:center; font-size:17px; letter-spacing:1px;" onkeydown="if(event.key==='Enter') enterSchoolCode()">
+                <button class="btn-main" onclick="enterSchoolCode()">입장하기 →</button>
+            </div>
+        </div>
+
+        <div id="loginSection" class="hidden">
+            <!-- ✅ 학교 코드 배너 -->
+            <div style="display:flex; align-items:center; justify-content:space-between; background:white; border:2px solid var(--border); border-radius:15px; padding:10px 16px; margin-bottom:12px;">
+                <div style="font-size:13px; color:#888;">🏫 <strong id="schoolCodeBanner" style="color:var(--primary-dark);"></strong></div>
+                <button onclick="exitSchoolCode()" style="background:none; border:1px solid #ddd; border-radius:8px; padding:4px 10px; font-size:12px; color:#888; cursor:pointer;">학교 변경</button>
+            </div>
             <div class="tab-row" style="display:flex; gap:8px; margin-bottom:15px;">
                 <button id="tabLogin" class="mode-btn active" onclick="switchStudentTab('login')">🔐 로그인</button>
                 <button id="tabSignup" class="mode-btn" onclick="switchStudentTab('signup')">✏️ 회원가입</button>
@@ -484,31 +502,55 @@
 
 <div id="adminAuthModal" class="modal hidden">
     <div class="card" style="text-align:center; min-width:300px; max-width:90vw;">
-        <h4 style="margin:0 0 16px 0; color:#4a4a4a;">👩‍🏫 교사 로그인</h4>
-        <div class="login-type-tabs">
-            <div class="login-type-tab active" id="authTabSuper" onclick="switchAuthTab('super')">👑 관리자</div>
-            <div class="login-type-tab" id="authTabTeacher" onclick="switchAuthTab('teacher')">🏫 담임교사</div>
+        <h4 style="margin:0 0 14px 0; color:#4a4a4a;">👩‍🏫 교사 메뉴</h4>
+        <div class="login-type-tabs" style="margin-bottom:16px;">
+            <div class="login-type-tab active" id="authTabLogin" onclick="switchTeacherTab('login')">🔐 로그인</div>
+            <div class="login-type-tab" id="authTabSignup" onclick="switchTeacherTab('signup')">✏️ 회원가입</div>
         </div>
-        <div id="authPanelSuper">
-            <p style="font-size:12px; color:#aaa; margin:0 0 12px 0;">전체 학급 관리 권한</p>
-            <input type="password" id="adminInput" placeholder="관리자 비밀번호">
-            <button class="btn-main" style="background:linear-gradient(135deg,#667eea,#764ba2); box-shadow:0 4px 0px #4a0e7a;" onclick="checkAdminPw()">관리자 로그인</button>
-        </div>
-        <div id="authPanelTeacher" class="hidden">
+
+        <!-- 로그인 패널 -->
+        <div id="authPanelTeacher">
             <p style="font-size:12px; color:#aaa; margin:0 0 12px 0;">담당 학급만 관리 가능</p>
-            <div class="grade-row" style="margin-bottom:0;">
-                <select id="teacherLoginGrade">
+            <input type="text" id="teacherLoginSchoolCode" placeholder="학교 코드" style="letter-spacing:1px;">
+            <input type="text" id="teacherLoginId" placeholder="아이디 (교사 이름)" style="margin-bottom:10px;">
+            <input type="password" id="teacherLoginPw" placeholder="비밀번호">
+            <button class="btn-main" style="background:linear-gradient(135deg,#f093fb,#f5576c); box-shadow:0 4px 0px #c0392b;" onclick="checkTeacherPw()">로그인</button>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #eee;">
+                <button onclick="switchAuthTab('super')" style="background:none; border:none; color:#bbb; font-size:12px; cursor:pointer; text-decoration:underline;">👑 관리자로 접속</button>
+            </div>
+        </div>
+
+        <!-- 회원가입 패널 -->
+        <div id="authPanelSignup" class="hidden">
+            <p style="font-size:12px; color:#aaa; margin:0 0 12px 0;">이름, 학교 코드, 담당 학급, 비밀번호를 입력하세요</p>
+            <input type="text" id="signupTeacherName" placeholder="교사 이름 (아이디로 사용)">
+            <input type="text" id="signupSchoolCode" placeholder="학교 코드 (영문+숫자, 예: haedong2025)" style="letter-spacing:1px;">
+            <p style="font-size:11px; color:#aaa; margin:-10px 0 10px 2px;">⚠️ 학교 코드는 나중에 변경 불가! 학생들도 이 코드로 접속합니다.</p>
+            <div class="grade-row">
+                <select id="signupTeacherGrade">
                     <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
                     <option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option>
                 </select>
-                <select id="teacherLoginClass">
+                <select id="signupTeacherClass">
                     <option value="1">1반</option><option value="2">2반</option><option value="3">3반</option>
                     <option value="4">4반</option><option value="5">5반</option><option value="6">6반</option>
                 </select>
             </div>
-            <input type="password" id="teacherLoginPw" placeholder="담임교사 비밀번호" style="margin-top:14px;">
-            <button class="btn-main" style="background:linear-gradient(135deg,#f093fb,#f5576c); box-shadow:0 4px 0px #c0392b;" onclick="checkTeacherPw()">담임 로그인</button>
+            <input type="password" id="signupTeacherPw" placeholder="비밀번호">
+            <input type="password" id="signupTeacherPwConfirm" placeholder="비밀번호 확인">
+            <button class="btn-main" style="background:linear-gradient(135deg,#43e97b,#38f9d7); box-shadow:0 4px 0px #00b894; color:#1a5e3a;" onclick="signupTeacher()">가입하기</button>
         </div>
+
+        <!-- 관리자 패널 -->
+        <div id="authPanelSuper" class="hidden">
+            <p style="font-size:12px; color:#9c27b0; font-weight:bold; margin:0 0 12px 0;">👑 관리자 전용 — 전체 학교 코드 관리</p>
+            <input type="password" id="adminInput" placeholder="관리자 비밀번호 (기본값: 0000)">
+            <button class="btn-main" style="background:linear-gradient(135deg,#667eea,#764ba2); box-shadow:0 4px 0px #4a0e7a;" onclick="checkAdminPw()">관리자 로그인</button>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #eee;">
+                <button onclick="switchTeacherTab('login')" style="background:none; border:none; color:#bbb; font-size:12px; cursor:pointer; text-decoration:underline;">← 교사 로그인으로 돌아가기</button>
+            </div>
+        </div>
+
         <button onclick="closeAdminModal()" style="border:none; background:none; margin-top:15px; color:#888; font-size:14px; cursor:pointer;">취소</button>
     </div>
 </div>
@@ -556,23 +598,54 @@
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth(); // 0-indexed
 
-    db.ref('personal/classNames_v2').on('value', snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); });
-    db.ref('personal/classData_v2/students').on('value', snap => {
-        rawData = snap.val() || {};
-        students = Object.keys(rawData).map(k => ({ id: k, ...rawData[k], isPending: false }));
-        syncHeaderAndStats(); renderAll(); updateLoginSelect();
-        if(currentSid) { renderHistory(); renderChart(currentSid); updateWelcomeMsg(currentSid); renderCalendar(currentSid); }
-        // ✅ 학생 데이터 갱신 시 TOP7도 갱신
-        renderTop7FromFilter();
-        if (currentSid) renderTop7ForStudent();
-    });
-    db.ref('personal/pendingStudents_v2').on('value', snap => { pendingData = snap.val() || {}; renderAll(); updateLoginSelect(); });
-    db.ref('personal/teacherAccounts_v2').on('value', snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); });
-    db.ref('personal/classNotices_v2').on('value', snap => {
-        classNotices = snap.val() || {};
-        renderNoticePreview();
-        if (currentSid) renderStudentNotice();
-    });
+    // ✅ 학교 코드 (다중 학교 지원)
+    let currentSchoolCode = null;
+    let _dbListeners = []; // 등록된 리스너 추적 (학교 전환 시 해제용)
+
+    function schoolRef(path) {
+        if (!currentSchoolCode) { console.warn('schoolRef called without currentSchoolCode'); return db.ref('__null__'); }
+        return db.ref(`schools/${currentSchoolCode}/${path}`);
+    }
+
+    function detachAllListeners() {
+        _dbListeners.forEach(({ ref, cb }) => ref.off('value', cb));
+        _dbListeners = [];
+    }
+
+    function attachSchoolListeners() {
+        detachAllListeners();
+
+        const cnCb = snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); };
+        const cnRef = schoolRef('classNames_v2');
+        cnRef.on('value', cnCb); _dbListeners.push({ ref: cnRef, cb: cnCb });
+
+        const stCb = snap => {
+            rawData = snap.val() || {};
+            students = Object.keys(rawData).map(k => ({ id: k, ...rawData[k], isPending: false }));
+            syncHeaderAndStats(); renderAll(); updateLoginSelect();
+            if(currentSid) { renderHistory(); renderChart(currentSid); updateWelcomeMsg(currentSid); renderCalendar(currentSid); }
+            renderTop7FromFilter();
+            if (currentSid) renderTop7ForStudent();
+        };
+        const stRef = schoolRef('classData_v2/students');
+        stRef.on('value', stCb); _dbListeners.push({ ref: stRef, cb: stCb });
+
+        const peCb = snap => { pendingData = snap.val() || {}; renderAll(); updateLoginSelect(); };
+        const peRef = schoolRef('pendingStudents_v2');
+        peRef.on('value', peCb); _dbListeners.push({ ref: peRef, cb: peCb });
+
+        const taCb = snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); };
+        const taRef = schoolRef('teacherAccounts_v2');
+        taRef.on('value', taCb); _dbListeners.push({ ref: taRef, cb: taCb });
+
+        const ncCb = snap => {
+            classNotices = snap.val() || {};
+            renderNoticePreview();
+            if (currentSid) renderStudentNotice();
+        };
+        const ncRef = schoolRef('classNotices_v2');
+        ncRef.on('value', ncCb); _dbListeners.push({ ref: ncRef, cb: ncCb });
+    }
 
     function getReadingBadge(bookCount) {
         if (bookCount >= 100) return '🏆';
@@ -721,12 +794,28 @@
     }
 
     function setTeacherPassword() {
+        const name = document.getElementById('teacherMgmtName').value.trim();
         const g = document.getElementById('teacherMgmtGrade').value;
         const c = document.getElementById('teacherMgmtClass').value;
         const pw = document.getElementById('teacherMgmtPw').value;
+        if (!name) return alert("교사 이름(아이디)을 입력하세요.");
         if (!pw) return alert("비밀번호를 입력하세요.");
-        db.ref(`personal/teacherAccounts_v2/${g}-${c}`).set(pw).then(() => {
-            alert(`${g}학년 ${c}반 교사 비밀번호가 설정되었습니다.`);
+
+        // 같은 학년/반 중복 체크
+        const duplicate = Object.entries(teacherAccounts).find(([k, acc]) => {
+            if (typeof acc === 'object') return String(acc.grade) === String(g) && String(acc.classNum) === String(c);
+            return false;
+        });
+        if (duplicate) {
+            const [dupKey, dupAcc] = duplicate;
+            if (!confirm(`이미 ${g}학년 ${c}반에 "${dupAcc.name}" 선생님 계정이 있습니다.\n덮어쓰시겠습니까?`)) return;
+            schoolRef(`teacherAccounts_v2/${dupKey}`).remove();
+        }
+
+        const key = name;
+        schoolRef(`teacherAccounts_v2/${key}`).set({ name, grade: g, classNum: c, pw }).then(() => {
+            alert(`${name} 선생님 계정이 등록되었습니다. (${g}학년 ${c}반)`);
+            document.getElementById('teacherMgmtName').value = '';
             document.getElementById('teacherMgmtPw').value = '';
         });
     }
@@ -735,8 +824,17 @@
         const newPw = document.getElementById('newTeacherPwInput').value;
         if (!newPw) return alert("새 비밀번호를 입력하세요.");
         if (!currentTeacher || currentTeacher === 'super') return;
+        // currentTeacher는 "grade-classNum", teacherAccounts에서 해당 키 찾기
+        const matchKey = Object.keys(teacherAccounts).find(k => {
+            const acc = teacherAccounts[k];
+            if (typeof acc === 'object') return `${acc.grade}-${acc.classNum}` === currentTeacher;
+            return k === currentTeacher;
+        });
+        if (!matchKey) return alert("계정을 찾을 수 없습니다.");
         if (confirm("비밀번호를 변경하시겠습니까?")) {
-            db.ref(`personal/teacherAccounts_v2/${currentTeacher}`).set(newPw).then(() => {
+            const acc = teacherAccounts[matchKey];
+            const updated = typeof acc === 'object' ? { ...acc, pw: newPw } : newPw;
+            schoolRef(`teacherAccounts_v2/${matchKey}`).set(updated).then(() => {
                 alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
                 teacherLogout();
             });
@@ -744,9 +842,10 @@
     }
 
     function deleteTeacherAccount(key) {
-        const [g, c] = key.split('-');
-        if (confirm(`${g}학년 ${c}반 교사 계정을 삭제하시겠습니까?`)) {
-            db.ref(`personal/teacherAccounts_v2/${key}`).remove();
+        const acc = teacherAccounts[key];
+        const label = (acc && typeof acc === 'object') ? `"${acc.name}" 선생님 (${acc.grade}학년 ${acc.classNum}반)` : key;
+        if (confirm(`${label} 계정을 삭제하시겠습니까?`)) {
+            schoolRef(`teacherAccounts_v2/${key}`).remove();
         }
     }
 
@@ -759,14 +858,29 @@
             return;
         }
         el.innerHTML = keys.sort().map(k => {
-            const [g, c] = k.split('-');
+            const acc = teacherAccounts[k];
+            // 구버전(string) 호환
+            if (typeof acc === 'string') {
+                const [g, c] = k.split('-');
+                return `<div class="teacher-account-item">
+                    <div>
+                        <div class="teacher-account-info">🏫 ${g}학년 ${c}반 담임</div>
+                        <div class="teacher-account-sub">${allClassNames[k] || `${g}학년 ${c}반`}</div>
+                    </div>
+                    <div style="display:flex; gap:4px;">
+                        <button class="btn-del" onclick="deleteTeacherAccount('${k}')">삭제</button>
+                    </div>
+                </div>`;
+            }
+            const { name, grade, classNum } = acc;
+            const cnKey = `${grade}-${classNum}`;
+            const className = allClassNames[cnKey] || `${grade}학년 ${classNum}반`;
             return `<div class="teacher-account-item">
                 <div>
-                    <div class="teacher-account-info">🏫 ${g}학년 ${c}반 담임</div>
-                    <div class="teacher-account-sub">${allClassNames[k] || `${g}학년 ${c}반`}</div>
+                    <div class="teacher-account-info">👤 ${name} 선생님</div>
+                    <div class="teacher-account-sub">🏫 ${className}</div>
                 </div>
                 <div style="display:flex; gap:4px;">
-                    <button class="btn-pw" onclick="showTeacherPwView('${k}')">🔑 비번</button>
                     <button class="btn-del" onclick="deleteTeacherAccount('${k}')">삭제</button>
                 </div>
             </div>`;
@@ -783,30 +897,115 @@
         document.getElementById('pwViewModal').classList.remove('hidden');
     }
 
-    function switchAuthTab(tab) {
-        document.getElementById('authPanelSuper').classList.toggle('hidden', tab !== 'super');
-        document.getElementById('authPanelTeacher').classList.toggle('hidden', tab !== 'teacher');
-        document.getElementById('authTabSuper').classList.toggle('active', tab === 'super');
-        document.getElementById('authTabTeacher').classList.toggle('active', tab === 'teacher');
+    function deleteMyTeacherAccount() {
+        if (!currentTeacher || currentTeacher === 'super') return;
+        const matchKey = Object.keys(teacherAccounts).find(k => {
+            const acc = teacherAccounts[k];
+            return typeof acc === 'object' && `${acc.grade}-${acc.classNum}` === currentTeacher;
+        });
+        if (!matchKey) return alert("계정을 찾을 수 없습니다.");
+        if (!confirm(`"${matchKey}" 선생님 계정을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+        schoolRef(`teacherAccounts_v2/${matchKey}`).remove().then(() => {
+            alert("계정이 삭제되었습니다.");
+            teacherLogout();
+        });
     }
 
+    function openTeacherModal() {
+        switchTeacherTab('login');
+        document.getElementById('adminAuthModal').classList.remove('hidden');
+    }
+
+    function switchTeacherTab(tab) {
+        document.getElementById('authPanelTeacher').classList.toggle('hidden', tab !== 'login');
+        document.getElementById('authPanelSignup').classList.toggle('hidden', tab !== 'signup');
+        document.getElementById('authPanelSuper').classList.add('hidden');
+        document.getElementById('authTabLogin').classList.toggle('active', tab === 'login');
+        document.getElementById('authTabSignup').classList.toggle('active', tab === 'signup');
+    }
+
+    function switchAuthTab(tab) {
+        // 관리자 패널 전환
+        const isSuper = tab === 'super';
+        document.getElementById('authPanelSuper').classList.toggle('hidden', !isSuper);
+        document.getElementById('authPanelTeacher').classList.toggle('hidden', isSuper);
+        document.getElementById('authPanelSignup').classList.add('hidden');
+        document.getElementById('authTabLogin').classList.toggle('active', !isSuper);
+        document.getElementById('authTabSignup').classList.remove('active');
+    }
+
+    function signupTeacher() {
+        const name = document.getElementById('signupTeacherName').value.trim();
+        const schoolCode = document.getElementById('signupSchoolCode').value.trim().replace(/\s/g,'');
+        const g = document.getElementById('signupTeacherGrade').value;
+        const c = document.getElementById('signupTeacherClass').value;
+        const pw = document.getElementById('signupTeacherPw').value;
+        const pwConfirm = document.getElementById('signupTeacherPwConfirm').value;
+
+        if (!name) return alert("이름을 입력하세요.");
+        if (!schoolCode) return alert("학교 코드를 입력하세요.");
+        if (!/^[a-zA-Z0-9_]+$/.test(schoolCode)) return alert("학교 코드는 영문, 숫자, 밑줄(_)만 사용 가능합니다.");
+        if (!pw) return alert("비밀번호를 입력하세요.");
+        if (pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
+
+        db.ref(`schools/${schoolCode}/teacherAccounts_v2`).once('value', snap => {
+            const accounts = snap.val() || {};
+            const duplicate = Object.values(accounts).find(acc =>
+                typeof acc === 'object' && String(acc.grade) === String(g) && String(acc.classNum) === String(c)
+            );
+            if (duplicate) return alert(`이미 [${schoolCode}] 학교의 ${g}학년 ${c}반 교사 계정이 있습니다.`);
+            if (accounts[name]) return alert("이미 사용 중인 이름(아이디)입니다.");
+
+            db.ref(`schools/${schoolCode}/teacherAccounts_v2/${name}`).set({ name, grade: g, classNum: c, pw }).then(() => {
+                alert(`✅ 계정이 생성되었습니다!\n학교 코드: ${schoolCode}\n아이디: ${name}\n\n학생들에게 학교 코드 [${schoolCode}] 를 알려주세요!`);
+                closeAdminModal();
+            });
+        });
+    }
+
+    function updateSignupCode() {
+        const code = document.getElementById('newSignupCodeInput').value.trim();
+        if (!code) return alert("새 가입 코드를 입력하세요.");
+        schoolRef('teacherSignupCode').set(code).then(() => {
+            alert(`가입 코드가 "${code}"로 변경되었습니다.`);
+            document.getElementById('newSignupCodeInput').value = '';
+        });
+    }
+
+
     function checkAdminPw() {
-        db.ref('personal/classData_v2/adminPassword').once('value', snap => {
-            if (document.getElementById('adminInput').value === (snap.val() || '0000')) {
-                currentTeacher = 'super'; executeSwitch('teacher'); closeAdminModal(); applyTeacherPermissions();
+        const pw = document.getElementById('adminInput').value;
+        if (!pw) return alert("관리자 비밀번호를 입력하세요.");
+        // 관리자 비밀번호는 schools 루트가 아닌 전역 경로에 저장
+        db.ref('adminPassword').once('value', snap => {
+            if (pw === (snap.val() || '0000')) {
+                currentSchoolCode = null; // 관리자는 학교코드 불필요
+                currentTeacher = 'super';
+                executeSwitch('teacher'); closeAdminModal(); applyTeacherPermissions();
             } else alert("관리자 인증 실패");
         });
     }
 
     function checkTeacherPw() {
-        const g = document.getElementById('teacherLoginGrade').value, c = document.getElementById('teacherLoginClass').value, pw = document.getElementById('teacherLoginPw').value, key = `${g}-${c}`;
-        db.ref(`personal/teacherAccounts_v2/${key}`).once('value', snap => {
-            const storedPw = snap.val();
-            if (!storedPw) return alert("해당 반 교사 계정이 없습니다.");
-            if (pw !== storedPw) return alert("비밀번호가 틀렸습니다.");
-            currentTeacher = key;
-            document.getElementById('editNameGrade').value = g; document.getElementById('editNameClass').value = c;
-            document.getElementById('newGrade').value = g; document.getElementById('newClass').value = c;
+        const schoolCode = document.getElementById('teacherLoginSchoolCode').value.trim().replace(/\s/g,'');
+        const id = document.getElementById('teacherLoginId').value.trim();
+        const pw = document.getElementById('teacherLoginPw').value;
+        if (!schoolCode) return alert("학교 코드를 입력하세요.");
+        if (!id) return alert("아이디(이름)를 입력하세요.");
+        if (!pw) return alert("비밀번호를 입력하세요.");
+        db.ref(`schools/${schoolCode}/teacherAccounts_v2/${id}`).once('value', snap => {
+            const acc = snap.val();
+            if (!acc) return alert("해당 교사 계정이 없습니다.\n학교 코드와 아이디를 확인하세요.");
+            if (pw !== acc.pw) return alert("비밀번호가 틀렸습니다.");
+            // 학교 코드 확정 후 리스너 연결
+            currentSchoolCode = schoolCode;
+            attachSchoolListeners();
+            const g = acc.grade, c = acc.classNum;
+            currentTeacher = `${g}-${c}`;
+            document.getElementById('editNameGrade').value = g;
+            document.getElementById('editNameClass').value = c;
+            document.getElementById('newGrade').value = g;
+            document.getElementById('newClass').value = c;
             executeSwitch('teacher'); closeAdminModal(); applyTeacherPermissions();
         });
     }
@@ -816,17 +1015,157 @@
         document.getElementById('superAdminPanel').classList.toggle('hidden', !isSuper);
         document.getElementById('teacherPwPanel').classList.toggle('hidden', isSuper);
         document.getElementById('adminPwSection').classList.toggle('hidden', !isSuper);
+
+        // 관리자는 학생/공지/학급/통계 패널 숨김
+        ['teacherNoticeCard', 'teacherClassNameCard', 'teacherStatCard', 'panelStudents', 'teacherPwPanel'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden', isSuper);
+        });
+
         document.getElementById('editNameGrade').disabled = !isSuper;
         document.getElementById('editNameClass').disabled = !isSuper;
+
         const badge = document.getElementById('headerTeacherBadge');
-        if (isSuper) badge.innerHTML = '<span class="admin-badge">👑 관리자 모드</span>';
-        else {
+        if (isSuper) {
+            badge.innerHTML = `<span class="admin-badge">👑 관리자 모드 · ${currentSchoolCode}</span>`;
+        } else {
             const [g, c] = currentTeacher.split('-');
             const cnVal = allClassNames[currentTeacher];
-            const name = (cnVal && typeof cnVal === 'string') ? cnVal : `${g}학년 ${c}반`;
-            badge.innerHTML = `<span class="teacher-badge">🏫 ${name} 담임 모드</span>`;
+            const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${g}학년 ${c}반`;
+            const matchKey = Object.keys(teacherAccounts).find(k => {
+                const acc = teacherAccounts[k];
+                return typeof acc === 'object' && `${acc.grade}-${acc.classNum}` === currentTeacher;
+            });
+            const teacherName = matchKey ? teacherAccounts[matchKey].name : '';
+            badge.innerHTML = `<span class="teacher-badge">🏫 ${teacherName ? teacherName + ' 선생님 · ' : ''}${className}</span><br><span style="font-size:11px;opacity:0.8;">${currentSchoolCode}</span>`;
         }
         syncHeaderAndStats(); renderAll(); renderTeacherAccountList(); renderNoticePreview();
+        if (isSuper) loadSchoolCodeList();
+        updateAddStudentSelects();
+    }
+
+    // ✅ 담임 교사의 담당 반 외 학년/반 비활성화
+    function updateAddStudentSelects() {
+        const gradeEl = document.getElementById('newGrade');
+        const classEl = document.getElementById('newClass');
+        if (!gradeEl || !classEl) return;
+
+        const isSuper = currentTeacher === 'super';
+
+        if (isSuper || !currentTeacher) {
+            // 관리자: 모든 옵션 활성화
+            [...gradeEl.options].forEach(o => o.disabled = false);
+            [...classEl.options].forEach(o => o.disabled = false);
+            gradeEl.style.opacity = '1';
+            classEl.style.opacity = '1';
+            return;
+        }
+
+        const [myG, myC] = currentTeacher.split('-');
+
+        // 학년: 자기 학년만 선택 가능 → 나머지 disabled + 자기 학년으로 고정
+        [...gradeEl.options].forEach(o => {
+            o.disabled = o.value !== myG;
+        });
+        gradeEl.value = myG;
+        gradeEl.style.opacity = '0.7';
+
+        // 반: 해당 학년에서 자기 반만 선택 가능
+        [...classEl.options].forEach(o => {
+            o.disabled = o.value !== myC;
+        });
+        classEl.value = myC;
+        classEl.style.opacity = '0.7';
+    }
+
+    function loadSchoolCodeList() {
+        const el = document.getElementById('schoolCodeList');
+        if (!el) return;
+        el.innerHTML = '<p style="font-size:13px; color:#aaa; text-align:center;">목록 불러오는 중...</p>';
+        db.ref('schools').once('value', snap => {
+            const schools = snap.val();
+            if (!schools) { el.innerHTML = '<p style="font-size:13px; color:#aaa; text-align:center;">등록된 학교 코드 없음</p>'; return; }
+            const codes = Object.keys(schools).sort();
+            el.innerHTML = '<p style="font-size:12px; font-weight:bold; color:#888; margin:0 0 8px 0;">📋 등록된 학교 코드 목록</p>' +
+                codes.map(code => {
+                    const school = schools[code];
+                    const teachers = school.teacherAccounts_v2 || {};
+                    const teacherCount = Object.keys(teachers).length;
+                    const studentCount = school.classData_v2?.students ? Object.keys(school.classData_v2.students).length : 0;
+
+                    // 교사 목록 HTML
+                    const teacherListHtml = teacherCount === 0
+                        ? '<p style="font-size:12px;color:#bbb;text-align:center;margin:8px 0;">등록된 교사 없음</p>'
+                        : Object.entries(teachers).map(([key, acc]) => {
+                            const name = typeof acc === 'object' ? acc.name : key;
+                            const grade = typeof acc === 'object' ? acc.grade : '?';
+                            const classNum = typeof acc === 'object' ? acc.classNum : '?';
+                            const safeCode = code.replace(/'/g, "\\'");
+                            const safeName = name.replace(/'/g, "\\'");
+                            return `<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:white; border:1.5px solid #f0e6ff; border-radius:10px; margin-bottom:6px;">
+                                <div>
+                                    <div style="font-size:13px; font-weight:bold; color:#4a4a4a;">👤 ${name} 선생님</div>
+                                    <div style="font-size:11px; color:#aaa; margin-top:2px;">${grade}학년 ${classNum}반</div>
+                                </div>
+                                <button onclick="promptResetTeacherPw('${safeCode}','${safeName}')"
+                                    style="background:#f3e5f5; color:#7b1fa2; border:1.5px solid #ce93d8; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer; white-space:nowrap;">
+                                    🔑 비번 재설정
+                                </button>
+                            </div>`;
+                        }).join('');
+
+                    const panelId = `teacherPanel_${code.replace(/[^a-zA-Z0-9]/g,'_')}`;
+                    return `<div style="border:2px solid #eee; border-radius:14px; margin-bottom:8px; overflow:hidden; background:#fafafa;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;">
+                            <div style="cursor:pointer; flex:1;" onclick="toggleTeacherPanel('${panelId}')">
+                                <div style="font-weight:bold; font-size:14px; color:#333;">🏫 ${code}</div>
+                                <div style="font-size:11px; color:#aaa; margin-top:2px;">교사 ${teacherCount}명 · 학생 ${studentCount}명 &nbsp;<span style="color:#9c27b0;">▼ 클릭하여 교사 목록 보기</span></div>
+                            </div>
+                            <button class="btn-del" onclick="deleteSchoolCodeByKey('${code}')">삭제</button>
+                        </div>
+                        <div id="${panelId}" style="display:none; padding:4px 12px 12px 12px; border-top:1.5px solid #f0e6ff; background:#fdf6ff;">
+                            ${teacherListHtml}
+                        </div>
+                    </div>`;
+                }).join('');
+        });
+    }
+
+    function toggleTeacherPanel(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function promptResetTeacherPw(schoolCode, teacherName) {
+        const newPw = prompt(`[${schoolCode}] ${teacherName} 선생님의 새 임시 비밀번호를 입력하세요:`);
+        if (newPw === null) return; // 취소
+        if (!newPw.trim()) return alert("비밀번호를 입력하세요.");
+        db.ref(`schools/${schoolCode}/teacherAccounts_v2/${teacherName}/pw`).set(newPw.trim()).then(() => {
+            alert(`✅ ${teacherName} 선생님 비밀번호가 재설정되었습니다.\n임시 비밀번호: ${newPw.trim()}\n\n선생님께 전달 후 로그인해서 직접 변경하도록 안내해주세요.`);
+        }).catch(() => alert("재설정 실패. 다시 시도해주세요."));
+    }
+
+    function deleteSchoolCode() {
+        const code = document.getElementById('deleteSchoolCodeInput').value.trim().replace(/\s/g,'');
+        if (!code) return alert("삭제할 학교 코드를 입력하세요.");
+        deleteSchoolCodeByKey(code);
+        document.getElementById('deleteSchoolCodeInput').value = '';
+    }
+
+    function deleteSchoolCodeByKey(code) {
+        if (code === currentSchoolCode) return alert("현재 로그인 중인 학교 코드는 삭제할 수 없습니다.\n먼저 다른 학교 코드로 접속하세요.");
+        db.ref(`schools/${code}`).once('value', snap => {
+            if (!snap.exists()) return alert(`"${code}" 학교 코드가 존재하지 않습니다.`);
+            const school = snap.val();
+            const teacherCount = school.teacherAccounts_v2 ? Object.keys(school.teacherAccounts_v2).length : 0;
+            const studentCount = school.classData_v2?.students ? Object.keys(school.classData_v2.students).length : 0;
+            if (!confirm(`⚠️ 학교 코드 "${code}" 를 삭제하시겠습니까?\n\n교사 ${teacherCount}명, 학생 ${studentCount}명의 모든 데이터가 영구 삭제됩니다.\n\n이 작업은 되돌릴 수 없습니다.`)) return;
+            db.ref(`schools/${code}`).remove().then(() => {
+                alert(`"${code}" 학교 코드가 삭제되었습니다.`);
+                loadSchoolCodeList();
+            });
+        });
     }
 
     function syncHeaderAndStats() {
@@ -885,6 +1224,7 @@
 
     function showBookView(sid) {
         const s = rawData[sid]; if (!s) return;
+        if (currentTeacher && currentTeacher !== 'super' && !_isMyStudent(s.grade, s.classNum)) return alert("다른 반 학생의 정보는 볼 수 없습니다.");
         document.getElementById('bookViewTitle').innerText = `📚 ${s.name} 독서록`;
         const books = s.books ? Object.entries(s.books) : [];
         const el = document.getElementById('bookViewContent');
@@ -944,6 +1284,7 @@
 
     function showPwView(sid) {
         const s = rawData[sid]; if (!s) return;
+        if (currentTeacher && currentTeacher !== 'super' && !_isMyStudent(s.grade, s.classNum)) return alert("다른 반 학생의 정보는 볼 수 없습니다.");
         document.getElementById('pwViewTitle').innerText = `🔑 ${s.name} 비밀번호`;
         document.getElementById('pwViewContent').innerText = s.pw || '(없음)';
         document.getElementById('pwViewSub').innerText = "교사만 확인 가능한 정보입니다";
@@ -951,9 +1292,27 @@
     }
     function closePwViewModal() { document.getElementById('pwViewModal').classList.add('hidden'); }
 
-    function approveStudent(key) { const p = pendingData[key]; db.ref('personal/classData_v2/students').push({ name: p.name, grade: p.grade, classNum: p.classNum, pw: p.pw, books: {} }).then(() => db.ref(`personal/pendingStudents_v2/${key}`).remove()); }
-    function rejectStudent(key) { if(confirm("신청을 거절하시겠습니까?")) db.ref(`personal/pendingStudents_v2/${key}`).remove(); }
-    function deleteStudent(id) { if(confirm("정말로 삭제하시겠습니까?")) db.ref(`personal/classData_v2/students/${id}`).remove(); }
+    function _isMyStudent(grade, classNum) {
+        if (!currentTeacher || currentTeacher === 'super') return false;
+        const [g, c] = currentTeacher.split('-');
+        return String(grade) === String(g) && String(classNum) === String(c);
+    }
+
+    function approveStudent(key) {
+        const p = pendingData[key];
+        if (!_isMyStudent(p.grade, p.classNum)) return alert("다른 반 학생은 승인할 수 없습니다.");
+        schoolRef('classData_v2/students').push({ name: p.name, grade: p.grade, classNum: p.classNum, pw: p.pw, books: {} }).then(() => schoolRef(`pendingStudents_v2/${key}`).remove());
+    }
+    function rejectStudent(key) {
+        const p = pendingData[key];
+        if (!_isMyStudent(p.grade, p.classNum)) return alert("다른 반 학생은 거절할 수 없습니다.");
+        if(confirm("신청을 거절하시겠습니까?")) schoolRef(`pendingStudents_v2/${key}`).remove();
+    }
+    function deleteStudent(id) {
+        const s = rawData[id];
+        if (s && !_isMyStudent(s.grade, s.classNum)) return alert("다른 반 학생은 삭제할 수 없습니다.");
+        if(confirm("정말로 삭제하시겠습니까?")) schoolRef(`classData_v2/students/${id}`).remove();
+    }
 
     function loadClassSpecificInfo() {
         syncHeaderAndStats();
@@ -1013,7 +1372,7 @@
         if (!currentPwInput || !newPwInput) return alert("비밀번호를 모두 입력해주세요.");
         if (rawData[currentSid].pw !== currentPwInput) return alert("현재 비밀번호가 일치하지 않습니다.");
         if (confirm("비밀번호를 변경하시겠습니까?")) {
-            db.ref(`personal/classData_v2/students/${currentSid}/pw`).set(newPwInput).then(() => {
+            schoolRef(`classData_v2/students/${currentSid}/pw`).set(newPwInput).then(() => {
                 alert("비밀번호가 성공적으로 변경되었습니다.");
                 document.getElementById('changeCurrentPw').value = ""; document.getElementById('changeNewPw').value = "";
             });
@@ -1030,15 +1389,66 @@
     }
     function trySwitchMode(mode) { if(mode === 'teacher') document.getElementById('adminAuthModal').classList.remove('hidden'); }
     function closeAdminModal() { document.getElementById('adminAuthModal').classList.add('hidden'); }
-    function teacherLogout() { executeSwitch('student'); }
+    function teacherLogout() {
+        // 교사 로그아웃 시 학교 코드 유지 → 학생 화면 바로 보여줌
+        executeSwitch('student');
+        // 학교 코드가 있으면 loginSection 바로 표시
+        if (currentSchoolCode) {
+            document.getElementById('schoolCodeSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+        }
+    }
+
+    // ✅ 학교 코드 입장/퇴장
+    function enterSchoolCode() {
+        const code = document.getElementById('schoolCodeInput').value.trim().replace(/\s/g,'');
+        if (!code) return alert("학교 코드를 입력하세요.");
+        // 해당 코드에 teacherAccounts가 존재하는지 간단 확인
+        db.ref(`schools/${code}/teacherAccounts_v2`).once('value', snap => {
+            if (!snap.exists()) {
+                if (!confirm(`"${code}" 학교 코드가 처음 사용됩니다.\n이 코드로 입장하시겠습니까?`)) return;
+            }
+            currentSchoolCode = code;
+            attachSchoolListeners();
+            document.getElementById('schoolCodeSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('schoolCodeBanner').innerText = `학교 코드: ${code}`;
+            document.getElementById('headerClassName').innerText = '학년/반을 선택해주세요';
+        });
+    }
+
+    function exitSchoolCode() {
+        if (!confirm("학교 코드 화면으로 돌아가시겠습니까?\n현재 로그인은 해제됩니다.")) return;
+        currentSid = null;
+        currentSchoolCode = null;
+        detachAllListeners();
+        students = []; rawData = {}; pendingData = {}; allClassNames = {}; teacherAccounts = {}; classNotices = {};
+        document.getElementById('schoolCodeSection').classList.remove('hidden');
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('writeSection').classList.add('hidden');
+        document.getElementById('schoolCodeInput').value = '';
+        document.getElementById('headerClassName').innerText = '학년/반을 선택해주세요';
+    }
 
     function db_addStudent() {
         let g, c;
-        if (currentTeacher && currentTeacher !== 'super') [g, c] = currentTeacher.split('-');
-        else { g = document.getElementById('newGrade').value; c = document.getElementById('newClass').value; }
+        if (currentTeacher && currentTeacher !== 'super') {
+            [g, c] = currentTeacher.split('-');
+        } else {
+            g = document.getElementById('newGrade').value;
+            c = document.getElementById('newClass').value;
+        }
+        // 담임교사는 자기 반에만 추가 가능
+        if (currentTeacher && currentTeacher !== 'super' && !_isMyStudent(g, c)) {
+            return alert("자신의 반 학생만 추가할 수 있습니다.");
+        }
         const n = document.getElementById('newName').value.trim(), p = document.getElementById('newPw').value;
         if (!n || !p) return alert("정보를 모두 입력하세요.");
-        db.ref('personal/classData_v2/students').push({ name: n, grade: g, classNum: c, pw: p, books: {} }).then(() => { alert("등록되었습니다."); document.getElementById('newName').value = ""; document.getElementById('newPw').value = ""; });
+        schoolRef('classData_v2/students').push({ name: n, grade: g, classNum: c, pw: p, books: {} }).then(() => {
+            alert("등록되었습니다.");
+            document.getElementById('newName').value = "";
+            document.getElementById('newPw').value = "";
+        });
     }
 
     function updateSpecificClassName() {
@@ -1046,7 +1456,7 @@
         const c = document.getElementById('editNameClass').value;
         const name = document.getElementById('targetClassNameInput').value.trim();
         if (!name) return alert("반 이름을 입력하세요.");
-        db.ref(`personal/classNames_v2/${g}-${c}`).set(name).then(() => {
+        schoolRef(`classNames_v2/${g}-${c}`).set(name).then(() => {
             alert(`${g}학년 ${c}반 이름이 저장되었습니다.`);
             document.getElementById('targetClassNameInput').value = '';
             syncHeaderAndStats();
@@ -1120,13 +1530,13 @@
             // ✅ 수정 시: 원래 날짜(date) 유지
             const origDate = rawData[currentSid].books[editingBookId].date;
             const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: origDate };
-            db.ref(`personal/classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
+            schoolRef(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
                 .then(() => { alert("수정되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         } else {
             const _now = new Date();
             const _localDate = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}T${String(_now.getHours()).padStart(2,'0')}:${String(_now.getMinutes()).padStart(2,'0')}:${String(_now.getSeconds()).padStart(2,'0')}`;
             const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: _localDate };
-            db.ref(`personal/classData_v2/students/${currentSid}/books`).push(bookData)
+            schoolRef(`classData_v2/students/${currentSid}/books`).push(bookData)
                 .then(() => { alert("저장되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         }
     }
@@ -1165,7 +1575,7 @@
 
     function deleteBook(bid) {
         if(confirm("이 독서 기록을 정말 삭제할까요?")) {
-            db.ref(`personal/classData_v2/students/${currentSid}/books/${bid}`).remove().then(() => {
+            schoolRef(`classData_v2/students/${currentSid}/books/${bid}`).remove().then(() => {
                 alert("삭제되었습니다.");
                 if(editingBookId === bid) cancelEditBook();
                 renderChart(currentSid);
@@ -1272,7 +1682,7 @@
         const n = document.getElementById('signupName').value.trim(), g = document.getElementById('signupGrade').value, c = document.getElementById('signupClass').value, p = document.getElementById('signupPw').value, pc = document.getElementById('signupPwConfirm').value;
         if(!n || !p) return alert("모든 항목을 입력해주세요.");
         if(p !== pc) return alert("비밀번호가 일치하지 않습니다.");
-        db.ref('personal/pendingStudents_v2').push({ name:n, grade:g, classNum:c, pw:p }).then(() => { alert("가입 신청 완료! 승인을 기다려주세요."); switchStudentTab('login'); });
+        schoolRef('pendingStudents_v2').push({ name:n, grade:g, classNum:c, pw:p }).then(() => { alert("가입 신청 완료! 승인을 기다려주세요."); switchStudentTab('login'); });
     }
 
     function downloadClassExcel() {
@@ -1320,7 +1730,13 @@
     function updateAdminPassword() {
         const newPw = document.getElementById('newAdminPwInput').value;
         if(!newPw) return alert("새 암호를 입력하세요.");
-        db.ref('personal/classData_v2/adminPassword').set(newPw).then(() => { alert("관리자 암호 변경 완료."); document.getElementById('newAdminPwInput').value = ""; });
+        db.ref('adminPassword').set(newPw).then(() => { alert("관리자 암호 변경 완료."); document.getElementById('newAdminPwInput').value = ""; });
+    }
+
+    function updateAdminPasswordFromSuper() {
+        const newPw = document.getElementById('newSignupCodeInput').value;
+        if(!newPw) return alert("새 비밀번호를 입력하세요.");
+        db.ref('adminPassword').set(newPw).then(() => { alert("관리자 비밀번호가 변경되었습니다."); document.getElementById('newSignupCodeInput').value = ""; });
     }
 
     function getNoticeKey() {
@@ -1337,7 +1753,7 @@
         if (!text) return alert("공지사항 내용을 입력하세요.");
         const key = getNoticeKey();
         const noticeData = { content: text, updatedAt: new Date().toISOString() };
-        db.ref(`personal/classNotices_v2/${key}`).set(noticeData).then(() => {
+        schoolRef(`classNotices_v2/${key}`).set(noticeData).then(() => {
             alert("공지사항이 저장되었습니다.");
         });
     }
@@ -1346,7 +1762,7 @@
         const key = getNoticeKey();
         if (!classNotices[key]) return alert("저장된 공지사항이 없습니다.");
         if (confirm("공지사항을 삭제하시겠습니까?")) {
-            db.ref(`personal/classNotices_v2/${key}`).remove().then(() => {
+            schoolRef(`classNotices_v2/${key}`).remove().then(() => {
                 alert("공지사항이 삭제되었습니다.");
                 document.getElementById('noticeInput').value = '';
             });
