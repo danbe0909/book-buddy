@@ -469,16 +469,6 @@
                 <button class="btn-main" style="background:#ffd166; color:#6d4c41; box-shadow:0 4px 0px #ffac41; font-size:14px; padding:10px;" onclick="changeStudentPassword()">비밀번호 바꾸기</button>
             </div>
 
-            <!-- ✅ 단어 뜻 찾기 -->
-            <div class="card" id="dictCard" style="border-color:#a5d6a7;">
-                <h4 style="margin:0 0 12px 0; color:#2e7d32; font-size:16px;">🔍 단어 뜻 찾기</h4>
-                <div style="display:flex; gap:8px;">
-                    <input type="text" id="dictInput" placeholder="궁금한 단어를 입력하세요" style="margin-bottom:0; flex:1;">
-                    <button class="btn-main" style="width:auto; padding:0 18px; background:#4caf50; box-shadow:0 4px 0px #388e3c; font-size:15px; white-space:nowrap;" onclick="searchWordMeaning()">찾기</button>
-                </div>
-                <div id="dictResult" style="display:none; margin-top:14px; background:#f1f8f1; border-radius:14px; padding:14px; font-size:15px; color:#1b5e20; line-height:1.8; white-space:pre-wrap;"></div>
-                <div id="dictLoading" style="display:none; text-align:center; margin-top:14px; color:#888; font-size:14px;">🔄 찾는 중...</div>
-            </div>
 
             <div class="card" id="inputCard">
                 <h4 id="inputTitle" style="margin:0 0 12px 0; color:var(--primary-dark); font-size:16px;">📖 독서 기록하기</h4>
@@ -1427,43 +1417,10 @@
         } else alert("비밀번호가 틀렸습니다.");
     }
 
-    async function searchWordMeaning() {
-        const word = document.getElementById('dictInput').value.trim();
-        if (!word) { alert('단어를 입력해 주세요!'); return; }
-        const resultEl = document.getElementById('dictResult');
-        const loadingEl = document.getElementById('dictLoading');
-        resultEl.style.display = 'none';
-        loadingEl.style.display = 'block';
-        try {
-            const res = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'claude-sonnet-4-20250514',
-                    max_tokens: 300,
-                    system: '너는 초등학생을 위한 친절한 국어 선생님이야. 단어의 뜻을 초등학생이 이해하기 쉽게 짧고 쉬운 말로 설명해줘. 예시 문장도 한 개 만들어줘. 이모지를 적절히 사용해서 친근하게 설명해줘.',
-                    messages: [{ role: 'user', content: `"${word}"의 뜻을 알려줘.` }]
-                })
-            });
-            const data = await res.json();
-            const text = data.content && data.content[0] ? data.content[0].text : '뜻을 찾지 못했어요 😢';
-            loadingEl.style.display = 'none';
-            resultEl.style.display = 'block';
-            resultEl.textContent = text;
-        } catch (e) {
-            loadingEl.style.display = 'none';
-            resultEl.style.display = 'block';
-            resultEl.textContent = '오류가 발생했어요. 다시 시도해 주세요. 😢';
-        }
-    }
 
-    // 엔터키로도 검색 가능
-    document.addEventListener('DOMContentLoaded', () => {
-        const dictInput = document.getElementById('dictInput');
-        if (dictInput) {
-            dictInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchWordMeaning(); });
-        }
-    });
+
+
+
 
     function studentLogout() {
         currentSid = null;
