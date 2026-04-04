@@ -1,0 +1,16 @@
+{
+    "name": "독서기록장",
+    "short_name": "독서기록장",
+    "start_url": "/book-buddy/book-per.html",
+    "display": "standalone",
+    "background_color": "#f5c400",
+    "theme_color": "#f5c400",
+    "icons": [
+      {
+        "src": "icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+}
