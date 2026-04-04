@@ -500,9 +500,22 @@
     </div>
 </div>
 
+<div id="adminDirectModal" class="modal hidden">
+    <div class="card" style="text-align:center; min-width:300px; max-width:85vw; padding:28px 24px;">
+        <div style="font-size:42px; margin-bottom:8px;">👑</div>
+        <h4 style="margin:0 0 6px 0; color:#764ba2; font-size:20px;">관리자 접속</h4>
+        <p style="font-size:13px; color:#aaa; margin:0 0 18px 0;">관리자 비밀번호를 입력하세요</p>
+        <input type="password" id="adminDirectInput" placeholder="관리자 비밀번호"
+            style="text-align:center; font-size:18px; letter-spacing:3px; border-color:#ce93d8;"
+            onkeydown="if(event.key==='Enter') checkAdminDirectPw()">
+        <button class="btn-main" style="background:linear-gradient(135deg,#9c27b0,#764ba2); box-shadow:0 4px 0px #4a0e7a; margin-bottom:10px;" onclick="checkAdminDirectPw()">접속하기</button>
+        <button onclick="closeAdminDirectModal()" style="background:none; border:none; color:#bbb; font-size:13px; cursor:pointer; text-decoration:underline;">취소</button>
+    </div>
+</div>
+
 <div id="adminAuthModal" class="modal hidden">
     <div class="card" style="text-align:center; min-width:300px; max-width:90vw;">
-        <h4 style="margin:0 0 14px 0; color:#4a4a4a;">👩‍🏫 교사 메뉴</h4>
+        <h4 style="margin:0 0 14px 0; color:#4a4a4a;"><span id="teacherMenuIcon" onclick="handleTeacherMenuIconClick()" style="cursor:pointer; user-select:none;">👩‍🏫</span> 교사 메뉴</h4>
         <div class="login-type-tabs" style="margin-bottom:16px;">
             <div class="login-type-tab active" id="authTabLogin" onclick="switchTeacherTab('login')">🔐 로그인</div>
             <div class="login-type-tab" id="authTabSignup" onclick="switchTeacherTab('signup')">✏️ 회원가입</div>
@@ -515,9 +528,7 @@
             <input type="text" id="teacherLoginId" placeholder="아이디 (교사 이름)" style="margin-bottom:10px;">
             <input type="password" id="teacherLoginPw" placeholder="비밀번호">
             <button class="btn-main" style="background:linear-gradient(135deg,#f093fb,#f5576c); box-shadow:0 4px 0px #c0392b;" onclick="checkTeacherPw()">로그인</button>
-            <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #eee;">
-                <button onclick="switchAuthTab('super')" style="background:none; border:none; color:#bbb; font-size:12px; cursor:pointer; text-decoration:underline;">👑 관리자로 접속</button>
-            </div>
+
         </div>
 
         <!-- 회원가입 패널 -->
@@ -908,6 +919,58 @@
         schoolRef(`teacherAccounts_v2/${matchKey}`).remove().then(() => {
             alert("계정이 삭제되었습니다.");
             teacherLogout();
+        });
+    }
+
+    // ✅ 교사 메뉴 아이콘 5번 클릭 → 관리자 직접 접속
+    let teacherMenuIconClickCount = 0;
+    let teacherMenuIconClickTimer = null;
+
+    function handleTeacherMenuIconClick() {
+        teacherMenuIconClickCount++;
+        clearTimeout(teacherMenuIconClickTimer);
+
+        const icon = document.getElementById('teacherMenuIcon');
+        icon.style.transform = 'scale(1.4)';
+        setTimeout(() => { icon.style.transform = 'scale(1)'; }, 150);
+
+        if (teacherMenuIconClickCount >= 5) {
+            teacherMenuIconClickCount = 0;
+            document.getElementById('adminAuthModal').classList.add('hidden');
+            openAdminDirectModal();
+            return;
+        }
+
+        teacherMenuIconClickTimer = setTimeout(() => {
+            teacherMenuIconClickCount = 0;
+        }, 2000);
+    }
+
+    function openAdminDirectModal() {
+        document.getElementById('adminDirectModal').classList.remove('hidden');
+        document.getElementById('adminDirectInput').value = '';
+        setTimeout(() => document.getElementById('adminDirectInput').focus(), 100);
+    }
+
+    function closeAdminDirectModal() {
+        document.getElementById('adminDirectModal').classList.add('hidden');
+    }
+
+    function checkAdminDirectPw() {
+        const pw = document.getElementById('adminDirectInput').value;
+        if (!pw) return alert("관리자 비밀번호를 입력하세요.");
+        db.ref('adminPassword').once('value', snap => {
+            if (pw === (snap.val() || '0000')) {
+                currentSchoolCode = null;
+                currentTeacher = 'super';
+                closeAdminDirectModal();
+                executeSwitch('teacher');
+                applyTeacherPermissions();
+            } else {
+                alert("관리자 인증 실패");
+                document.getElementById('adminDirectInput').value = '';
+                document.getElementById('adminDirectInput').focus();
+            }
         });
     }
 
@@ -1403,10 +1466,10 @@
     function enterSchoolCode() {
         const code = document.getElementById('schoolCodeInput').value.trim().replace(/\s/g,'');
         if (!code) return alert("학교 코드를 입력하세요.");
-        // 해당 코드에 teacherAccounts가 존재하는지 간단 확인
+        // 해당 코드에 teacherAccounts가 존재하는지 확인 → 없으면 입장 불가
         db.ref(`schools/${code}/teacherAccounts_v2`).once('value', snap => {
             if (!snap.exists()) {
-                if (!confirm(`"${code}" 학교 코드가 처음 사용됩니다.\n이 코드로 입장하시겠습니까?`)) return;
+                return alert(`"${code}" 학교 코드가 존재하지 않습니다.\n선생님께 받은 코드를 다시 확인해주세요.`);
             }
             currentSchoolCode = code;
             attachSchoolListeners();
@@ -1682,7 +1745,15 @@
         const n = document.getElementById('signupName').value.trim(), g = document.getElementById('signupGrade').value, c = document.getElementById('signupClass').value, p = document.getElementById('signupPw').value, pc = document.getElementById('signupPwConfirm').value;
         if(!n || !p) return alert("모든 항목을 입력해주세요.");
         if(p !== pc) return alert("비밀번호가 일치하지 않습니다.");
-        schoolRef('pendingStudents_v2').push({ name:n, grade:g, classNum:c, pw:p }).then(() => { alert("가입 신청 완료! 승인을 기다려주세요."); switchStudentTab('login'); });
+        // 해당 학년/반 교사 계정이 있는지 확인
+        schoolRef('teacherAccounts_v2').once('value', snap => {
+            const accounts = snap.val() || {};
+            const hasTeacher = Object.values(accounts).some(acc =>
+                typeof acc === 'object' && String(acc.grade) === String(g) && String(acc.classNum) === String(c)
+            );
+            if (!hasTeacher) return alert(`${g}학년 ${c}반은 아직 개설되지 않은 반입니다.\n선생님께 문의해주세요.`);
+            schoolRef('pendingStudents_v2').push({ name:n, grade:g, classNum:c, pw:p }).then(() => { alert("가입 신청 완료! 승인을 기다려주세요."); switchStudentTab('login'); });
+        });
     }
 
     function downloadClassExcel() {
