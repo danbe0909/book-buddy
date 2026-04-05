@@ -28,7 +28,7 @@
         .card { background: var(--card-bg); border-radius: 25px; padding: 22px; margin-bottom: 18px; border: 3px solid var(--border); box-shadow: 0 6px 0px rgba(255,224,130,0.5); transition: transform 0.2s ease; position: relative; }
         .card:hover { transform: translateY(-3px); }
         .stat-card { background: linear-gradient(135deg, #ffd166 0%, #ffac41 100%); color: #6d4c41; border: 3px solid #ffac41; box-shadow: 0 6px 0px rgba(255,172,65,0.5); }
-        input, select, textarea { width: 100%; box-sizing: border-box; padding: 15px; border: 2px solid var(--border); border-radius: 15px; font-size: 16px; margin-bottom: 14px; outline: none; background-color: #fff; }
+        input, select, textarea { width: 100%; box-sizing: border-box; padding: 15px; border: 2px solid var(--border); border-radius: 15px; font-size: 16px; margin-bottom: 14px; outline: none; background-color: #fff; color: #4a4a4a; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
         .btn-main { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; font-size: 18px; box-shadow: 0 4px 0px var(--primary-dark); transition: all 0.2s ease; }
         .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0px var(--primary-dark); }
@@ -86,6 +86,25 @@
         .notice-content { font-size: 14px; color: #5d4037; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
         .notice-empty { text-align: center; color: #bbb; font-size: 13px; padding: 10px 0; }
         .notice-teacher-edit { background: #fff8e1; border: 2px solid #ffd54f; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+
+        /* 🎙️ 녹음 기능 스타일 */
+        .rec-wrapper { margin-bottom: 14px; }
+        .rec-btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .rec-btn { flex: 1; border: none; padding: 11px; font-size: 14px; font-weight: bold; border-radius: 15px; cursor: pointer; transition: all 0.2s; }
+        .rec-btn-start { background: #ff5f7e; color: white; box-shadow: 0 4px 0px #c0392b; }
+        .rec-btn-start:active { transform: translateY(2px); box-shadow: 0 2px 0px #c0392b; }
+        .rec-btn-stop { background: #607d8b; color: white; box-shadow: 0 4px 0px #455a64; }
+        .rec-btn-stop:active { transform: translateY(2px); box-shadow: 0 2px 0px #455a64; }
+        .rec-btn-del { background: #ffcfcf; color: #ff5e5e; box-shadow: 0 3px 0px #e57373; font-size: 13px; padding: 11px 14px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; }
+        .rec-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #888; min-height: 22px; margin-bottom: 6px; }
+        .rec-dot { width: 10px; height: 10px; border-radius: 50%; background: #ff5f7e; animation: recBlink 0.8s infinite; flex-shrink: 0; }
+        @keyframes recBlink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+        .rec-progress-bg { background: #f1f5f9; border-radius: 10px; height: 6px; flex: 1; overflow: hidden; }
+        .rec-progress-fill { height: 6px; border-radius: 10px; background: linear-gradient(90deg, #ff5f7e, #ff8e72); transition: width 0.5s linear; }
+        .rec-audio-wrap { background: #fff0f3; border: 2px solid #ffcdd2; border-radius: 15px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+        .rec-audio-wrap audio { flex: 1; height: 36px; }
+        .rec-time-label { font-size: 12px; color: #aaa; white-space: nowrap; }
+        .rec-play-icon { font-size: 20px; }
 
         /* ✅ TOP7 독서왕 카드 스타일 */
         .top5-card {
@@ -496,7 +515,26 @@
                     <div id="multiImagePreview" style="display:none; gap:8px; margin-top:4px; flex-wrap:wrap;"></div>
                     <div id="imageCountHint" style="font-size:12px; color:#aaa; margin-top:4px; display:none;">사진은 최대 3장까지 등록 가능합니다.</div>
                 </div>
-                <textarea id="bookReview" placeholder="느낀 점" style="height:100px;"></textarea>
+                <!-- 🎙️ 책 읽기 녹음 -->
+                <div class="rec-wrapper">
+                    <div style="font-size:13px; font-weight:bold; color:#ff5f7e; margin-bottom:7px;">🎙️ 책 읽기 녹음 <span style="font-size:11px; color:#aaa; font-weight:normal;">(최대 30초 · 말하면 느낀 점 자동 입력)</span></div>
+                    <div class="rec-btn-row" id="recBtnRow">
+                        <button class="rec-btn rec-btn-start" id="recStartBtn" onclick="startRecording()">🔴 녹음 시작</button>
+                        <button class="rec-btn rec-btn-stop hidden" id="recStopBtn" onclick="stopRecording()">⏹ 녹음 중지</button>
+                        <button class="rec-btn-del hidden" id="recDelBtn" onclick="deleteRecording()">🗑️ 삭제</button>
+                    </div>
+                    <div class="rec-status hidden" id="recStatus">
+                        <div class="rec-dot"></div>
+                        <span id="recTimeText">녹음 중... 0초</span>
+                        <div class="rec-progress-bg"><div class="rec-progress-fill" id="recProgressFill" style="width:0%;"></div></div>
+                    </div>
+                    <div class="rec-audio-wrap hidden" id="recAudioWrap">
+                        <span class="rec-play-icon">🎵</span>
+                        <audio id="recAudioPlayer" controls></audio>
+                        <span class="rec-time-label" id="recAudioTime"></span>
+                    </div>
+                </div>
+                <textarea id="bookReview" placeholder="느낀 점" style="height:100px; color:#4a4a4a;"></textarea>
                 <div style="display:flex; gap:8px;">
                     <button id="btnSaveBook" class="btn-main" onclick="db_saveBook()">기록 저장</button>
                     <button id="btnCancelEdit" class="btn-main hidden" style="background:#888; box-shadow:0 4px 0px #666;" onclick="cancelEditBook()">취소</button>
@@ -612,6 +650,11 @@
     let selectedImagesBase64 = [];
     let editingBookId = null;
     let classNotices = {};
+    // 🎙️ 녹음 상태 변수
+    let mediaRecorder = null, recChunks = [], recTimer = null, recSeconds = 0;
+    let recordedAudioBase64 = null;
+    // 🗣️ 음성인식 변수
+    let speechRecognition = null, speechFinalText = '';
     // ✅ 캘린더 상태
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth(); // 0-indexed
@@ -1311,10 +1354,14 @@
                 const imgHtml = imgArr.length > 0
                     ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0;">${imgArr.map(src => `<img src="${src}" class="book-item-img" style="width:calc(33% - 4px);">`).join('')}</div>`
                     : '';
+                const audioHtml = b.audio
+                    ? `<div class="rec-audio-wrap" style="margin:6px 0;"><span class="rec-play-icon">🎙️</span><audio controls src="${b.audio}" style="flex:1; height:34px;"></audio></div>`
+                    : '';
                 return `<div class="book-item">
                     <div class="book-item-title">${b.title}</div>
                     <div class="book-item-rating">${b.rating}</div>
                     ${imgHtml}
+                    ${audioHtml}
                     <div class="book-item-review">${b.review || '(감상 없음)'}</div>
                     <div class="book-item-date">${new Date(b.date).toLocaleDateString()}</div>
                 </div>`;
@@ -1592,6 +1639,123 @@
         renderMultiImagePreview();
     }
 
+    // 🎙️ ===== 녹음 기능 =====
+    function startRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            return alert("이 기기는 녹음을 지원하지 않습니다.");
+        }
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            recChunks = [];
+            recSeconds = 0;
+            const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
+            mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(recChunks, { type: mimeType });
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    recordedAudioBase64 = ev.target.result;
+                    const audioEl = document.getElementById('recAudioPlayer');
+                    audioEl.src = recordedAudioBase64;
+                    document.getElementById('recAudioTime').innerText = `${recSeconds}초`;
+                    document.getElementById('recAudioWrap').classList.remove('hidden');
+                    document.getElementById('recDelBtn').classList.remove('hidden');
+                };
+                reader.readAsDataURL(blob);
+                clearInterval(recTimer);
+                document.getElementById('recStatus').classList.add('hidden');
+                document.getElementById('recStartBtn').classList.remove('hidden');
+                document.getElementById('recStopBtn').classList.add('hidden');
+            };
+            mediaRecorder.start(200);
+
+            document.getElementById('recStartBtn').classList.add('hidden');
+            document.getElementById('recStopBtn').classList.remove('hidden');
+            document.getElementById('recStatus').classList.remove('hidden');
+            document.getElementById('recAudioWrap').classList.add('hidden');
+            document.getElementById('recDelBtn').classList.add('hidden');
+            recordedAudioBase64 = null;
+
+            recTimer = setInterval(() => {
+                recSeconds++;
+                const pct = (recSeconds / 30) * 100;
+                document.getElementById('recTimeText').innerText = `녹음 중... ${recSeconds}초`;
+                document.getElementById('recProgressFill').style.width = pct + '%';
+                if (recSeconds >= 30) stopRecording();
+            }, 1000);
+
+            // 🗣️ 음성인식 시작
+            startSpeechRecognition();
+        }).catch(err => {
+            alert("마이크 접근 권한이 필요합니다.\n설정에서 마이크 권한을 허용해주세요.");
+        });
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+        stopSpeechRecognition();
+    }
+
+    function deleteRecording() {
+        recordedAudioBase64 = null;
+        document.getElementById('recAudioWrap').classList.add('hidden');
+        document.getElementById('recDelBtn').classList.add('hidden');
+        document.getElementById('recAudioPlayer').src = '';
+    }
+
+    function resetRecordingUI() {
+        stopRecording();
+        deleteRecording();
+        clearInterval(recTimer);
+        recChunks = []; recSeconds = 0;
+        document.getElementById('recStatus').classList.add('hidden');
+        document.getElementById('recStartBtn').classList.remove('hidden');
+        document.getElementById('recStopBtn').classList.add('hidden');
+    }
+
+    // 🗣️ 음성인식 함수
+    function startSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return; // 미지원 기기면 그냥 넘어감
+        speechFinalText = document.getElementById('bookReview').value; // 기존 텍스트 유지
+        speechRecognition = new SpeechRecognition();
+        speechRecognition.lang = 'ko-KR';
+        speechRecognition.continuous = true;
+        speechRecognition.interimResults = true;
+
+        speechRecognition.onresult = (e) => {
+            let interim = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                const transcript = e.results[i][0].transcript;
+                if (e.results[i].isFinal) {
+                    speechFinalText += transcript;
+                } else {
+                    interim = transcript;
+                }
+            }
+            document.getElementById('bookReview').value = speechFinalText + interim;
+        };
+
+        speechRecognition.onend = () => {
+            // 녹음이 아직 진행 중이면 재시작 (30초 동안 끊김 없이 유지)
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                speechRecognition.start();
+            }
+        };
+
+        speechRecognition.start();
+    }
+
+    function stopSpeechRecognition() {
+        if (speechRecognition) {
+            speechRecognition.onend = null; // 재시작 방지
+            speechRecognition.stop();
+            speechRecognition = null;
+        }
+    }
+    // 🎙️ ===== 녹음 기능 끝 =====
+
     function db_saveBook() {
         const t = document.getElementById('bookTitle').value.trim(), r = document.getElementById('bookRating').value, v = document.getElementById('bookReview').value;
         if(!t) return alert("제목을 입력하세요.");
@@ -1599,13 +1763,13 @@
         if (editingBookId) {
             // ✅ 수정 시: 원래 날짜(date) 유지
             const origDate = rawData[currentSid].books[editingBookId].date;
-            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: origDate };
+            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: origDate };
             schoolRef(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
                 .then(() => { alert("수정되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         } else {
             const _now = new Date();
             const _localDate = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}T${String(_now.getHours()).padStart(2,'0')}:${String(_now.getMinutes()).padStart(2,'0')}:${String(_now.getSeconds()).padStart(2,'0')}`;
-            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, date: _localDate };
+            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: _localDate };
             schoolRef(`classData_v2/students/${currentSid}/books`).push(bookData)
                 .then(() => { alert("저장되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         }
@@ -1627,6 +1791,15 @@
             selectedImagesBase64 = [];
         }
         renderMultiImagePreview();
+        // 🎙️ 녹음 복원
+        resetRecordingUI();
+        if (b.audio) {
+            recordedAudioBase64 = b.audio;
+            document.getElementById('recAudioPlayer').src = b.audio;
+            document.getElementById('recAudioWrap').classList.remove('hidden');
+            document.getElementById('recDelBtn').classList.remove('hidden');
+            document.getElementById('recAudioTime').innerText = '저장된 녹음';
+        }
         document.getElementById('btnSaveBook').innerText = "수정 완료";
         document.getElementById('btnCancelEdit').classList.remove('hidden');
         document.getElementById('inputCard').scrollIntoView({behavior: 'smooth'});
@@ -1639,6 +1812,8 @@
         document.getElementById('bookReview').value = '';
         selectedImagesBase64 = [];
         renderMultiImagePreview();
+        // 🎙️ 녹음 UI 초기화
+        resetRecordingUI();
         document.getElementById('btnSaveBook').innerText = "기록 저장";
         document.getElementById('btnCancelEdit').classList.add('hidden');
     }
@@ -1665,6 +1840,9 @@
             const imgHtml = imgArr.length > 0
                 ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0;">${imgArr.map(src => `<img src="${src}" style="width:calc(33% - 4px); border-radius:10px; border:1px solid var(--border);">`).join('')}</div>`
                 : '';
+            const audioHtml = b.audio
+                ? `<div class="rec-audio-wrap" style="margin:8px 0;"><span class="rec-play-icon">🎙️</span><audio controls src="${b.audio}" style="flex:1; height:34px;"></audio></div>`
+                : '';
             return `<div class="card" style="margin-bottom:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div style="font-weight:bold; font-size:16px;">${b.title}</div>
@@ -1675,6 +1853,7 @@
                 </div>
                 <div style="color:var(--primary-dark); font-size:14px; margin:4px 0;">${b.rating}</div>
                 ${imgHtml}
+                ${audioHtml}
                 <div style="font-size:14px; color:#666;">${b.review}</div>
                 <div style="font-size:11px; color:#aaa; margin-top:8px;">${new Date(b.date).toLocaleDateString()}</div>
             </div>`;
@@ -1975,95 +2154,6 @@
         if (calMonth > 11) { calMonth = 0; calYear++; }
         renderCalendar(currentSid);
     }
-</script>
-
-<!-- ✅ PWA 설치 배너 (Android 크롬) -->
-<div id="install-banner" style="display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-  background:linear-gradient(135deg,#ff8e72,#ff6b4a); color:white; padding:15px 28px;
-  border-radius:50px; box-shadow:0 6px 20px rgba(255,107,74,0.45); z-index:9999;
-  font-size:15px; font-family:'Nanum Gothic',sans-serif; cursor:pointer;
-  white-space:nowrap; font-weight:bold; border:none;
-  animation: bounceIn 0.4s ease;">
-  📲 앱으로 설치하기
-</div>
-
-<!-- ✅ iOS 설치 안내 모달 -->
-<div id="ios-install-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.5); z-index:10000; align-items:flex-end; justify-content:center;
-  backdrop-filter:blur(3px);">
-  <div style="background:white; border-radius:25px 25px 0 0; padding:28px 24px 40px;
-    width:100%; max-width:500px; box-sizing:border-box; animation: slideUp 0.3s ease;">
-    <div style="text-align:center; margin-bottom:20px;">
-      <div style="font-size:22px; font-weight:bold; color:#ff6b4a; margin-bottom:6px;">📚 앱으로 설치하기</div>
-      <div style="font-size:13px; color:#aaa;">홈 화면에 추가하면 앱처럼 사용할 수 있어요!</div>
-    </div>
-    <div style="background:#fff9f0; border-radius:18px; padding:18px; border:2px solid #ffe082;">
-      <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
-        <div style="background:#ff8e72; color:white; border-radius:12px; width:38px; height:38px;
-          display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">1</div>
-        <div style="font-size:14px; color:#4a4a4a;">하단의 <strong>공유 버튼</strong> <span style="font-size:18px;">⬆️</span> 을 누르세요</div>
-      </div>
-      <div style="display:flex; align-items:center; gap:14px;">
-        <div style="background:#ff8e72; color:white; border-radius:12px; width:38px; height:38px;
-          display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">2</div>
-        <div style="font-size:14px; color:#4a4a4a;"><strong>"홈 화면에 추가"</strong> 를 선택하세요 📌</div>
-      </div>
-    </div>
-    <button onclick="document.getElementById('ios-install-modal').style.display='none'"
-      style="width:100%; margin-top:18px; padding:15px; background:#ff8e72; color:white;
-      border:none; border-radius:50px; font-size:16px; font-weight:bold; cursor:pointer;
-      box-shadow:0 4px 0px #ff6b4a; font-family:'Nanum Gothic',sans-serif;">
-      확인했어요 ✓
-    </button>
-  </div>
-</div>
-
-<style>
-@keyframes bounceIn {
-  0% { transform: translateX(-50%) translateY(80px); opacity:0; }
-  70% { transform: translateX(-50%) translateY(-6px); opacity:1; }
-  100% { transform: translateX(-50%) translateY(0); opacity:1; }
-}
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-</style>
-
-<script>
-// ✅ Android: 설치 프롬프트 감지
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // 이미 설치됐으면 배너 안 보여줌
-  if (window.matchMedia('(display-mode: standalone)').matches) return;
-  setTimeout(() => {
-    document.getElementById('install-banner').style.display = 'block';
-  }, 1500);
-});
-
-document.getElementById('install-banner').addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  document.getElementById('install-banner').style.display = 'none';
-  deferredPrompt = null;
-});
-
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-banner').style.display = 'none';
-});
-
-// ✅ iOS: 사파리에서 안내 모달 표시
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-if (isIOS && !isStandalone) {
-  setTimeout(() => {
-    const modal = document.getElementById('ios-install-modal');
-    modal.style.display = 'flex';
-  }, 2000);
-}
 </script>
 </body>
 </html>
