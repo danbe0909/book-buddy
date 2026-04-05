@@ -1,15 +1,22 @@
 {
-  "name": "BookBuddy AI",
-  "short_name": "BookBuddy",
+  "name": "독서기록장",
+  "short_name": "독서기록장",
   "start_url": "/book-buddy/",
   "display": "standalone",
-  "background_color": "#FF8E72",
-  "theme_color": "#FF8E72",
+  "background_color": "#FFCC00",
+  "theme_color": "#FFCC00",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
