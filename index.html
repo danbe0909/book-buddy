@@ -517,7 +517,7 @@
                 </div>
                 <!-- 🎙️ 책 읽기 녹음 -->
                 <div class="rec-wrapper">
-                    <div style="font-size:13px; font-weight:bold; color:#ff5f7e; margin-bottom:7px;">🎙️ 책 읽기 녹음 <span style="font-size:11px; color:#aaa; font-weight:normal;">(최대 30초 · 말하면 느낀 점 자동 입력)</span></div>
+                    <div style="font-size:13px; font-weight:bold; color:#ff5f7e; margin-bottom:7px;">🎙️ 책 읽기 녹음 <span style="font-size:11px; color:#aaa; font-weight:normal;">(최대 30초)</span></div>
                     <div class="rec-btn-row" id="recBtnRow">
                         <button class="rec-btn rec-btn-start" id="recStartBtn" onclick="startRecording()">🔴 녹음 시작</button>
                         <button class="rec-btn rec-btn-stop hidden" id="recStopBtn" onclick="stopRecording()">⏹ 녹음 중지</button>
@@ -532,6 +532,20 @@
                         <span class="rec-play-icon">🎵</span>
                         <audio id="recAudioPlayer" controls></audio>
                         <span class="rec-time-label" id="recAudioTime"></span>
+                    </div>
+                </div>
+                <!-- 🗣️ 말로 입력 (녹음과 분리) -->
+                <div class="rec-wrapper">
+                    <div style="font-size:13px; font-weight:bold; color:#7c4dff; margin-bottom:7px;">🗣️ 말로 느낀 점 입력 <span style="font-size:11px; color:#aaa; font-weight:normal;">(녹음과 별도로 작동)</span></div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="rec-btn" id="sttStartBtn" onclick="startSTT()"
+                            style="background:#7c4dff; color:white; box-shadow:0 4px 0px #4527a0; flex:1;">🗣️ 말하기 시작</button>
+                        <button class="rec-btn hidden" id="sttStopBtn" onclick="stopSTT()"
+                            style="background:#607d8b; color:white; box-shadow:0 4px 0px #455a64; flex:1;">⏹ 말하기 중지</button>
+                    </div>
+                    <div class="rec-status hidden" id="sttStatus">
+                        <div class="rec-dot" style="background:#7c4dff;"></div>
+                        <span id="sttStatusText">듣는 중...</span>
                     </div>
                 </div>
                 <textarea id="bookReview" placeholder="느낀 점" style="height:100px; color:#4a4a4a;"></textarea>
@@ -1647,10 +1661,6 @@
         navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
             recChunks = [];
             recSeconds = 0;
-
-            // 🗣️ 음성인식 먼저 시작 (같은 stream 사용 전에)
-            startSpeechRecognition();
-
             const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
             mediaRecorder = new MediaRecorder(stream, { mimeType });
             mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
@@ -1672,9 +1682,7 @@
                 document.getElementById('recStartBtn').classList.remove('hidden');
                 document.getElementById('recStopBtn').classList.add('hidden');
             };
-
-            // 🗣️ 음성인식이 자리잡을 시간 살짝 주고 MediaRecorder 시작
-            setTimeout(() => { mediaRecorder.start(200); }, 300);
+            mediaRecorder.start(200);
 
             document.getElementById('recStartBtn').classList.add('hidden');
             document.getElementById('recStopBtn').classList.remove('hidden');
@@ -1690,7 +1698,6 @@
                 document.getElementById('recProgressFill').style.width = pct + '%';
                 if (recSeconds >= 30) stopRecording();
             }, 1000);
-
         }).catch(err => {
             alert("마이크 접근 권한이 필요합니다.\n설정에서 마이크 권한을 허용해주세요.");
         });
@@ -1698,7 +1705,6 @@
 
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-        stopSpeechRecognition();
     }
 
     function deleteRecording() {
@@ -1718,13 +1724,10 @@
         document.getElementById('recStopBtn').classList.add('hidden');
     }
 
-    // 🗣️ 음성인식 함수
-    function startSpeechRecognition() {
+    // 🗣️ 말하기 → 텍스트 (녹음과 완전 분리)
+    function startSTT() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            document.getElementById('bookReview').placeholder = '❌ 음성인식 미지원 브라우저';
-            return;
-        }
+        if (!SpeechRecognition) return alert("이 브라우저는 음성인식을 지원하지 않습니다.");
         speechFinalText = document.getElementById('bookReview').value;
 
         function createAndStart() {
@@ -1732,10 +1735,6 @@
             sr.lang = 'ko-KR';
             sr.continuous = false;
             sr.interimResults = true;
-
-            sr.onstart = () => {
-                document.getElementById('recTimeText').innerText += ' 🗣️';
-            };
 
             sr.onresult = (e) => {
                 let interim = '';
@@ -1748,21 +1747,25 @@
                     }
                 }
                 document.getElementById('bookReview').value = speechFinalText + interim;
+                document.getElementById('sttStatusText').innerText = '듣는 중... ' + (speechFinalText + interim).slice(-20);
             };
 
             sr.onend = () => {
-                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                // sttActive 플래그가 켜져 있으면 재시작
+                if (window._sttActive) {
                     speechRecognition = createAndStart();
+                } else {
+                    document.getElementById('sttStatus').classList.add('hidden');
+                    document.getElementById('sttStartBtn').classList.remove('hidden');
+                    document.getElementById('sttStopBtn').classList.add('hidden');
                 }
             };
 
             sr.onerror = (e) => {
-                // 오류 내용을 느낀 점 placeholder에 표시 (임시 디버깅)
-                document.getElementById('bookReview').placeholder = '⚠️ 오류: ' + e.error;
                 if (e.error === 'no-speech' || e.error === 'aborted') {
-                    if (mediaRecorder && mediaRecorder.state === 'recording') {
-                        speechRecognition = createAndStart();
-                    }
+                    if (window._sttActive) speechRecognition = createAndStart();
+                } else {
+                    document.getElementById('sttStatusText').innerText = '오류: ' + e.error;
                 }
             };
 
@@ -1770,13 +1773,28 @@
             return sr;
         }
 
+        window._sttActive = true;
         speechRecognition = createAndStart();
+        document.getElementById('sttStartBtn').classList.add('hidden');
+        document.getElementById('sttStopBtn').classList.remove('hidden');
+        document.getElementById('sttStatus').classList.remove('hidden');
+        document.getElementById('sttStatusText').innerText = '듣는 중...';
     }
+
+    function stopSTT() {
+        window._sttActive = false;
+        stopSpeechRecognition();
+        document.getElementById('sttStatus').classList.add('hidden');
+        document.getElementById('sttStartBtn').classList.remove('hidden');
+        document.getElementById('sttStopBtn').classList.add('hidden');
+    }
+
+    function startSpeechRecognition() {} // 더 이상 사용 안 함
 
     function stopSpeechRecognition() {
         if (speechRecognition) {
-            speechRecognition.onend = null; // 재시작 방지
-            speechRecognition.stop();
+            speechRecognition.onend = null;
+            try { speechRecognition.stop(); } catch(e) {}
             speechRecognition = null;
         }
     }
@@ -1840,6 +1858,9 @@
         renderMultiImagePreview();
         // 🎙️ 녹음 UI 초기화
         resetRecordingUI();
+        // 🗣️ STT UI 초기화
+        stopSTT();
+        document.getElementById('sttStatus').classList.add('hidden');
         document.getElementById('btnSaveBook').innerText = "기록 저장";
         document.getElementById('btnCancelEdit').classList.add('hidden');
     }
