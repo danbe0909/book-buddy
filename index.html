@@ -166,6 +166,11 @@
         .cal-legend-item { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #888; }
         .cal-legend-box { width: 12px; height: 12px; border-radius: 3px; }
     </style>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
 </head>
 <body>
 
