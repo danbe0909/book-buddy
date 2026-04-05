@@ -1976,5 +1976,94 @@
         renderCalendar(currentSid);
     }
 </script>
+
+<!-- ✅ PWA 설치 배너 (Android 크롬) -->
+<div id="install-banner" style="display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  background:linear-gradient(135deg,#ff8e72,#ff6b4a); color:white; padding:15px 28px;
+  border-radius:50px; box-shadow:0 6px 20px rgba(255,107,74,0.45); z-index:9999;
+  font-size:15px; font-family:'Nanum Gothic',sans-serif; cursor:pointer;
+  white-space:nowrap; font-weight:bold; border:none;
+  animation: bounceIn 0.4s ease;">
+  📲 앱으로 설치하기
+</div>
+
+<!-- ✅ iOS 설치 안내 모달 -->
+<div id="ios-install-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.5); z-index:10000; align-items:flex-end; justify-content:center;
+  backdrop-filter:blur(3px);">
+  <div style="background:white; border-radius:25px 25px 0 0; padding:28px 24px 40px;
+    width:100%; max-width:500px; box-sizing:border-box; animation: slideUp 0.3s ease;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="font-size:22px; font-weight:bold; color:#ff6b4a; margin-bottom:6px;">📚 앱으로 설치하기</div>
+      <div style="font-size:13px; color:#aaa;">홈 화면에 추가하면 앱처럼 사용할 수 있어요!</div>
+    </div>
+    <div style="background:#fff9f0; border-radius:18px; padding:18px; border:2px solid #ffe082;">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+        <div style="background:#ff8e72; color:white; border-radius:12px; width:38px; height:38px;
+          display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">1</div>
+        <div style="font-size:14px; color:#4a4a4a;">하단의 <strong>공유 버튼</strong> <span style="font-size:18px;">⬆️</span> 을 누르세요</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div style="background:#ff8e72; color:white; border-radius:12px; width:38px; height:38px;
+          display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">2</div>
+        <div style="font-size:14px; color:#4a4a4a;"><strong>"홈 화면에 추가"</strong> 를 선택하세요 📌</div>
+      </div>
+    </div>
+    <button onclick="document.getElementById('ios-install-modal').style.display='none'"
+      style="width:100%; margin-top:18px; padding:15px; background:#ff8e72; color:white;
+      border:none; border-radius:50px; font-size:16px; font-weight:bold; cursor:pointer;
+      box-shadow:0 4px 0px #ff6b4a; font-family:'Nanum Gothic',sans-serif;">
+      확인했어요 ✓
+    </button>
+  </div>
+</div>
+
+<style>
+@keyframes bounceIn {
+  0% { transform: translateX(-50%) translateY(80px); opacity:0; }
+  70% { transform: translateX(-50%) translateY(-6px); opacity:1; }
+  100% { transform: translateX(-50%) translateY(0); opacity:1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+</style>
+
+<script>
+// ✅ Android: 설치 프롬프트 감지
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // 이미 설치됐으면 배너 안 보여줌
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  setTimeout(() => {
+    document.getElementById('install-banner').style.display = 'block';
+  }, 1500);
+});
+
+document.getElementById('install-banner').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  document.getElementById('install-banner').style.display = 'none';
+  deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+
+// ✅ iOS: 사파리에서 안내 모달 표시
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+if (isIOS && !isStandalone) {
+  setTimeout(() => {
+    const modal = document.getElementById('ios-install-modal');
+    modal.style.display = 'flex';
+  }, 2000);
+}
+</script>
 </body>
 </html>
