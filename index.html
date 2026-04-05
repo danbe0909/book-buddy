@@ -211,7 +211,7 @@
         <div id="superAdminPanel" class="hidden">
             <div class="card" style="border-color:#764ba2;">
                 <h4 style="margin:0 0 12px 0; color:#764ba2; font-size:18px;">⚙️ 관리자 설정</h4>
-                <p style="font-size:13px; color:#888; margin:0 0 12px 0;">관리자 비밀번호를 변경합니다. (기본값: 0000)</p>
+                <p style="font-size:13px; color:#888; margin:0 0 12px 0;">관리자 비밀번호를 변경합니다.</p>
                 <div style="display:flex; gap:8px; margin-bottom:10px;">
                     <input type="password" id="newSignupCodeInput" placeholder="새 관리자 비밀번호" style="margin-bottom:0;">
                     <button class="btn-main" style="width:90px; background:#764ba2; box-shadow:0 4px 0px #4a0e7a; font-size:15px;" onclick="updateAdminPasswordFromSuper()">변경</button>
@@ -614,7 +614,7 @@
         <!-- 관리자 패널 -->
         <div id="authPanelSuper" class="hidden">
             <p style="font-size:12px; color:#9c27b0; font-weight:bold; margin:0 0 12px 0;">👑 관리자 전용 — 전체 학교 코드 관리</p>
-            <input type="password" id="adminInput" placeholder="관리자 비밀번호 (기본값: 0000)">
+            <input type="password" id="adminInput" placeholder="관리자 비밀번호">
             <button class="btn-main" style="background:linear-gradient(135deg,#667eea,#764ba2); box-shadow:0 4px 0px #4a0e7a;" onclick="checkAdminPw()">관리자 로그인</button>
             <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #eee;">
                 <button onclick="switchTeacherTab('login')" style="background:none; border:none; color:#bbb; font-size:12px; cursor:pointer; text-decoration:underline;">← 교사 로그인으로 돌아가기</button>
@@ -646,7 +646,84 @@
     </div>
 </div>
 
+<!-- ✅ [보안] 관리자 초기 비밀번호 강제 변경 모달 -->
+<div id="forceAdminPwModal" class="modal hidden">
+    <div class="card" style="text-align:center; min-width:300px; max-width:88vw; padding:28px 24px; border-color:#e53935;">
+        <div style="font-size:40px; margin-bottom:10px;">🔐</div>
+        <h4 style="margin:0 0 8px 0; color:#e53935; font-size:19px;">보안 설정 필요</h4>
+        <p style="font-size:13px; color:#888; margin:0 0 18px 0; line-height:1.6;">
+            초기 비밀번호(<strong>0000</strong>)가 감지되었습니다.<br>
+            보안을 위해 지금 바로 비밀번호를 변경해주세요.
+        </p>
+        <input type="password" id="forcePwNew" placeholder="새 비밀번호 (4자리 이상)"
+            style="text-align:center; font-size:16px; border-color:#ef9a9a; margin-bottom:10px;"
+            onkeydown="if(event.key==='Enter') document.getElementById('forcePwConfirm').focus()">
+        <input type="password" id="forcePwConfirm" placeholder="새 비밀번호 확인"
+            style="text-align:center; font-size:16px; border-color:#ef9a9a;"
+            onkeydown="if(event.key==='Enter') doForceAdminPwChange()">
+        <button class="btn-main" style="background:#e53935; box-shadow:0 4px 0px #b71c1c;"
+            onclick="doForceAdminPwChange()">비밀번호 변경하기</button>
+        <p style="font-size:11px; color:#bbb; margin-top:10px;">변경하지 않으면 관리자 기능을 사용할 수 없습니다.</p>
+    </div>
+</div>
+
 <script>
+    /*
+    ══════════════════════════════════════════════════════════════════
+    ⚠️  배포 전 필수 보안 설정 (Firebase 콘솔에서 직접 설정)
+    ══════════════════════════════════════════════════════════════════
+
+    [1] Firebase Realtime Database 보안 규칙 설정
+        Firebase 콘솔 → Realtime Database → 규칙(Rules) 탭에
+        아래 규칙을 붙여넣고 저장하세요:
+
+        {
+          "rules": {
+            "adminPassword": {
+              ".read": false,
+              ".write": false
+            },
+            "schools": {
+              "$schoolCode": {
+                "teacherAccounts_v2": {
+                  ".read": true,
+                  ".write": true
+                },
+                "classData_v2": {
+                  ".read": true,
+                  ".write": true
+                },
+                "pendingStudents_v2": {
+                  ".read": true,
+                  ".write": true
+                },
+                "classNotices_v2": {
+                  ".read": true,
+                  ".write": true
+                },
+                "classNames_v2": {
+                  ".read": true,
+                  ".write": true
+                }
+              }
+            }
+          }
+        }
+
+        ※ adminPassword 경로는 읽기/쓰기 모두 차단하여
+           외부에서 관리자 비밀번호를 직접 조회하지 못하게 합니다.
+
+    [2] Firebase API 키 도메인 제한
+        Google Cloud 콘솔(console.cloud.google.com)
+        → API 및 서비스 → 사용자 인증 정보
+        → Browser key → 애플리케이션 제한사항
+        → HTTP 리퍼러(웹사이트)에 본인 도메인만 추가
+        예: https://yourdomain.com/*
+
+    [3] 관리자 비밀번호 초기값 '0000' 즉시 변경
+        앱 실행 후 관리자 로그인 → 관리자 설정에서 비밀번호 변경
+    ══════════════════════════════════════════════════════════════════
+    */
     const firebaseConfig = {
         apiKey: "AIzaSyAs2K3MZXNjE0S3KaNdoS_w8o5sZW7PXe0",
         authDomain: "bookbuddy-1dfa8.firebaseapp.com",
@@ -658,6 +735,35 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
+    // ✅ [보안] 비밀번호 SHA-256 해싱 함수
+    async function hashPassword(pw) {
+        const msgBuffer = new TextEncoder().encode(pw);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    // 평문 or 해시값 모두 비교 가능 (마이그레이션 호환)
+    async function verifyPassword(inputPw, storedPw) {
+        if (!storedPw) return false;
+        // 이미 해시된 값이면 해시 비교, 아니면 평문 비교 후 자동 마이그레이션
+        const inputHash = await hashPassword(inputPw);
+        if (storedPw === inputHash) return true;
+        // 구버전 평문 저장된 경우 평문 비교 허용 (로그인 성공 시 자동 해시 저장)
+        if (storedPw === inputPw) return { migrate: true, hash: inputHash };
+        return false;
+    }
+
+    // ✅ [보안] XSS 방지 HTML 이스케이프 함수
+    function esc(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
     let students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, currentSid = null, myChart = null;
     let currentTeacher = null;
@@ -676,6 +782,34 @@
     // ✅ 학교 코드 (다중 학교 지원)
     let currentSchoolCode = null;
     let _dbListeners = []; // 등록된 리스너 추적 (학교 전환 시 해제용)
+
+    // ✅ [보안] 로그인 시도 횟수 제한 (Brute-force 방어)
+    const _loginAttempts = {}; // key → { count, lockedUntil }
+    const MAX_ATTEMPTS = 5;       // 최대 5회
+    const LOCKOUT_MS   = 5 * 60 * 1000; // 5분 잠금
+
+    function _checkLoginLock(key) {
+        const rec = _loginAttempts[key];
+        if (!rec) return true; // 기록 없음 → 허용
+        if (rec.lockedUntil && Date.now() < rec.lockedUntil) {
+            const remain = Math.ceil((rec.lockedUntil - Date.now()) / 1000);
+            alert(`로그인 시도 횟수를 초과했습니다.\n${remain}초 후 다시 시도해주세요.`);
+            return false;
+        }
+        return true;
+    }
+    function _recordLoginFail(key) {
+        if (!_loginAttempts[key]) _loginAttempts[key] = { count: 0, lockedUntil: null };
+        _loginAttempts[key].count++;
+        if (_loginAttempts[key].count >= MAX_ATTEMPTS) {
+            _loginAttempts[key].lockedUntil = Date.now() + LOCKOUT_MS;
+            _loginAttempts[key].count = 0;
+            alert(`비밀번호를 ${MAX_ATTEMPTS}회 틀렸습니다. 5분간 로그인이 잠깁니다.`);
+        }
+    }
+    function _recordLoginSuccess(key) {
+        delete _loginAttempts[key];
+    }
 
     function schoolRef(path) {
         if (!currentSchoolCode) { console.warn('schoolRef called without currentSchoolCode'); return db.ref('__null__'); }
@@ -807,7 +941,7 @@
             <div class="top5-item ${cls}" style="${isCurrent ? 'border-color: var(--primary); box-shadow: 0 3px 0px rgba(255,142,114,0.4);' : ''}">
                 <div class="top5-rank-icon">${icon}</div>
                 <div class="top5-info">
-                    <div class="top5-name">${s.name}${meLabel}</div>
+                    <div class="top5-name">${esc(s.name)}${meLabel}</div>
                     <div class="top5-books">${s.count}권 읽음</div>
                 </div>
                 <div class="top5-badge-wrap">${badge}</div>
@@ -868,7 +1002,7 @@
         renderTop7(listEl, labelEl, s.grade, s.classNum);
     }
 
-    function setTeacherPassword() {
+    async function setTeacherPassword() {
         const name = document.getElementById('teacherMgmtName').value.trim();
         const g = document.getElementById('teacherMgmtGrade').value;
         const c = document.getElementById('teacherMgmtClass').value;
@@ -876,7 +1010,6 @@
         if (!name) return alert("교사 이름(아이디)을 입력하세요.");
         if (!pw) return alert("비밀번호를 입력하세요.");
 
-        // 같은 학년/반 중복 체크
         const duplicate = Object.entries(teacherAccounts).find(([k, acc]) => {
             if (typeof acc === 'object') return String(acc.grade) === String(g) && String(acc.classNum) === String(c);
             return false;
@@ -887,19 +1020,19 @@
             schoolRef(`teacherAccounts_v2/${dupKey}`).remove();
         }
 
+        const hashedPw = await hashPassword(pw); // ✅ 해싱 적용
         const key = name;
-        schoolRef(`teacherAccounts_v2/${key}`).set({ name, grade: g, classNum: c, pw }).then(() => {
+        schoolRef(`teacherAccounts_v2/${key}`).set({ name, grade: g, classNum: c, pw: hashedPw }).then(() => {
             alert(`${name} 선생님 계정이 등록되었습니다. (${g}학년 ${c}반)`);
             document.getElementById('teacherMgmtName').value = '';
             document.getElementById('teacherMgmtPw').value = '';
         });
     }
 
-    function updateTeacherOwnPassword() {
+    async function updateTeacherOwnPassword() {
         const newPw = document.getElementById('newTeacherPwInput').value;
         if (!newPw) return alert("새 비밀번호를 입력하세요.");
         if (!currentTeacher || currentTeacher === 'super') return;
-        // currentTeacher는 "grade-classNum", teacherAccounts에서 해당 키 찾기
         const matchKey = Object.keys(teacherAccounts).find(k => {
             const acc = teacherAccounts[k];
             if (typeof acc === 'object') return `${acc.grade}-${acc.classNum}` === currentTeacher;
@@ -908,7 +1041,8 @@
         if (!matchKey) return alert("계정을 찾을 수 없습니다.");
         if (confirm("비밀번호를 변경하시겠습니까?")) {
             const acc = teacherAccounts[matchKey];
-            const updated = typeof acc === 'object' ? { ...acc, pw: newPw } : newPw;
+            const hashedPw = await hashPassword(newPw); // ✅ 해싱 적용
+            const updated = typeof acc === 'object' ? { ...acc, pw: hashedPw } : hashedPw;
             schoolRef(`teacherAccounts_v2/${matchKey}`).set(updated).then(() => {
                 alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
                 teacherLogout();
@@ -1020,17 +1154,30 @@
         document.getElementById('adminDirectModal').classList.add('hidden');
     }
 
-    function checkAdminDirectPw() {
+    async function checkAdminDirectPw() {
         const pw = document.getElementById('adminDirectInput').value;
         if (!pw) return alert("관리자 비밀번호를 입력하세요.");
-        db.ref('adminPassword').once('value', snap => {
-            if (pw === (snap.val() || '0000')) {
+        if (!_checkLoginLock('admin')) return;
+        db.ref('adminPassword').once('value', async snap => {
+            const stored = snap.val() || '0000';
+            // ✅ [보안] 해시 비교 (평문 '0000' 초기값도 허용)
+            const inputHash = await hashPassword(pw);
+            const match = (stored === inputHash) || (stored === '0000' && pw === '0000') || (stored === pw && stored === '0000');
+            if (match || stored === inputHash || (stored.length !== 64 && stored === pw)) {
+                _recordLoginSuccess('admin');
                 currentSchoolCode = null;
                 currentTeacher = 'super';
                 closeAdminDirectModal();
+                // ✅ 초기 비밀번호 '0000' 그대로면 강제 변경 모달
+                if (stored === '0000') {
+                    document.getElementById('forceAdminPwModal').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('forcePwNew').focus(), 100);
+                    return;
+                }
                 executeSwitch('teacher');
                 applyTeacherPermissions();
             } else {
+                _recordLoginFail('admin');
                 alert("관리자 인증 실패");
                 document.getElementById('adminDirectInput').value = '';
                 document.getElementById('adminDirectInput').focus();
@@ -1075,7 +1222,7 @@
         if (!pw) return alert("비밀번호를 입력하세요.");
         if (pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
 
-        db.ref(`schools/${schoolCode}/teacherAccounts_v2`).once('value', snap => {
+        db.ref(`schools/${schoolCode}/teacherAccounts_v2`).once('value', async snap => {
             const accounts = snap.val() || {};
             const duplicate = Object.values(accounts).find(acc =>
                 typeof acc === 'object' && String(acc.grade) === String(g) && String(acc.classNum) === String(c)
@@ -1083,7 +1230,8 @@
             if (duplicate) return alert(`이미 [${schoolCode}] 학교의 ${g}학년 ${c}반 교사 계정이 있습니다.`);
             if (accounts[name]) return alert("이미 사용 중인 이름(아이디)입니다.");
 
-            db.ref(`schools/${schoolCode}/teacherAccounts_v2/${name}`).set({ name, grade: g, classNum: c, pw }).then(() => {
+            const hashedPw = await hashPassword(pw); // ✅ 해싱 적용
+            db.ref(`schools/${schoolCode}/teacherAccounts_v2/${name}`).set({ name, grade: g, classNum: c, pw: hashedPw }).then(() => {
                 alert(`✅ 계정이 생성되었습니다!\n학교 코드: ${schoolCode}\n아이디: ${name}\n\n학생들에게 학교 코드 [${schoolCode}] 를 알려주세요!`);
                 closeAdminModal();
             });
@@ -1100,16 +1248,32 @@
     }
 
 
-    function checkAdminPw() {
+    async function checkAdminPw() {
         const pw = document.getElementById('adminInput').value;
         if (!pw) return alert("관리자 비밀번호를 입력하세요.");
-        // 관리자 비밀번호는 schools 루트가 아닌 전역 경로에 저장
-        db.ref('adminPassword').once('value', snap => {
-            if (pw === (snap.val() || '0000')) {
-                currentSchoolCode = null; // 관리자는 학교코드 불필요
+        if (!_checkLoginLock('admin')) return;
+        db.ref('adminPassword').once('value', async snap => {
+            const stored = snap.val() || '0000';
+            // ✅ [보안] 해시 비교 + 초기값 '0000' 평문 허용 (마이그레이션)
+            const inputHash = await hashPassword(pw);
+            const match = (stored === inputHash) || (stored.length !== 64 && stored === pw);
+            if (match) {
+                _recordLoginSuccess('admin');
+                currentSchoolCode = null;
                 currentTeacher = 'super';
-                executeSwitch('teacher'); closeAdminModal(); applyTeacherPermissions();
-            } else alert("관리자 인증 실패");
+                closeAdminModal();
+                // ✅ 초기 비밀번호 '0000' 그대로면 강제 변경 모달
+                if (stored === '0000') {
+                    document.getElementById('forceAdminPwModal').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('forcePwNew').focus(), 100);
+                    return;
+                }
+                executeSwitch('teacher');
+                applyTeacherPermissions();
+            } else {
+                _recordLoginFail('admin');
+                alert("관리자 인증 실패");
+            }
         });
     }
 
@@ -1120,11 +1284,21 @@
         if (!schoolCode) return alert("학교 코드를 입력하세요.");
         if (!id) return alert("아이디(이름)를 입력하세요.");
         if (!pw) return alert("비밀번호를 입력하세요.");
-        db.ref(`schools/${schoolCode}/teacherAccounts_v2/${id}`).once('value', snap => {
+        // ✅ 로그인 잠금 체크
+        const lockKey = `teacher:${schoolCode}:${id}`;
+        if (!_checkLoginLock(lockKey)) return;
+        db.ref(`schools/${schoolCode}/teacherAccounts_v2/${id}`).once('value', async snap => {
             const acc = snap.val();
             if (!acc) return alert("해당 교사 계정이 없습니다.\n학교 코드와 아이디를 확인하세요.");
-            if (pw !== acc.pw) return alert("비밀번호가 틀렸습니다.");
-            // 학교 코드 확정 후 리스너 연결
+            const result = await verifyPassword(pw, acc.pw);
+            if (!result) {
+                _recordLoginFail(lockKey);
+                return alert("비밀번호가 틀렸습니다.");
+            }
+            _recordLoginSuccess(lockKey);
+            if (result.migrate) {
+                db.ref(`schools/${schoolCode}/teacherAccounts_v2/${id}/pw`).set(result.hash);
+            }
             currentSchoolCode = schoolCode;
             attachSchoolListeners();
             const g = acc.grade, c = acc.classNum;
@@ -1264,11 +1438,12 @@
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
-    function promptResetTeacherPw(schoolCode, teacherName) {
+    async function promptResetTeacherPw(schoolCode, teacherName) {
         const newPw = prompt(`[${schoolCode}] ${teacherName} 선생님의 새 임시 비밀번호를 입력하세요:`);
         if (newPw === null) return; // 취소
         if (!newPw.trim()) return alert("비밀번호를 입력하세요.");
-        db.ref(`schools/${schoolCode}/teacherAccounts_v2/${teacherName}/pw`).set(newPw.trim()).then(() => {
+        const hashedPw = await hashPassword(newPw.trim()); // ✅ [보안] 해싱 후 저장
+        db.ref(`schools/${schoolCode}/teacherAccounts_v2/${teacherName}/pw`).set(hashedPw).then(() => {
             alert(`✅ ${teacherName} 선생님 비밀번호가 재설정되었습니다.\n임시 비밀번호: ${newPw.trim()}\n\n선생님께 전달 후 로그인해서 직접 변경하도록 안내해주세요.`);
         }).catch(() => alert("재설정 실패. 다시 시도해주세요."));
     }
@@ -1329,20 +1504,20 @@
             if (s.isPending) {
                 return `<div class="card" style="border-color:#ff9800; background:#fffcf5;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div><div style="font-weight:bold; font-size:16px;">${s.name} <span class="wait-badge">승인 대기</span></div>
-                        <div style="font-size:12px; color:#888; margin-top:4px;">${s.grade}학년 ${s.classNum}반</div></div>
-                        <div><button class="btn-approve" onclick="approveStudent('${s.id}')">승인</button><button class="btn-reject" onclick="rejectStudent('${s.id}')">거절</button></div>
+                        <div><div style="font-weight:bold; font-size:16px;">${esc(s.name)} <span class="wait-badge">승인 대기</span></div>
+                        <div style="font-size:12px; color:#888; margin-top:4px;">${esc(s.grade)}학년 ${esc(s.classNum)}반</div></div>
+                        <div><button class="btn-approve" onclick="approveStudent('${esc(s.id)}')">승인</button><button class="btn-reject" onclick="rejectStudent('${esc(s.id)}')">거절</button></div>
                     </div></div>`;
             } else {
                 const readingBadge = getReadingBadge(bc);
                 return `<div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div><div style="font-weight:bold; font-size:16px;">${s.name}${readingBadge ? ' ' + readingBadge : ''}</div>
-                        <div style="font-size:12px; color:#888; margin-top:4px;">${s.grade}학년 ${s.classNum}반 | 독서 ${bc}권</div></div>
+                        <div><div style="font-weight:bold; font-size:16px;">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''}</div>
+                        <div style="font-size:12px; color:#888; margin-top:4px;">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div></div>
                         <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
-                            <button class="btn-books" onclick="showBookView('${s.id}')">📚 독서록</button>
-                            <button class="btn-pw" onclick="showPwView('${s.id}')">🔑 비번</button>
-                            <button class="btn-del" onclick="deleteStudent('${s.id}')">삭제</button>
+                            <button class="btn-books" onclick="showBookView('${esc(s.id)}')">📚 독서록</button>
+                            <button class="btn-pw" onclick="showPwView('${esc(s.id)}')">🔑 비번</button>
+                            <button class="btn-del" onclick="deleteStudent('${esc(s.id)}')">삭제</button>
                         </div>
                     </div></div>`;
             }
@@ -1365,18 +1540,19 @@
 
             function makeBookItem([key, b]) {
                 const imgArr = b.images && Array.isArray(b.images) ? b.images : (b.image ? [b.image] : []);
+                // ✅ XSS: data URL만 허용
                 const imgHtml = imgArr.length > 0
-                    ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0;">${imgArr.map(src => `<img src="${src}" class="book-item-img" style="width:calc(33% - 4px);">`).join('')}</div>`
+                    ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0;">${imgArr.filter(src => String(src).startsWith('data:')).map(src => `<img src="${src}" class="book-item-img" style="width:calc(33% - 4px);">`).join('')}</div>`
                     : '';
-                const audioHtml = b.audio
+                const audioHtml = b.audio && String(b.audio).startsWith('data:')
                     ? `<div class="rec-audio-wrap" style="margin:6px 0;"><span class="rec-play-icon">🎙️</span><audio controls src="${b.audio}" style="flex:1; height:34px;"></audio></div>`
                     : '';
                 return `<div class="book-item">
-                    <div class="book-item-title">${b.title}</div>
-                    <div class="book-item-rating">${b.rating}</div>
+                    <div class="book-item-title">${esc(b.title)}</div>
+                    <div class="book-item-rating">${esc(b.rating)}</div>
                     ${imgHtml}
                     ${audioHtml}
-                    <div class="book-item-review">${b.review || '(감상 없음)'}</div>
+                    <div class="book-item-review">${esc(b.review || '(감상 없음)')}</div>
                     <div class="book-item-date">${new Date(b.date).toLocaleDateString()}</div>
                 </div>`;
             }
@@ -1416,10 +1592,27 @@
     function showPwView(sid) {
         const s = rawData[sid]; if (!s) return;
         if (currentTeacher && currentTeacher !== 'super' && !_isMyStudent(s.grade, s.classNum)) return alert("다른 반 학생의 정보는 볼 수 없습니다.");
-        document.getElementById('pwViewTitle').innerText = `🔑 ${s.name} 비밀번호`;
-        document.getElementById('pwViewContent').innerText = s.pw || '(없음)';
-        document.getElementById('pwViewSub').innerText = "교사만 확인 가능한 정보입니다";
+        document.getElementById('pwViewTitle').innerText = `🔑 ${s.name} 비밀번호 초기화`;
+        // ✅ [보안] 비밀번호는 해시 저장으로 평문 열람 불가 — 초기화 기능만 제공
+        document.getElementById('pwViewContent').innerText = '●●●●●●';
+        document.getElementById('pwViewSub').innerHTML =
+            `비밀번호는 암호화 저장되어 확인 불가합니다.<br>
+             <button onclick="resetStudentPw('${esc(sid)}')"
+               style="margin-top:10px; background:#ff8e72; color:white; border:none; border-radius:12px;
+                      padding:8px 18px; font-size:13px; font-weight:bold; cursor:pointer;">
+               🔄 비밀번호 초기화 (1234)
+             </button>`;
         document.getElementById('pwViewModal').classList.remove('hidden');
+    }
+
+    async function resetStudentPw(sid) {
+        const s = rawData[sid]; if (!s) return;
+        if (!confirm(`${s.name} 학생의 비밀번호를 1234로 초기화하시겠습니까?`)) return;
+        const newHash = await hashPassword('1234');
+        schoolRef(`classData_v2/students/${sid}/pw`).set(newHash).then(() => {
+            alert(`${s.name} 학생의 비밀번호가 1234로 초기화되었습니다.\n학생에게 안내 후 변경하도록 해주세요.`);
+            closePwViewModal();
+        });
     }
     function closePwViewModal() { document.getElementById('pwViewModal').classList.add('hidden'); }
 
@@ -1466,22 +1659,30 @@
         sel.innerHTML = html;
     }
 
-    function studentLogin() {
+    async function studentLogin() {
         const sid = document.getElementById('loginSelect').value, pw = document.getElementById('loginPw').value;
         if (!sid) return alert("이름을 선택하세요.");
-        if (rawData[sid].pw === pw) {
-            currentSid = sid;
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('writeSection').classList.remove('hidden');
-            updateWelcomeMsg(sid);
-            document.getElementById('welcomeClass').innerText = `${rawData[sid].grade}학년 ${rawData[sid].classNum}반`;
-            renderHistory(); renderChart(sid); renderStudentNotice();
-            renderTop7ForStudent(); // ✅ 로그인 시 TOP7 렌더링
-            // ✅ 캘린더 초기화 (이번 달로 리셋)
-            calYear = new Date().getFullYear();
-            calMonth = new Date().getMonth();
-            renderCalendar(sid);
-        } else alert("비밀번호가 틀렸습니다.");
+        // ✅ 로그인 잠금 체크
+        if (!_checkLoginLock(`student:${sid}`)) return;
+        const result = await verifyPassword(pw, rawData[sid].pw);
+        if (!result) {
+            _recordLoginFail(`student:${sid}`);
+            return alert("비밀번호가 틀렸습니다.");
+        }
+        _recordLoginSuccess(`student:${sid}`);
+        if (result.migrate) {
+            schoolRef(`classData_v2/students/${sid}/pw`).set(result.hash);
+        }
+        currentSid = sid;
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('writeSection').classList.remove('hidden');
+        updateWelcomeMsg(sid);
+        document.getElementById('welcomeClass').innerText = `${rawData[sid].grade}학년 ${rawData[sid].classNum}반`;
+        renderHistory(); renderChart(sid); renderStudentNotice();
+        renderTop7ForStudent();
+        calYear = new Date().getFullYear();
+        calMonth = new Date().getMonth();
+        renderCalendar(sid);
     }
 
     function studentLogout() {
@@ -1489,7 +1690,7 @@
         cancelEditBook();
         document.getElementById('loginSection').classList.remove('hidden');
         document.getElementById('writeSection').classList.add('hidden');
-        renderTop7FromFilter(); // ✅ 로그아웃 시 로그인화면 TOP7 갱신
+        renderTop7FromFilter();
     }
     function switchStudentTab(tab) {
         document.getElementById('panelLogin').classList.toggle('hidden', tab !== 'login');
@@ -1498,12 +1699,14 @@
         document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
     }
 
-    function changeStudentPassword() {
+    async function changeStudentPassword() {
         const currentPwInput = document.getElementById('changeCurrentPw').value, newPwInput = document.getElementById('changeNewPw').value;
         if (!currentPwInput || !newPwInput) return alert("비밀번호를 모두 입력해주세요.");
-        if (rawData[currentSid].pw !== currentPwInput) return alert("현재 비밀번호가 일치하지 않습니다.");
+        const result = await verifyPassword(currentPwInput, rawData[currentSid].pw); // ✅ 해시 비교
+        if (!result) return alert("현재 비밀번호가 일치하지 않습니다.");
         if (confirm("비밀번호를 변경하시겠습니까?")) {
-            schoolRef(`classData_v2/students/${currentSid}/pw`).set(newPwInput).then(() => {
+            const newHash = await hashPassword(newPwInput); // ✅ 해싱 후 저장
+            schoolRef(`classData_v2/students/${currentSid}/pw`).set(newHash).then(() => {
                 alert("비밀번호가 성공적으로 변경되었습니다.");
                 document.getElementById('changeCurrentPw').value = ""; document.getElementById('changeNewPw').value = "";
             });
@@ -1561,7 +1764,7 @@
         document.getElementById('headerClassName').innerText = '학년/반을 선택해주세요';
     }
 
-    function db_addStudent() {
+    async function db_addStudent() {
         let g, c;
         if (currentTeacher && currentTeacher !== 'super') {
             [g, c] = currentTeacher.split('-');
@@ -1575,7 +1778,8 @@
         }
         const n = document.getElementById('newName').value.trim(), p = document.getElementById('newPw').value;
         if (!n || !p) return alert("정보를 모두 입력하세요.");
-        schoolRef('classData_v2/students').push({ name: n, grade: g, classNum: c, pw: p, books: {} }).then(() => {
+        const hashedPw = await hashPassword(p); // ✅ [보안] 비밀번호 해싱 후 저장
+        schoolRef('classData_v2/students').push({ name: n, grade: g, classNum: c, pw: hashedPw, books: {} }).then(() => {
             alert("등록되었습니다.");
             document.getElementById('newName').value = "";
             document.getElementById('newPw').value = "";
@@ -1602,18 +1806,28 @@
     function addBookImage(input) {
         if (!input.files || !input.files[0]) return;
         if (selectedImagesBase64.length >= 3) { alert("사진은 최대 3장까지 등록할 수 있습니다."); input.value = ""; return; }
+        // ✅ 원본 파일 크기 사전 체크 (10MB 초과 차단)
+        if (input.files[0].size > 10 * 1024 * 1024) { alert("파일 크기가 너무 큽니다. (최대 10MB)"); input.value = ""; return; }
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 400;
+                // ✅ 최대 해상도 600px로 제한 (Firebase 용량 절감)
+                const MAX_WIDTH = 600;
                 let width = img.width, height = img.height;
                 if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                 canvas.width = width; canvas.height = height;
                 canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-                selectedImagesBase64.push(dataUrl);
+                // ✅ JPEG 품질 0.6 (용량/화질 균형)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                // ✅ Base64 결과 크기 체크 (500KB 초과 시 추가 압축)
+                if (dataUrl.length > 500 * 1024) {
+                    const dataUrl2 = canvas.toDataURL('image/jpeg', 0.4);
+                    selectedImagesBase64.push(dataUrl2);
+                } else {
+                    selectedImagesBase64.push(dataUrl);
+                }
                 input.value = "";
                 renderMultiImagePreview();
             };
@@ -1667,6 +1881,16 @@
             mediaRecorder.onstop = () => {
                 stream.getTracks().forEach(t => t.stop());
                 const blob = new Blob(recChunks, { type: mimeType });
+                // ✅ 오디오 크기 제한: 2MB 초과 시 저장 거부 (Firebase 비용 방지)
+                const MAX_AUDIO_BYTES = 2 * 1024 * 1024;
+                if (blob.size > MAX_AUDIO_BYTES) {
+                    alert("녹음 파일이 너무 큽니다. 다시 시도해주세요. (최대 2MB)");
+                    clearInterval(recTimer);
+                    document.getElementById('recStatus').classList.add('hidden');
+                    document.getElementById('recStartBtn').classList.remove('hidden');
+                    document.getElementById('recStopBtn').classList.add('hidden');
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = function(ev) {
                     recordedAudioBase64 = ev.target.result;
@@ -1804,8 +2028,14 @@
         const t = document.getElementById('bookTitle').value.trim(), r = document.getElementById('bookRating').value, v = document.getElementById('bookReview').value;
         if(!t) return alert("제목을 입력하세요.");
 
+        // ✅ 저장 전 전체 데이터 용량 체크 (이미지+오디오 합산 3MB 제한)
+        const imgTotalBytes = selectedImagesBase64.reduce((acc, s) => acc + s.length * 0.75, 0);
+        const audioBytes = recordedAudioBase64 ? recordedAudioBase64.length * 0.75 : 0;
+        if (imgTotalBytes + audioBytes > 3 * 1024 * 1024) {
+            return alert("첨부 파일 용량이 너무 큽니다.\n사진이나 녹음을 줄여주세요. (합산 최대 3MB)");
+        }
+
         if (editingBookId) {
-            // ✅ 수정 시: 원래 날짜(date) 유지
             const origDate = rawData[currentSid].books[editingBookId].date;
             const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: origDate };
             schoolRef(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
@@ -1884,24 +2114,26 @@
 
         function makeCard([key, b]) {
             const imgArr = b.images && Array.isArray(b.images) ? b.images : (b.image ? [b.image] : []);
+            // ✅ XSS: 이미지 src는 data URL만 허용 (외부 URL 차단)
             const imgHtml = imgArr.length > 0
-                ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0;">${imgArr.map(src => `<img src="${src}" style="width:calc(33% - 4px); border-radius:10px; border:1px solid var(--border);">`).join('')}</div>`
+                ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0;">${imgArr.filter(src => String(src).startsWith('data:')).map(src => `<img src="${src}" style="width:calc(33% - 4px); border-radius:10px; border:1px solid var(--border);">`).join('')}</div>`
                 : '';
-            const audioHtml = b.audio
+            // ✅ XSS: 오디오 src도 data URL만 허용
+            const audioHtml = b.audio && String(b.audio).startsWith('data:')
                 ? `<div class="rec-audio-wrap" style="margin:8px 0;"><span class="rec-play-icon">🎙️</span><audio controls src="${b.audio}" style="flex:1; height:34px;"></audio></div>`
                 : '';
             return `<div class="card" style="margin-bottom:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div style="font-weight:bold; font-size:16px;">${b.title}</div>
+                    <div style="font-weight:bold; font-size:16px;">${esc(b.title)}</div>
                     <div style="display:flex; gap:4px;">
-                        <button class="btn-edit" onclick="editBook('${key}')">수정</button>
-                        <button class="btn-del" onclick="deleteBook('${key}')">삭제</button>
+                        <button class="btn-edit" onclick="editBook('${esc(key)}')">수정</button>
+                        <button class="btn-del" onclick="deleteBook('${esc(key)}')">삭제</button>
                     </div>
                 </div>
-                <div style="color:var(--primary-dark); font-size:14px; margin:4px 0;">${b.rating}</div>
+                <div style="color:var(--primary-dark); font-size:14px; margin:4px 0;">${esc(b.rating)}</div>
                 ${imgHtml}
                 ${audioHtml}
-                <div style="font-size:14px; color:#666;">${b.review}</div>
+                <div style="font-size:14px; color:#666;">${esc(b.review)}</div>
                 <div style="font-size:11px; color:#aaa; margin-top:8px;">${new Date(b.date).toLocaleDateString()}</div>
             </div>`;
         }
@@ -1974,18 +2206,18 @@
         });
     }
 
-    function submitSignup() {
+    async function submitSignup() {
         const n = document.getElementById('signupName').value.trim(), g = document.getElementById('signupGrade').value, c = document.getElementById('signupClass').value, p = document.getElementById('signupPw').value, pc = document.getElementById('signupPwConfirm').value;
         if(!n || !p) return alert("모든 항목을 입력해주세요.");
         if(p !== pc) return alert("비밀번호가 일치하지 않습니다.");
-        // 해당 학년/반 교사 계정이 있는지 확인
-        schoolRef('teacherAccounts_v2').once('value', snap => {
+        schoolRef('teacherAccounts_v2').once('value', async snap => {
             const accounts = snap.val() || {};
             const hasTeacher = Object.values(accounts).some(acc =>
                 typeof acc === 'object' && String(acc.grade) === String(g) && String(acc.classNum) === String(c)
             );
             if (!hasTeacher) return alert(`${g}학년 ${c}반은 아직 개설되지 않은 반입니다.\n선생님께 문의해주세요.`);
-            schoolRef('pendingStudents_v2').push({ name:n, grade:g, classNum:c, pw:p }).then(() => { alert("가입 신청 완료! 승인을 기다려주세요."); switchStudentTab('login'); });
+            const hashedPw = await hashPassword(p); // ✅ 해싱 적용
+            schoolRef('pendingStudents_v2').push({ name:n, grade:g, classNum:c, pw:hashedPw }).then(() => { alert("가입 신청 완료! 승인을 기다려주세요."); switchStudentTab('login'); });
         });
     }
 
@@ -2031,16 +2263,41 @@
         document.body.removeChild(link);
     }
 
-    function updateAdminPassword() {
+    async function updateAdminPassword() {
         const newPw = document.getElementById('newAdminPwInput').value;
         if(!newPw) return alert("새 암호를 입력하세요.");
-        db.ref('adminPassword').set(newPw).then(() => { alert("관리자 암호 변경 완료."); document.getElementById('newAdminPwInput').value = ""; });
+        const hashedPw = await hashPassword(newPw); // ✅ [보안] 해싱 후 저장
+        db.ref('adminPassword').set(hashedPw).then(() => { alert("관리자 암호 변경 완료."); document.getElementById('newAdminPwInput').value = ""; });
     }
 
-    function updateAdminPasswordFromSuper() {
+    // ✅ [보안] 초기 비밀번호 강제 변경
+    async function doForceAdminPwChange() {
+        const newPw  = document.getElementById('forcePwNew').value;
+        const confirm2 = document.getElementById('forcePwConfirm').value;
+        if (!newPw) return alert("새 비밀번호를 입력하세요.");
+        if (newPw.length < 4) return alert("비밀번호는 4자리 이상이어야 합니다.");
+        if (newPw === '0000') return alert("초기 비밀번호와 동일하게 설정할 수 없습니다.");
+        if (newPw !== confirm2) return alert("비밀번호 확인이 일치하지 않습니다.");
+        const hashedPw = await hashPassword(newPw); // ✅ [보안] 해싱 후 저장
+        await db.ref('adminPassword').set(hashedPw);
+        document.getElementById('forceAdminPwModal').classList.add('hidden');
+        document.getElementById('forcePwNew').value = '';
+        document.getElementById('forcePwConfirm').value = '';
+        alert("✅ 비밀번호가 변경되었습니다. 이제 관리자 기능을 사용할 수 있습니다.");
+        executeSwitch('teacher');
+        applyTeacherPermissions();
+    }
+
+    async function updateAdminPasswordFromSuper() {
         const newPw = document.getElementById('newSignupCodeInput').value;
-        if(!newPw) return alert("새 비밀번호를 입력하세요.");
-        db.ref('adminPassword').set(newPw).then(() => { alert("관리자 비밀번호가 변경되었습니다."); document.getElementById('newSignupCodeInput').value = ""; });
+        if (!newPw) return alert("새 비밀번호를 입력하세요.");
+        if (newPw.length < 4) return alert("비밀번호는 4자리 이상이어야 합니다.");
+        if (newPw === '0000') return alert("초기 비밀번호(0000)는 사용할 수 없습니다.");
+        const hashedPw = await hashPassword(newPw); // ✅ [보안] 해싱 후 저장
+        db.ref('adminPassword').set(hashedPw).then(() => {
+            alert("관리자 비밀번호가 변경되었습니다.");
+            document.getElementById('newSignupCodeInput').value = "";
+        });
     }
 
     function getNoticeKey() {
@@ -2085,7 +2342,7 @@
         } else {
             el.className = '';
             const dateStr = new Date(notice.updatedAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            el.innerHTML = `<div style="font-size:11px; color:#aaa; margin-bottom:6px;">${dateStr} 저장됨</div><div style="font-size:14px; color:#5d4037; white-space:pre-wrap; word-break:break-all;">${notice.content}</div>`;
+            el.innerHTML = `<div style="font-size:11px; color:#aaa; margin-bottom:6px;">${dateStr} 저장됨</div><div style="font-size:14px; color:#5d4037; white-space:pre-wrap; word-break:break-all;">${esc(notice.content)}</div>`;
             document.getElementById('noticeInput').value = notice.content;
         }
     }
