@@ -1425,7 +1425,7 @@
             const teacherName = matchKey ? teacherAccounts[matchKey].name : '';
             badge.innerHTML = `<span class="teacher-badge">🏫 ${teacherName ? teacherName + ' 선생님 · ' : ''}${className}</span><br><span style="font-size:11px;opacity:0.8;">${currentSchoolCode}</span>`;
         }
-        syncHeaderAndStats(); renderAll(); renderTeacherAccountList(); renderNoticePreview();
+        syncHeaderAndStats(); renderAll(); renderNoticePreview();
         if (isSuper) loadSchoolCodeList();
         updateAddStudentSelects();
     }
@@ -1482,25 +1482,6 @@
                     // 교사 목록 HTML
                     const pendingTeachers = school.teacherPending || {};
                     const pendingCount = Object.keys(pendingTeachers).length;
-                    const teacherListHtml = teacherCount === 0
-                        ? '<p style="font-size:12px;color:#bbb;text-align:center;margin:8px 0;">등록된 교사 없음</p>'
-                        : Object.entries(teachers).map(([key, acc]) => {
-                            const name = typeof acc === 'object' ? acc.name : key;
-                            const grade = typeof acc === 'object' ? acc.grade : '?';
-                            const classNum = typeof acc === 'object' ? acc.classNum : '?';
-                            const safeCode = code.replace(/'/g, "\\'");
-                            const safeName = name.replace(/'/g, "\\'");
-                            return `<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:white; border:1.5px solid #f0e6ff; border-radius:10px; margin-bottom:6px;">
-                                <div>
-                                    <div style="font-size:13px; font-weight:bold; color:#4a4a4a;">👤 ${name} 선생님</div>
-                                    <div style="font-size:11px; color:#aaa; margin-top:2px;">${grade}학년 ${classNum}반</div>
-                                </div>
-                                <button onclick="promptResetTeacherPw('${safeCode}','${safeName}')"
-                                    style="background:#f3e5f5; color:#7b1fa2; border:1.5px solid #ce93d8; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer; white-space:nowrap;">
-                                    🔑 비번 재설정
-                                </button>
-                            </div>`;
-                        }).join('');
 
                     // 승인 대기 교사 목록 HTML
                     const pendingListHtml = pendingCount === 0 ? '' :
@@ -1537,7 +1518,6 @@
                         </div>
                         <div id="${panelId}" style="display:${hasPending ? 'block' : 'none'};padding:4px 12px 12px 12px;border-top:1.5px solid #f0e6ff;background:#fdf6ff;">
                             ${pendingListHtml}
-                            ${teacherListHtml}
                         </div>
                     </div>`;
                 }).join('');
