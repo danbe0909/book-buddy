@@ -283,6 +283,14 @@
             </div>
         </div>
 
+        <!-- ✅ 교사용 TOP 7 독서왕 카드 -->
+        <div id="top5CardTeacher" class="top5-card">
+            <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
+            <div style="font-size:15px;color:#aaa;text-align:center;margin-top:-4px;margin-bottom:4px;font-weight:bold;" id="top5MonthLabelTeacher"></div>
+            <div id="top5ClassLabelTeacher" class="top5-class-label"></div>
+            <div id="top5ListTeacher"><div class="top5-empty">학년/반을 선택하면 독서왕을 확인할 수 있어요!</div></div>
+        </div>
+
         <div id="panelStudents">
             <div class="card">
                 <h4 style="margin:0 0 12px 0; color:var(--primary-dark); font-size:18px;">📂 학급 관리 도구</h4>
@@ -917,7 +925,7 @@
         const cnVal = allClassNames[`${grade}-${classNum}`];
         const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${grade}학년 ${classNum}반`;
         labelEl.innerText = className;
-        const monthLabelEl = listEl === document.getElementById('top5List') ? document.getElementById('top5MonthLabel') : document.getElementById('top5MonthLabelWrite');
+        const monthLabelEl = listEl === document.getElementById('top5List') ? document.getElementById('top5MonthLabel') : listEl === document.getElementById('top5ListTeacher') ? document.getElementById('top5MonthLabelTeacher') : document.getElementById('top5MonthLabelWrite');
         if (monthLabelEl) monthLabelEl.innerText = `${now.getMonth() + 1}월 기준`;
 
         if (maxCount === 0) {
@@ -1002,7 +1010,17 @@
         renderTop7(listEl, labelEl, s.grade, s.classNum);
     }
 
-    async function setTeacherPassword() {
+    // ✅ 교사 로그인 후 선택된 반 TOP7
+    function renderTop7ForTeacher() {
+        if (!isTeacherMode) return;
+        const g = document.getElementById('editNameGrade').value;
+        const c = document.getElementById('editNameClass').value;
+        const listEl = document.getElementById('top5ListTeacher');
+        const labelEl = document.getElementById('top5ClassLabelTeacher');
+        renderTop7(listEl, labelEl, g, c);
+    }
+
+
         const name = document.getElementById('teacherMgmtName').value.trim();
         const g = document.getElementById('teacherMgmtGrade').value;
         const c = document.getElementById('teacherMgmtClass').value;
@@ -1340,7 +1358,7 @@
             const teacherName = matchKey ? teacherAccounts[matchKey].name : '';
             badge.innerHTML = `<span class="teacher-badge">🏫 ${teacherName ? teacherName + ' 선생님 · ' : ''}${className}</span><br><span style="font-size:11px;opacity:0.8;">${currentSchoolCode}</span>`;
         }
-        syncHeaderAndStats(); renderAll(); renderTeacherAccountList(); renderNoticePreview();
+        syncHeaderAndStats(); renderAll(); renderTeacherAccountList(); renderNoticePreview(); renderTop7ForTeacher();
         if (isSuper) loadSchoolCodeList();
         updateAddStudentSelects();
     }
@@ -1483,7 +1501,7 @@
             document.getElementById('statTotalStudents').innerText = classStudents.length + "명";
             let totalBooks = 0; classStudents.forEach(s => { if(s.books) totalBooks += Object.keys(s.books).length; });
             document.getElementById('statTotalBooks').innerText = totalBooks + "권";
-            if(isTeacherMode) renderAll();
+            if(isTeacherMode) { renderAll(); renderTop7ForTeacher(); }
         } else header.innerText = "학년/반을 선택해주세요";
     }
 
