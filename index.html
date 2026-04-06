@@ -195,8 +195,8 @@
 <body>
 
 <div class="mode-selector">
-    <button id="sModeBtn" class="mode-btn active" onclick="executeSwitch('student')">👶 학생 접속</button>
-    <button id="tModeBtn" class="mode-btn" onclick="openTeacherModal()">👩‍🏫 교사 관리 🔒</button>
+    <button id="sModeBtn" class="mode-btn active">👶 학생 접속</button>
+    <button id="tModeBtn" class="mode-btn">👩‍🏫 교사 관리 🔒</button>
 </div>
 
 <header>
@@ -2539,6 +2539,18 @@
         if (calMonth > 11) { calMonth = 0; calYear++; }
         renderCalendar(currentSid);
     }
+
+    // ✅ 모드 버튼 - onclick 대신 addEventListener로 확실하게 연결
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('sModeBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            executeSwitch('student');
+        });
+        document.getElementById('tModeBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            openTeacherModal();
+        });
+    });
 </script>
 </body>
 </html>
