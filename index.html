@@ -2041,7 +2041,19 @@
             schoolRef(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
                 .then(() => { alert("수정되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         } else {
+            // ✅ 하루 최대 3권 제한 체크
             const _now = new Date();
+            const _todayStr = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
+            const _books = rawData[currentSid] && rawData[currentSid].books ? rawData[currentSid].books : {};
+            const _todayCount = Object.values(_books).filter(b => {
+                if (!b.date) return false;
+                const _d = b.date.endsWith('Z') || b.date.includes('+') ? new Date(b.date) : new Date(b.date.substring(0, 10));
+                const _ds = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
+                return _ds === _todayStr;
+            }).length;
+            if (_todayCount >= 3) {
+                return alert("📚 오늘은 이미 3권을 기록했어요!\n하루 최대 3권까지만 기록할 수 있습니다.");
+            }
             const _localDate = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}T${String(_now.getHours()).padStart(2,'0')}:${String(_now.getMinutes()).padStart(2,'0')}:${String(_now.getSeconds()).padStart(2,'0')}`;
             const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: _localDate };
             schoolRef(`classData_v2/students/${currentSid}/books`).push(bookData)
