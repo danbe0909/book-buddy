@@ -1593,11 +1593,12 @@
                 const readingBadge = getReadingBadge(bc);
                 return `<div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <button class="student-name-btn" onclick="showStudentPreview('${esc(s.id)}')">
-                            <div class="name-text">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''} 👁️</div>
-                            <div class="class-text">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div>
-                        </button>
+                        <div>
+                            <div style="font-weight:bold; font-size:16px;">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''}</div>
+                            <div style="font-size:12px; color:#888; margin-top:4px;">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div>
+                        </div>
                         <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
+                            <button class="btn-preview" onclick="showStudentPreview('${esc(s.id)}')">👁️ 화면보기</button>
                             <button class="btn-books" onclick="showBookView('${esc(s.id)}')">📚 독서록</button>
                             <button class="btn-pw" onclick="showPwView('${esc(s.id)}')">🔑 비번</button>
                             <button class="btn-del" onclick="deleteStudent('${esc(s.id)}')">삭제</button>
