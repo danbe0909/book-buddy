@@ -285,22 +285,6 @@
             </div>
         </div>
 
-        <div id="panelTeacherMgmt" class="hidden">
-            <div class="card" style="border-color:#f093fb;">
-                <h4 style="margin:0 0 12px 0; color:#8e24aa; font-size:18px;">👩‍🏫 교사 계정 관리</h4>
-                <div id="teacherAccountList"><p style="color:#aaa; font-size:13px; text-align:center;">로딩 중...</p></div>
-                <hr style="border:0; border-top:2px solid var(--border); margin:16px 0;">
-                <h5 style="margin:0 0 10px 0; color:#6a1b9a; font-size:14px;">➕ 교사 직접 추가</h5>
-                <input type="text" id="teacherMgmtName" placeholder="교사 이름 (아이디)">
-                <div class="grade-row">
-                    <select id="teacherMgmtGrade"><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option></select>
-                    <select id="teacherMgmtClass"><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option></select>
-                </div>
-                <input type="password" id="teacherMgmtPw" placeholder="비밀번호">
-                <button class="btn-main" style="background:linear-gradient(135deg,#ce93d8,#9c27b0); box-shadow:0 4px 0px #6a1b9a;" onclick="setTeacherPassword()">교사 계정 등록</button>
-            </div>
-        </div>
-
         <div id="panelStudents">
             <div class="card">
                 <h4 style="margin:0 0 12px 0; color:var(--primary-dark); font-size:18px;">📂 학급 관리 도구</h4>
@@ -1368,7 +1352,7 @@
         });
     }
 
-    function checkTeacherPw() {
+    async function checkTeacherPw() {
         const schoolCode = document.getElementById('teacherLoginSchoolCode').value.trim().replace(/\s/g,'');
         const id = document.getElementById('teacherLoginId').value.trim();
         const pw = document.getElementById('teacherLoginPw').value;
@@ -1378,15 +1362,17 @@
         // ✅ 로그인 잠금 체크
         const lockKey = `teacher:${schoolCode}:${id}`;
         if (!_checkLoginLock(lockKey)) return;
+
+        // ✅ [버그수정] 승인 대기 여부를 먼저 확인 (teacherAccounts_v2보다 먼저)
+        const pendingSnapFirst = await db.ref(`schools/${schoolCode}/teacherPending/${id}`).once('value');
+        const pendingFirst = pendingSnapFirst.val();
+        if (pendingFirst && pendingFirst.status === 'pending') {
+            return alert("⏳ 가입 신청이 승인 대기 중입니다.\n관리자 승인 후 로그인할 수 있습니다.");
+        }
+
         db.ref(`schools/${schoolCode}/teacherAccounts_v2/${id}`).once('value', async snap => {
             const acc = snap.val();
             if (!acc) {
-                // ✅ 승인 대기 여부 확인
-                const pendingSnap = await db.ref(`schools/${schoolCode}/teacherPending/${id}`).once('value');
-                const pending = pendingSnap.val();
-                if (pending && pending.status === 'pending') {
-                    return alert("⏳ 가입 신청이 승인 대기 중입니다.\n관리자 승인 후 로그인할 수 있습니다.");
-                }
                 return alert("해당 교사 계정이 없습니다.\n학교 코드와 아이디를 확인하세요.");
             }
             const result = await verifyPassword(pw, acc.pw);
@@ -1415,10 +1401,6 @@
         document.getElementById('superAdminPanel').classList.toggle('hidden', !isSuper);
         document.getElementById('teacherPwPanel').classList.toggle('hidden', isSuper);
         document.getElementById('adminPwSection').classList.toggle('hidden', !isSuper);
-
-        // 슈퍼관리자 전용 교사 계정 관리 패널
-        const teacherMgmtPanel = document.getElementById('panelTeacherMgmt');
-        if (teacherMgmtPanel) teacherMgmtPanel.classList.toggle('hidden', !isSuper);
 
         // 관리자는 학생/공지/학급/통계 패널 숨김
         ['teacherNoticeCard', 'teacherClassNameCard', 'teacherStatCard', 'panelStudents', 'teacherPwPanel'].forEach(id => {
