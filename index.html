@@ -1510,8 +1510,25 @@
                             </div>`;
                         }).join('') + `</div><hr style="border:0;border-top:1px dashed #eee;margin:6px 0;">`;
 
+                    // 승인된 교사 목록 HTML
+                    const approvedListHtml = teacherCount === 0 ? '' :
+                        `<div style="margin-bottom:4px;">
+                            <div style="font-size:12px; font-weight:bold; color:#2e7d32; margin-bottom:6px;">✅ 승인된 교사 ${teacherCount}명</div>` +
+                        Object.entries(teachers).map(([key, acc]) => {
+                            if (!acc || typeof acc !== 'object') return '';
+                            const nm = acc.name || key;
+                            const g = acc.grade; const cl = acc.classNum;
+                            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f1fff4;border:1.5px solid #a5d6a7;border-radius:10px;margin-bottom:6px;">
+                                <div>
+                                    <div style="font-size:13px;font-weight:bold;color:#4a4a4a;">🏫 ${nm} 선생님</div>
+                                    <div style="font-size:11px;color:#aaa;margin-top:2px;">${g}학년 ${cl}반 담임</div>
+                                </div>
+                            </div>`;
+                        }).join('') + `</div>`;
+
                     const panelId = `teacherPanel_${code.replace(/[^a-zA-Z0-9]/g,'_')}`;
                     const hasPending = pendingCount > 0;
+                    const hasContent = hasPending || teacherCount > 0;
                     return `<div style="border:2px solid ${hasPending ? '#ffcc80' : '#eee'};border-radius:14px;margin-bottom:8px;overflow:hidden;background:#fafafa;">
                         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;">
                             <div style="cursor:pointer;flex:1;" onclick="toggleTeacherPanel('${panelId}')">
@@ -1522,6 +1539,7 @@
                         </div>
                         <div id="${panelId}" style="display:${hasPending ? 'block' : 'none'};padding:4px 12px 12px 12px;border-top:1.5px solid #f0e6ff;background:#fdf6ff;">
                             ${pendingListHtml}
+                            ${approvedListHtml}
                         </div>
                     </div>`;
                 }).join('');
