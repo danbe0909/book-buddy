@@ -19,12 +19,11 @@
             --accent: #ffd166;
             --border: #ffe082;
         }
-        body { font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; padding-top: 62px; letter-spacing: -0.5px; }
-        .mode-selector { display: flex; background: white; padding: 8px; border-bottom: 2px solid var(--border); position: fixed; top: 0; left: 0; right: 0; z-index: 9999; gap: 8px; border-radius: 0 0 15px 15px; }
+        body { font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; letter-spacing: -0.5px; }
+        .mode-selector { display: flex; background: white; padding: 8px; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 100; gap: 8px; border-radius: 0 0 15px 15px; }
         .mode-btn { flex: 1; border: none; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 20px; color: #888; background: #f1f5f9; transition: 0.2s ease; }
         .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 0px var(--primary-dark); transform: translateY(-2px); }
-        header { background: linear-gradient(135deg, #ff9a8b 0%, #ff8e72 100%); color: white; padding: 35px 20px; text-align: center; border-radius: 0 0 50% 50% / 0 0 20px 20px; box-shadow: 0 4px 10px rgba(255,142,114,0.3); margin-bottom: 10px; pointer-events: none; position: relative; z-index: 1; }
-        header * { pointer-events: auto; }
+        header { background: linear-gradient(135deg, #ff9a8b 0%, #ff8e72 100%); color: white; padding: 35px 20px; text-align: center; border-radius: 0 0 50% 50% / 0 0 20px 20px; box-shadow: 0 4px 10px rgba(255,142,114,0.3); margin-bottom: 10px; }
         .container { max-width: 500px; margin: 0 auto; padding: 16px; }
         .card { background: var(--card-bg); border-radius: 25px; padding: 22px; margin-bottom: 18px; border: 3px solid var(--border); box-shadow: 0 6px 0px rgba(255,224,130,0.5); transition: transform 0.2s ease; position: relative; }
         .card:hover { transform: translateY(-3px); }
@@ -206,7 +205,7 @@
 </header>
 
 <div class="container">
-    <div id="teacherView" class="hidden" style="position:relative; z-index:0;">
+    <div id="teacherView" class="hidden">
         <button class="btn-main" style="background:#888; box-shadow:0 4px 0px #666; margin-bottom:18px; font-size:16px;" onclick="teacherLogout()">교사 모드 종료 (로그아웃)</button>
 
         <div id="superAdminPanel" class="hidden">
@@ -284,14 +283,6 @@
             </div>
         </div>
 
-        <!-- ✅ 교사용 TOP 7 독서왕 카드 -->
-        <div id="top5CardTeacher" class="top5-card">
-            <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
-            <div style="font-size:15px;color:#aaa;text-align:center;margin-top:-4px;margin-bottom:4px;font-weight:bold;" id="top5MonthLabelTeacher"></div>
-            <div id="top5ClassLabelTeacher" class="top5-class-label"></div>
-            <div id="top5ListTeacher"><div class="top5-empty">학년/반을 선택하면 독서왕을 확인할 수 있어요!</div></div>
-        </div>
-
         <div id="panelStudents">
             <div class="card">
                 <h4 style="margin:0 0 12px 0; color:var(--primary-dark); font-size:18px;">📂 학급 관리 도구</h4>
@@ -335,7 +326,7 @@
         </div>
     </div>
 
-    <div id="studentView" style="position:relative; z-index:0;">
+    <div id="studentView">
         <!-- ✅ 학교 코드 입력 화면 -->
         <div id="schoolCodeSection">
             <div class="card" style="border-color:#ff8e72; text-align:center;">
@@ -926,7 +917,7 @@
         const cnVal = allClassNames[`${grade}-${classNum}`];
         const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${grade}학년 ${classNum}반`;
         labelEl.innerText = className;
-        const monthLabelEl = listEl === document.getElementById('top5List') ? document.getElementById('top5MonthLabel') : listEl === document.getElementById('top5ListTeacher') ? document.getElementById('top5MonthLabelTeacher') : document.getElementById('top5MonthLabelWrite');
+        const monthLabelEl = listEl === document.getElementById('top5List') ? document.getElementById('top5MonthLabel') : document.getElementById('top5MonthLabelWrite');
         if (monthLabelEl) monthLabelEl.innerText = `${now.getMonth() + 1}월 기준`;
 
         if (maxCount === 0) {
@@ -1011,17 +1002,7 @@
         renderTop7(listEl, labelEl, s.grade, s.classNum);
     }
 
-    // ✅ 교사 로그인 후 선택된 반 TOP7
-    function renderTop7ForTeacher() {
-        if (document.getElementById('teacherView').classList.contains('hidden')) return;
-        const g = document.getElementById('editNameGrade').value;
-        const c = document.getElementById('editNameClass').value;
-        const listEl = document.getElementById('top5ListTeacher');
-        const labelEl = document.getElementById('top5ClassLabelTeacher');
-        renderTop7(listEl, labelEl, g, c);
-    }
-
-
+    async function setTeacherPassword() {
         const name = document.getElementById('teacherMgmtName').value.trim();
         const g = document.getElementById('teacherMgmtGrade').value;
         const c = document.getElementById('teacherMgmtClass').value;
@@ -1359,7 +1340,7 @@
             const teacherName = matchKey ? teacherAccounts[matchKey].name : '';
             badge.innerHTML = `<span class="teacher-badge">🏫 ${teacherName ? teacherName + ' 선생님 · ' : ''}${className}</span><br><span style="font-size:11px;opacity:0.8;">${currentSchoolCode}</span>`;
         }
-        syncHeaderAndStats(); renderAll(); renderTeacherAccountList(); renderNoticePreview(); renderTop7ForTeacher();
+        syncHeaderAndStats(); renderAll(); renderTeacherAccountList(); renderNoticePreview();
         if (isSuper) loadSchoolCodeList();
         updateAddStudentSelects();
     }
@@ -1502,7 +1483,7 @@
             document.getElementById('statTotalStudents').innerText = classStudents.length + "명";
             let totalBooks = 0; classStudents.forEach(s => { if(s.books) totalBooks += Object.keys(s.books).length; });
             document.getElementById('statTotalBooks').innerText = totalBooks + "권";
-            if(isTeacherMode) { renderAll(); renderTop7ForTeacher(); }
+            if(isTeacherMode) renderAll();
         } else header.innerText = "학년/반을 선택해주세요";
     }
 
