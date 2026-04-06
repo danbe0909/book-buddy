@@ -1012,7 +1012,7 @@
 
     // ✅ 교사 로그인 후 선택된 반 TOP7
     function renderTop7ForTeacher() {
-        if (!isTeacherMode) return;
+        if (document.getElementById('teacherView').classList.contains('hidden')) return;
         const g = document.getElementById('editNameGrade').value;
         const c = document.getElementById('editNameClass').value;
         const listEl = document.getElementById('top5ListTeacher');
