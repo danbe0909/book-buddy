@@ -38,6 +38,11 @@
         .btn-reject { background: #ffcfcf; color: #c62828; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
         .btn-books { background: #e3f2fd; color: #1565c0; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; margin-right: 4px; }
         .btn-pw { background: #f3e5f5; color: #6a1b9a; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; margin-right: 4px; }
+        .btn-preview { background: #e8f5e9; color: #2e7d32; border: 2px solid #a5d6a7; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; margin-right: 4px; }
+        .student-name-btn { background: none; border: none; padding: 0; cursor: pointer; text-align: left; font-family: inherit; }
+        .student-name-btn .name-text { font-weight: bold; font-size: 16px; color: #1565c0; text-decoration: underline; text-underline-offset: 3px; }
+        .student-name-btn:hover .name-text { color: var(--primary-dark); }
+        .student-name-btn .class-text { font-size: 12px; color: #888; margin-top: 4px; }
         .wait-badge { background: #ff9800; color: white; padding: 2px 6px; border-radius: 5px; font-size: 10px; margin-left: 5px; vertical-align: middle; }
         .admin-badge { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 3px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; }
         .teacher-badge { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 3px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; }
@@ -1588,10 +1593,10 @@
                 const readingBadge = getReadingBadge(bc);
                 return `<div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="cursor:pointer;" onclick="showStudentPreview('${esc(s.id)}')">
-                            <div style="font-weight:bold; font-size:16px; color:var(--primary-dark); text-decoration:underline dotted 1.5px; text-underline-offset:3px;">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''}</div>
-                            <div style="font-size:12px; color:#888; margin-top:4px;">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div>
-                        </div>
+                        <button class="student-name-btn" onclick="showStudentPreview('${esc(s.id)}')">
+                            <div class="name-text">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''} 👁️</div>
+                            <div class="class-text">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div>
+                        </button>
                         <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
                             <button class="btn-books" onclick="showBookView('${esc(s.id)}')">📚 독서록</button>
                             <button class="btn-pw" onclick="showPwView('${esc(s.id)}')">🔑 비번</button>
