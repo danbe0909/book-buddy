@@ -411,13 +411,18 @@
         </div>
 
         <div id="writeSection" class="hidden">
+            <!-- 교사 미리보기 모드 배너 -->
+            <div id="teacherPreviewBanner" class="hidden" style="background:linear-gradient(135deg,#667eea,#764ba2); color:white; border-radius:20px; padding:14px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:13px; font-weight:bold;">👀 교사 미리보기 모드</div>
+                <button onclick="exitTeacherPreview()" style="background:white; color:#764ba2; border:none; border-radius:12px; padding:7px 14px; font-size:13px; font-weight:bold; cursor:pointer;">← 교사 화면으로</button>
+            </div>
             <div class="card stat-card">
                 <div style="display:flex; justify-content:space-between;">
                     <div>
                         <div id="welcomeMsg" style="font-size:20px; font-weight:bold;"></div>
                         <div id="welcomeClass" style="font-size:13px; opacity:0.8;"></div>
                     </div>
-                    <button onclick="studentLogout()" style="background:white; border:none; padding:8px; border-radius:10px; font-weight:bold; color:var(--primary-dark);">로그아웃</button>
+                    <button onclick="studentLogout()" id="studentLogoutBtn" style="background:white; border:none; padding:8px; border-radius:10px; font-weight:bold; color:var(--primary-dark);">로그아웃</button>
                 </div>
             </div>
 
@@ -636,10 +641,11 @@
 
 <div id="bookViewModal" class="modal hidden">
     <div class="card" style="min-width:300px; max-width:90vw; max-height:80vh; overflow-y:auto; position:relative;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h4 id="bookViewTitle" style="margin:0; color:var(--primary-dark); font-size:17px;">📚 독서록</h4>
             <button onclick="closeBookViewModal()" style="border:none; background:#f1f5f9; border-radius:10px; padding:6px 12px; font-size:14px; cursor:pointer; color:#555;">닫기</button>
         </div>
+        <button id="viewAsStudentBtn" onclick="viewAsStudent()" style="width:100%; margin-bottom:14px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; border:none; padding:11px; border-radius:15px; font-size:14px; font-weight:bold; cursor:pointer; box-shadow:0 3px 0px #4a0e7a;">👀 이 학생 화면으로 보기</button>
         <div id="bookViewContent">기록 없음</div>
     </div>
 </div>
@@ -1014,14 +1020,19 @@
     // ✅ 교사 로그인 후 선택된 반 TOP7
     function renderTop7ForTeacher() {
         if (document.getElementById('teacherView').classList.contains('hidden')) return;
-        const g = document.getElementById('editNameGrade').value;
-        const c = document.getElementById('editNameClass').value;
+        let g, c;
+        if (currentTeacher && currentTeacher !== 'super') {
+            [g, c] = currentTeacher.split('-');
+        } else {
+            g = document.getElementById('editNameGrade').value;
+            c = document.getElementById('editNameClass').value;
+        }
         const listEl = document.getElementById('top5ListTeacher');
         const labelEl = document.getElementById('top5ClassLabelTeacher');
         renderTop7(listEl, labelEl, g, c);
     }
 
-
+    async function setTeacherPassword() {
         const name = document.getElementById('teacherMgmtName').value.trim();
         const g = document.getElementById('teacherMgmtGrade').value;
         const c = document.getElementById('teacherMgmtClass').value;
@@ -1543,9 +1554,13 @@
         }).join('');
     }
 
+    let bookViewCurrentSid = null; // 독서록 모달에서 보고 있는 학생 sid
+    let teacherPreviewMode = false; // 교사 미리보기 모드 여부
+
     function showBookView(sid) {
         const s = rawData[sid]; if (!s) return;
         if (currentTeacher && currentTeacher !== 'super' && !_isMyStudent(s.grade, s.classNum)) return alert("다른 반 학생의 정보는 볼 수 없습니다.");
+        bookViewCurrentSid = sid; // ✅ 현재 보는 학생 저장
         document.getElementById('bookViewTitle').innerText = `📚 ${s.name} 독서록`;
         const books = s.books ? Object.entries(s.books) : [];
         const el = document.getElementById('bookViewContent');
@@ -1607,6 +1622,41 @@
         arrow.innerText = isOpen ? '🔽' : '🔼';
     }
     function closeBookViewModal() { document.getElementById('bookViewModal').classList.add('hidden'); }
+
+    // ✅ 교사가 학생 화면 미리보기
+    function viewAsStudent() {
+        if (!bookViewCurrentSid) return;
+        const s = rawData[bookViewCurrentSid]; if (!s) return;
+        closeBookViewModal();
+        teacherPreviewMode = true;
+        // 교사 화면 숨기고 학생 화면 표시
+        executeSwitch('student');
+        document.getElementById('schoolCodeSection').classList.add('hidden');
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('writeSection').classList.remove('hidden');
+        document.getElementById('teacherPreviewBanner').classList.remove('hidden');
+        // 학생 데이터 세팅 (비밀번호 검증 없이)
+        currentSid = bookViewCurrentSid;
+        updateWelcomeMsg(currentSid);
+        document.getElementById('welcomeClass').innerText = `${s.grade}학년 ${s.classNum}반`;
+        renderHistory(); renderChart(currentSid); renderStudentNotice();
+        renderTop7ForStudent();
+        // 미리보기 모드: 로그아웃 버튼 숨김
+        document.getElementById('studentLogoutBtn').style.display = 'none';
+        calYear = new Date().getFullYear();
+        calMonth = new Date().getMonth();
+        renderCalendar(currentSid);
+    }
+
+    // ✅ 교사 화면으로 복귀
+    function exitTeacherPreview() {
+        teacherPreviewMode = false;
+        currentSid = null;
+        document.getElementById('teacherPreviewBanner').classList.add('hidden');
+        document.getElementById('studentLogoutBtn').style.display = '';
+        document.getElementById('writeSection').classList.add('hidden');
+        executeSwitch('teacher');
+    }
 
     function showPwView(sid) {
         const s = rawData[sid]; if (!s) return;
