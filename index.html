@@ -646,6 +646,82 @@
     </div>
 </div>
 
+<!-- ✅ 학생 화면 미리보기 모달 -->
+<div id="studentPreviewModal" class="modal hidden">
+    <div class="card" style="min-width:320px; max-width:95vw; width:480px; max-height:90vh; overflow-y:auto; position:relative; padding:0;">
+        <!-- 모달 헤더 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:linear-gradient(135deg,#ff9a8b,#ff8e72); border-radius:22px 22px 0 0; position:sticky; top:0; z-index:10;">
+            <div>
+                <div id="previewStudentName" style="font-size:18px; font-weight:bold; color:white; text-shadow:0 1px 3px rgba(0,0,0,0.2);">👤 학생 이름</div>
+                <div id="previewStudentClass" style="font-size:12px; color:rgba(255,255,255,0.85); margin-top:2px;"></div>
+            </div>
+            <button onclick="closeStudentPreviewModal()" style="border:none; background:rgba(255,255,255,0.25); color:white; border-radius:12px; padding:8px 14px; font-size:14px; font-weight:bold; cursor:pointer;">✕ 닫기</button>
+        </div>
+
+        <div style="padding:16px;">
+            <!-- 독서 통계 요약 -->
+            <div id="previewStatCard" class="card stat-card" style="margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-around; text-align:center; font-weight:bold;">
+                    <div><div style="opacity:0.8; font-size:12px;">총 독서 권수</div><div id="previewTotalBooks" style="font-size:26px;">0권</div></div>
+                    <div><div style="opacity:0.8; font-size:12px;">독서 뱃지</div><div id="previewBadgeDisplay" style="font-size:20px; margin-top:2px;">-</div></div>
+                    <div><div style="opacity:0.8; font-size:12px;">이번 달</div><div id="previewMonthBooks" style="font-size:26px;">0권</div></div>
+                </div>
+            </div>
+
+            <!-- 독서 캘린더 미리보기 -->
+            <div class="cal-card" style="margin-bottom:14px;">
+                <div class="cal-header">
+                    <div class="cal-title">🌱 독서 캘린더</div>
+                    <div class="cal-nav">
+                        <button class="cal-nav-btn" onclick="previewCalPrev()">‹</button>
+                        <div id="previewCalMonthLabel" class="cal-month-label"></div>
+                        <button class="cal-nav-btn" onclick="previewCalNext()">›</button>
+                    </div>
+                </div>
+                <div class="cal-streak" style="margin-bottom:10px;">
+                    <div class="cal-streak-item">
+                        <div id="previewCalStreak" class="cal-streak-num">0</div>
+                        <div class="cal-streak-label">🔥 연속 독서일</div>
+                    </div>
+                    <div class="cal-streak-divider"></div>
+                    <div class="cal-streak-item">
+                        <div id="previewCalMonthCount" class="cal-streak-num">0</div>
+                        <div class="cal-streak-label">📚 이번 달 권수</div>
+                    </div>
+                    <div class="cal-streak-divider"></div>
+                    <div class="cal-streak-item">
+                        <div id="previewCalReadDays" class="cal-streak-num">0</div>
+                        <div class="cal-streak-label">📅 이번 달 독서일</div>
+                    </div>
+                </div>
+                <div class="cal-dow">
+                    <div class="cal-dow-cell sun">일</div>
+                    <div class="cal-dow-cell">월</div>
+                    <div class="cal-dow-cell">화</div>
+                    <div class="cal-dow-cell">수</div>
+                    <div class="cal-dow-cell">목</div>
+                    <div class="cal-dow-cell">금</div>
+                    <div class="cal-dow-cell sat">토</div>
+                </div>
+                <div id="previewCalGrid" class="cal-grid"></div>
+                <div class="cal-legend">
+                    <span style="font-size:10px; color:#aaa;">독서량</span>
+                    <div class="cal-legend-item"><div class="cal-legend-box" style="background:#f1f8f1; border:1px solid #c8e6c9;"></div>없음</div>
+                    <div class="cal-legend-item"><div class="cal-legend-box" style="background:#c8e6c9;"></div>1권</div>
+                    <div class="cal-legend-item"><div class="cal-legend-box" style="background:#66bb6a;"></div>2권</div>
+                    <div class="cal-legend-item"><div class="cal-legend-box" style="background:#2e7d32;"></div>3권+</div>
+                </div>
+            </div>
+
+            <!-- 독서 목록 -->
+            <div class="card" style="margin-bottom:0;">
+                <h4 style="margin:0 0 12px 0; color:var(--primary-dark); font-size:16px;">📖 독서 기록</h4>
+                <div id="previewBookList"><p style="text-align:center; color:#aaa;">기록 없음</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ✅ [보안] 관리자 초기 비밀번호 강제 변경 모달 -->
 <div id="forceAdminPwModal" class="modal hidden">
     <div class="card" style="text-align:center; min-width:300px; max-width:88vw; padding:28px 24px; border-color:#e53935;">
@@ -1512,8 +1588,10 @@
                 const readingBadge = getReadingBadge(bc);
                 return `<div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div><div style="font-weight:bold; font-size:16px;">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''}</div>
-                        <div style="font-size:12px; color:#888; margin-top:4px;">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div></div>
+                        <div style="cursor:pointer;" onclick="showStudentPreview('${esc(s.id)}')">
+                            <div style="font-weight:bold; font-size:16px; color:var(--primary-dark); text-decoration:underline dotted 1.5px; text-underline-offset:3px;">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''}</div>
+                            <div style="font-size:12px; color:#888; margin-top:4px;">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div>
+                        </div>
                         <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
                             <button class="btn-books" onclick="showBookView('${esc(s.id)}')">📚 독서록</button>
                             <button class="btn-pw" onclick="showPwView('${esc(s.id)}')">🔑 비번</button>
@@ -2457,7 +2535,159 @@
         grid.innerHTML = html;
     }
 
-    function calPrevMonth() {
+
+    // ✅ 학생 화면 미리보기 기능
+    let previewSid = null;
+    let previewCalYear = new Date().getFullYear();
+    let previewCalMonth = new Date().getMonth();
+
+    function showStudentPreview(sid) {
+        const s = rawData[sid];
+        if (!s) return;
+        if (currentTeacher && currentTeacher !== 'super' && !_isMyStudent(s.grade, s.classNum)) return alert("다른 반 학생의 정보는 볼 수 없습니다.");
+
+        previewSid = sid;
+        previewCalYear = new Date().getFullYear();
+        previewCalMonth = new Date().getMonth();
+
+        // 이름 / 학반
+        document.getElementById('previewStudentName').innerText = `👤 ${s.name}`;
+        document.getElementById('previewStudentClass').innerText = `${s.grade}학년 ${s.classNum}반`;
+
+        // 독서 통계
+        const books = s.books ? Object.values(s.books) : [];
+        const totalBooks = books.length;
+        const now = new Date();
+        const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+        const monthBooks = books.filter(b => b.date && b.date.startsWith(thisMonth)).length;
+
+        document.getElementById('previewTotalBooks').innerText = totalBooks + '권';
+        document.getElementById('previewMonthBooks').innerText = monthBooks + '권';
+
+        // 뱃지
+        const badge = getReadingBadge(totalBooks);
+        document.getElementById('previewBadgeDisplay').innerHTML = badge || '없음';
+
+        // 캘린더
+        renderPreviewCalendar();
+
+        // 독서 목록
+        const bookList = document.getElementById('previewBookList');
+        if (books.length === 0) {
+            bookList.innerHTML = `<p style="text-align:center; color:#aaa; padding:20px 0;">아직 기록된 책이 없습니다.</p>`;
+        } else {
+            const sorted = [...(s.books ? Object.entries(s.books) : [])].sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
+            bookList.innerHTML = sorted.map(([key, b]) => {
+                const imgArr = b.images && Array.isArray(b.images) ? b.images : (b.image ? [b.image] : []);
+                const imgHtml = imgArr.length > 0
+                    ? `<div style="display:flex; gap:5px; flex-wrap:wrap; margin:6px 0;">${imgArr.filter(src => String(src).startsWith('data:')).map(src => `<img src="${src}" style="width:calc(33% - 4px); border-radius:8px; border:1px solid var(--border);">`).join('')}</div>`
+                    : '';
+                const audioHtml = b.audio && String(b.audio).startsWith('data:')
+                    ? `<div class="rec-audio-wrap" style="margin:6px 0;"><span class="rec-play-icon">🎙️</span><audio controls src="${b.audio}" style="flex:1; height:34px;"></audio></div>`
+                    : '';
+                const dateStr = b.date ? new Date(b.date).toLocaleDateString('ko-KR') : '';
+                return `<div class="book-item">
+                    <div class="book-item-title">${esc(b.title)}</div>
+                    <div class="book-item-rating">${esc(b.rating)}</div>
+                    ${imgHtml}${audioHtml}
+                    <div class="book-item-review">${esc(b.review || '(감상 없음)')}</div>
+                    <div class="book-item-date">${dateStr}</div>
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('studentPreviewModal').classList.remove('hidden');
+    }
+
+    function closeStudentPreviewModal() {
+        document.getElementById('studentPreviewModal').classList.add('hidden');
+        previewSid = null;
+    }
+
+    function getBookDateMapForSid(sid) {
+        const map = {};
+        const s = rawData[sid];
+        if (!s || !s.books) return map;
+        Object.values(s.books).forEach(b => {
+            if (!b.date) return;
+            let key;
+            if (b.date.endsWith('Z') || b.date.includes('+')) {
+                const d = new Date(b.date);
+                key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            } else {
+                key = b.date.substring(0, 10);
+            }
+            map[key] = (map[key] || 0) + 1;
+        });
+        return map;
+    }
+
+    function renderPreviewCalendar() {
+        if (!previewSid) return;
+        const dateMap = getBookDateMapForSid(previewSid);
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+        document.getElementById('previewCalMonthLabel').innerText = `${previewCalYear}년 ${previewCalMonth + 1}월`;
+
+        const monthPrefix = `${previewCalYear}-${String(previewCalMonth+1).padStart(2,'0')}-`;
+        let monthBookCount = 0, monthReadDays = 0;
+        Object.entries(dateMap).forEach(([k, v]) => {
+            if (k.startsWith(monthPrefix)) { monthBookCount += v; monthReadDays++; }
+        });
+        document.getElementById('previewCalMonthCount').innerText = monthBookCount;
+        document.getElementById('previewCalReadDays').innerText = monthReadDays;
+
+        // 연속 독서일
+        let streak = 0;
+        const check = new Date(today);
+        while (true) {
+            const k = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+            if (dateMap[k]) { streak++; check.setDate(check.getDate() - 1); }
+            else break;
+        }
+        document.getElementById('previewCalStreak').innerText = streak;
+
+        // 달력 그리드
+        const firstDay = new Date(previewCalYear, previewCalMonth, 1).getDay();
+        const lastDate = new Date(previewCalYear, previewCalMonth + 1, 0).getDate();
+        const grid = document.getElementById('previewCalGrid');
+        let html = '';
+        for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell empty"></div>`;
+        for (let d = 1; d <= lastDate; d++) {
+            const dateStr = `${previewCalYear}-${String(previewCalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const count = dateMap[dateStr] || 0;
+            const isToday = dateStr === todayStr;
+            const dow = (firstDay + d - 1) % 7;
+            let cls = 'cal-cell';
+            if (count === 0) cls += ' no-read';
+            else if (count === 1) cls += ' read-1';
+            else if (count === 2) cls += ' read-2';
+            else cls += ' read-3plus';
+            if (isToday) cls += ' today';
+            if (dow === 0) cls += ' sun-cell';
+            if (dow === 6) cls += ' sat-cell';
+            const dot = count > 0 ? `<div class="cal-dot"></div>` : '';
+            const title = count > 0 ? `title="${d}일: ${count}권"` : '';
+            html += `<div class="${cls}" ${title}>${d}${dot}</div>`;
+        }
+        grid.innerHTML = html;
+    }
+
+    function previewCalPrev() {
+        previewCalMonth--;
+        if (previewCalMonth < 0) { previewCalMonth = 11; previewCalYear--; }
+        renderPreviewCalendar();
+    }
+
+    function previewCalNext() {
+        const now = new Date();
+        if (previewCalYear > now.getFullYear() || (previewCalYear === now.getFullYear() && previewCalMonth >= now.getMonth())) return;
+        previewCalMonth++;
+        if (previewCalMonth > 11) { previewCalMonth = 0; previewCalYear++; }
+        renderPreviewCalendar();
+    }
+
         calMonth--;
         if (calMonth < 0) { calMonth = 11; calYear--; }
         renderCalendar(currentSid);
