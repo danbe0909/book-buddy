@@ -285,6 +285,22 @@
             </div>
         </div>
 
+        <div id="panelTeacherMgmt" class="hidden">
+            <div class="card" style="border-color:#f093fb;">
+                <h4 style="margin:0 0 12px 0; color:#8e24aa; font-size:18px;">👩‍🏫 교사 계정 관리</h4>
+                <div id="teacherAccountList"><p style="color:#aaa; font-size:13px; text-align:center;">로딩 중...</p></div>
+                <hr style="border:0; border-top:2px solid var(--border); margin:16px 0;">
+                <h5 style="margin:0 0 10px 0; color:#6a1b9a; font-size:14px;">➕ 교사 직접 추가</h5>
+                <input type="text" id="teacherMgmtName" placeholder="교사 이름 (아이디)">
+                <div class="grade-row">
+                    <select id="teacherMgmtGrade"><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option></select>
+                    <select id="teacherMgmtClass"><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option></select>
+                </div>
+                <input type="password" id="teacherMgmtPw" placeholder="비밀번호">
+                <button class="btn-main" style="background:linear-gradient(135deg,#ce93d8,#9c27b0); box-shadow:0 4px 0px #6a1b9a;" onclick="setTeacherPassword()">교사 계정 등록</button>
+            </div>
+        </div>
+
         <div id="panelStudents">
             <div class="card">
                 <h4 style="margin:0 0 12px 0; color:var(--primary-dark); font-size:18px;">📂 학급 관리 도구</h4>
@@ -691,6 +707,10 @@
                   ".read": true,
                   ".write": true
                 },
+                "teacherPending": {
+                  ".read": true,
+                  ".write": true
+                },
                 "classData_v2": {
                   ".read": true,
                   ".write": true
@@ -767,7 +787,7 @@
             .replace(/'/g, '&#39;');
     }
 
-    let students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, currentSid = null, myChart = null;
+    let students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, teacherPending = {}, currentSid = null, myChart = null;
     let currentTeacher = null;
     let selectedImagesBase64 = [];
     let editingBookId = null;
@@ -848,6 +868,10 @@
         const taCb = snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); };
         const taRef = schoolRef('teacherAccounts_v2');
         taRef.on('value', taCb); _dbListeners.push({ ref: taRef, cb: taCb });
+
+        const tpCb = snap => { teacherPending = snap.val() || {}; renderTeacherAccountList(); };
+        const tpRef = schoolRef('teacherPending');
+        tpRef.on('value', tpCb); _dbListeners.push({ ref: tpRef, cb: tpCb });
 
         const ncCb = snap => {
             classNotices = snap.val() || {};
@@ -1068,9 +1092,38 @@
             el.innerHTML = '<p style="color:#aaa; font-size:13px; text-align:center;">등록된 교사 계정 없음</p>';
             return;
         }
-        el.innerHTML = keys.sort().map(k => {
+        // ✅ 승인 대기 교사 목록
+        const pendingKeys = Object.keys(teacherPending);
+        let pendingHtml = '';
+        if (pendingKeys.length > 0) {
+            pendingHtml = `<div style="margin-bottom:10px;">
+                <div style="font-size:13px; font-weight:bold; color:#e65100; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                    🕐 승인 대기 <span style="background:#ff9800;color:white;padding:1px 7px;border-radius:10px;font-size:11px;">${pendingKeys.length}</span>
+                </div>` +
+                pendingKeys.sort().map(k => {
+                    const acc = teacherPending[k];
+                    if (!acc || typeof acc !== 'object') return '';
+                    const { name, grade, classNum, requestedAt } = acc;
+                    const cnKey = `${grade}-${classNum}`;
+                    const className = allClassNames[cnKey] || `${grade}학년 ${classNum}반`;
+                    const dateStr = requestedAt ? requestedAt.slice(0,10) : '';
+                    return `<div class="teacher-account-item" style="border-color:#ffcc80; background:#fff8e1;">
+                        <div>
+                            <div class="teacher-account-info">👤 ${name} 선생님 <span class="wait-badge">승인 대기</span></div>
+                            <div class="teacher-account-sub">🏫 ${className}${dateStr ? ' · 신청일 ' + dateStr : ''}</div>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-approve" onclick="approveTeacherPending('${k}')">승인</button>
+                            <button class="btn-reject" onclick="rejectTeacherPending('${k}')">거절</button>
+                        </div>
+                    </div>`;
+                }).join('') +
+            `</div><hr style="border:0;border-top:2px dashed var(--border);margin:10px 0;">`;
+        }
+
+        // ✅ 승인된 교사 목록
+        const approvedHtml = keys.length === 0 ? '' : keys.sort().map(k => {
             const acc = teacherAccounts[k];
-            // 구버전(string) 호환
             if (typeof acc === 'string') {
                 const [g, c] = k.split('-');
                 return `<div class="teacher-account-item">
@@ -1096,6 +1149,30 @@
                 </div>
             </div>`;
         }).join('');
+
+        el.innerHTML = pendingHtml + (approvedHtml || '<p style="color:#aaa; font-size:13px; text-align:center;">승인된 교사 계정 없음</p>');
+    }
+
+    // ✅ 교사 가입 승인
+    async function approveTeacherPending(key) {
+        const acc = teacherPending[key];
+        if (!acc || typeof acc !== 'object') return;
+        const { name, grade, classNum, pw } = acc;
+        if (!confirm(`"${name}" 선생님 (${grade}학년 ${classNum}반) 계정을 승인하시겠습니까?`)) return;
+        // 승인: teacherAccounts_v2에 등록 후 pending 삭제
+        await schoolRef(`teacherAccounts_v2/${key}`).set({ name, grade, classNum, pw });
+        await schoolRef(`teacherPending/${key}`).remove();
+        alert(`✅ "${name}" 선생님 계정이 승인되었습니다!`);
+    }
+
+    // ✅ 교사 가입 거절
+    function rejectTeacherPending(key) {
+        const acc = teacherPending[key];
+        if (!acc || typeof acc !== 'object') return;
+        const { name, grade, classNum } = acc;
+        if (!confirm(`"${name}" 선생님 (${grade}학년 ${classNum}반) 가입 신청을 거절하시겠습니까?`)) return;
+        schoolRef(`teacherPending/${key}`).remove();
+        alert(`"${name}" 선생님 가입 신청이 거절되었습니다.`);
     }
 
     function showTeacherPwView(key) {
@@ -1232,9 +1309,21 @@
             if (duplicate) return alert(`이미 [${schoolCode}] 학교의 ${g}학년 ${c}반 교사 계정이 있습니다.`);
             if (accounts[name]) return alert("이미 사용 중인 이름(아이디)입니다.");
 
-            const hashedPw = await hashPassword(pw); // ✅ 해싱 적용
-            db.ref(`schools/${schoolCode}/teacherAccounts_v2/${name}`).set({ name, grade: g, classNum: c, pw: hashedPw }).then(() => {
-                alert(`✅ 계정이 생성되었습니다!\n학교 코드: ${schoolCode}\n아이디: ${name}\n\n학생들에게 학교 코드 [${schoolCode}] 를 알려주세요!`);
+            // ✅ 승인 대기 중복 확인
+            const pendingSnap = await db.ref(`schools/${schoolCode}/teacherPending`).once('value');
+            const pending = pendingSnap.val() || {};
+            const pendingDup = Object.values(pending).find(acc =>
+                typeof acc === 'object' && String(acc.grade) === String(g) && String(acc.classNum) === String(c)
+            );
+            if (pendingDup) return alert(`이미 [${schoolCode}] 학교의 ${g}학년 ${c}반 신청이 승인 대기 중입니다.`);
+            if (pending[name]) return alert("이미 승인 대기 중인 이름(아이디)입니다.");
+
+            const hashedPw = await hashPassword(pw);
+            const reqTime = new Date().toISOString();
+            db.ref(`schools/${schoolCode}/teacherPending/${name}`).set({
+                name, grade: g, classNum: c, pw: hashedPw, requestedAt: reqTime, status: 'pending'
+            }).then(() => {
+                alert(`✅ 가입 신청이 완료되었습니다!\n학교 코드: ${schoolCode}\n아이디: ${name}\n\n관리자 승인 후 로그인할 수 있습니다.`);
                 closeAdminModal();
             });
         });
@@ -1291,7 +1380,15 @@
         if (!_checkLoginLock(lockKey)) return;
         db.ref(`schools/${schoolCode}/teacherAccounts_v2/${id}`).once('value', async snap => {
             const acc = snap.val();
-            if (!acc) return alert("해당 교사 계정이 없습니다.\n학교 코드와 아이디를 확인하세요.");
+            if (!acc) {
+                // ✅ 승인 대기 여부 확인
+                const pendingSnap = await db.ref(`schools/${schoolCode}/teacherPending/${id}`).once('value');
+                const pending = pendingSnap.val();
+                if (pending && pending.status === 'pending') {
+                    return alert("⏳ 가입 신청이 승인 대기 중입니다.\n관리자 승인 후 로그인할 수 있습니다.");
+                }
+                return alert("해당 교사 계정이 없습니다.\n학교 코드와 아이디를 확인하세요.");
+            }
             const result = await verifyPassword(pw, acc.pw);
             if (!result) {
                 _recordLoginFail(lockKey);
@@ -1318,6 +1415,10 @@
         document.getElementById('superAdminPanel').classList.toggle('hidden', !isSuper);
         document.getElementById('teacherPwPanel').classList.toggle('hidden', isSuper);
         document.getElementById('adminPwSection').classList.toggle('hidden', !isSuper);
+
+        // 슈퍼관리자 전용 교사 계정 관리 패널
+        const teacherMgmtPanel = document.getElementById('panelTeacherMgmt');
+        if (teacherMgmtPanel) teacherMgmtPanel.classList.toggle('hidden', !isSuper);
 
         // 관리자는 학생/공지/학급/통계 패널 숨김
         ['teacherNoticeCard', 'teacherClassNameCard', 'teacherStatCard', 'panelStudents', 'teacherPwPanel'].forEach(id => {
@@ -1397,6 +1498,8 @@
                     const studentCount = school.classData_v2?.students ? Object.keys(school.classData_v2.students).length : 0;
 
                     // 교사 목록 HTML
+                    const pendingTeachers = school.teacherPending || {};
+                    const pendingCount = Object.keys(pendingTeachers).length;
                     const teacherListHtml = teacherCount === 0
                         ? '<p style="font-size:12px;color:#bbb;text-align:center;margin:8px 0;">등록된 교사 없음</p>'
                         : Object.entries(teachers).map(([key, acc]) => {
@@ -1417,16 +1520,41 @@
                             </div>`;
                         }).join('');
 
+                    // 승인 대기 교사 목록 HTML
+                    const pendingListHtml = pendingCount === 0 ? '' :
+                        `<div style="margin-bottom:8px;">
+                            <div style="font-size:12px; font-weight:bold; color:#e65100; margin-bottom:6px;">🕐 승인 대기 ${pendingCount}명</div>` +
+                        Object.entries(pendingTeachers).map(([key, acc]) => {
+                            if (!acc || typeof acc !== 'object') return '';
+                            const nm = acc.name || key;
+                            const g = acc.grade; const cl = acc.classNum;
+                            const dt = acc.requestedAt ? acc.requestedAt.slice(0,10) : '';
+                            const safeCode = code.replace(/'/g, "\\'");
+                            const safeKey = key.replace(/'/g, "\\'");
+                            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#fff8e1;border:1.5px solid #ffcc80;border-radius:10px;margin-bottom:6px;">
+                                <div>
+                                    <div style="font-size:13px;font-weight:bold;color:#4a4a4a;">👤 ${nm} 선생님 <span class="wait-badge">승인 대기</span></div>
+                                    <div style="font-size:11px;color:#aaa;margin-top:2px;">${g}학년 ${cl}반${dt ? ' · ' + dt : ''}</div>
+                                </div>
+                                <div style="display:flex;gap:4px;">
+                                    <button class="btn-approve" onclick="superApproveTeacher('${safeCode}','${safeKey}')">승인</button>
+                                    <button class="btn-reject" onclick="superRejectTeacher('${safeCode}','${safeKey}')">거절</button>
+                                </div>
+                            </div>`;
+                        }).join('') + `</div><hr style="border:0;border-top:1px dashed #eee;margin:6px 0;">`;
+
                     const panelId = `teacherPanel_${code.replace(/[^a-zA-Z0-9]/g,'_')}`;
-                    return `<div style="border:2px solid #eee; border-radius:14px; margin-bottom:8px; overflow:hidden; background:#fafafa;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;">
-                            <div style="cursor:pointer; flex:1;" onclick="toggleTeacherPanel('${panelId}')">
-                                <div style="font-weight:bold; font-size:14px; color:#333;">🏫 ${code}</div>
-                                <div style="font-size:11px; color:#aaa; margin-top:2px;">교사 ${teacherCount}명 · 학생 ${studentCount}명 &nbsp;<span style="color:#9c27b0;">▼ 클릭하여 교사 목록 보기</span></div>
+                    const hasPending = pendingCount > 0;
+                    return `<div style="border:2px solid ${hasPending ? '#ffcc80' : '#eee'};border-radius:14px;margin-bottom:8px;overflow:hidden;background:#fafafa;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;">
+                            <div style="cursor:pointer;flex:1;" onclick="toggleTeacherPanel('${panelId}')">
+                                <div style="font-weight:bold;font-size:14px;color:#333;">🏫 ${code}${hasPending ? ` <span style="background:#ff9800;color:white;padding:1px 7px;border-radius:10px;font-size:11px;vertical-align:middle;">대기 ${pendingCount}</span>` : ''}</div>
+                                <div style="font-size:11px;color:#aaa;margin-top:2px;">교사 ${teacherCount}명 · 학생 ${studentCount}명 &nbsp;<span style="color:#9c27b0;">▼ 클릭하여 목록 보기</span></div>
                             </div>
                             <button class="btn-del" onclick="deleteSchoolCodeByKey('${code}')">삭제</button>
                         </div>
-                        <div id="${panelId}" style="display:none; padding:4px 12px 12px 12px; border-top:1.5px solid #f0e6ff; background:#fdf6ff;">
+                        <div id="${panelId}" style="display:${hasPending ? 'block' : 'none'};padding:4px 12px 12px 12px;border-top:1.5px solid #f0e6ff;background:#fdf6ff;">
+                            ${pendingListHtml}
                             ${teacherListHtml}
                         </div>
                     </div>`;
@@ -1438,6 +1566,31 @@
         const el = document.getElementById(id);
         if (!el) return;
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // ✅ 슈퍼관리자 - 학교 목록에서 교사 승인
+    async function superApproveTeacher(schoolCode, key) {
+        const snap = await db.ref(`schools/${schoolCode}/teacherPending/${key}`).once('value');
+        const acc = snap.val();
+        if (!acc || typeof acc !== 'object') return alert("승인 대기 정보를 찾을 수 없습니다.");
+        const { name, grade, classNum, pw } = acc;
+        if (!confirm(`[${schoolCode}] "${name}" 선생님 (${grade}학년 ${classNum}반) 계정을 승인하시겠습니까?`)) return;
+        await db.ref(`schools/${schoolCode}/teacherAccounts_v2/${key}`).set({ name, grade, classNum, pw });
+        await db.ref(`schools/${schoolCode}/teacherPending/${key}`).remove();
+        alert(`✅ "${name}" 선생님 계정이 승인되었습니다!`);
+        loadSchoolCodeList();
+    }
+
+    // ✅ 슈퍼관리자 - 학교 목록에서 교사 거절
+    async function superRejectTeacher(schoolCode, key) {
+        const snap = await db.ref(`schools/${schoolCode}/teacherPending/${key}`).once('value');
+        const acc = snap.val();
+        if (!acc || typeof acc !== 'object') return;
+        const { name, grade, classNum } = acc;
+        if (!confirm(`[${schoolCode}] "${name}" 선생님 (${grade}학년 ${classNum}반) 가입 신청을 거절하시겠습니까?`)) return;
+        await db.ref(`schools/${schoolCode}/teacherPending/${key}`).remove();
+        alert(`"${name}" 선생님 가입 신청이 거절되었습니다.`);
+        loadSchoolCodeList();
     }
 
     async function promptResetTeacherPw(schoolCode, teacherName) {
