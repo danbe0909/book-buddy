@@ -206,7 +206,7 @@
 </header>
 
 <div class="container">
-    <div id="teacherView" class="hidden">
+    <div id="teacherView" class="hidden" style="position:relative; z-index:0;">
         <button class="btn-main" style="background:#888; box-shadow:0 4px 0px #666; margin-bottom:18px; font-size:16px;" onclick="teacherLogout()">교사 모드 종료 (로그아웃)</button>
 
         <div id="superAdminPanel" class="hidden">
@@ -335,7 +335,7 @@
         </div>
     </div>
 
-    <div id="studentView">
+    <div id="studentView" style="position:relative; z-index:0;">
         <!-- ✅ 학교 코드 입력 화면 -->
         <div id="schoolCodeSection">
             <div class="card" style="border-color:#ff8e72; text-align:center;">
