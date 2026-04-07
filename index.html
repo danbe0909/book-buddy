@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         :root {
             --primary: #ff8e72;
@@ -245,6 +246,16 @@
                 <div style="display:flex; gap:8px; margin-bottom:10px;">
                     <input type="password" id="newTeacherPwInput" placeholder="새 비밀번호 입력" style="margin-bottom:0;">
                     <button class="btn-main" style="width:90px; background:#f5576c; box-shadow:0 4px 0px #c0392b; font-size:15px;" onclick="updateTeacherOwnPassword()">변경</button>
+                </div>
+                <!-- ✅ 이메일 알림 설정 -->
+                <div style="border-top:2px dashed #ffe082; padding-top:12px; margin-top:4px; margin-bottom:12px;">
+                    <div style="font-size:14px; font-weight:bold; color:#e65100; margin-bottom:8px;">📧 이메일 알림 설정</div>
+                    <p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">학생이 비밀번호 재설정을 요청하면 이 이메일로 알림이 발송됩니다.</p>
+                    <div style="display:flex; gap:8px;">
+                        <input type="email" id="teacherEmailInput" placeholder="알림 받을 이메일 주소" style="margin-bottom:0;">
+                        <button class="btn-main" style="width:90px; background:#ff8f00; box-shadow:0 4px 0px #e65100; font-size:14px; white-space:nowrap;" onclick="saveTeacherEmail()">저장</button>
+                    </div>
+                    <div id="teacherEmailStatus" style="font-size:12px; color:#aaa; margin-top:6px;"></div>
                 </div>
                 <button class="btn-del" style="width:100%; padding:12px; font-size:14px; border-radius:15px;" onclick="deleteMyTeacherAccount()">🗑️ 내 계정 삭제 (탈퇴)</button>
             </div>
@@ -626,6 +637,7 @@
                     <option value="4">4반</option><option value="5">5반</option><option value="6">6반</option>
                 </select>
             </div>
+            <input type="email" id="signupTeacherEmail" placeholder="이메일 주소 (비밀번호 재설정 알림 수신용)">
             <input type="password" id="signupTeacherPw" placeholder="비밀번호">
             <input type="password" id="signupTeacherPwConfirm" placeholder="비밀번호 확인">
             <button class="btn-main" style="background:linear-gradient(135deg,#43e97b,#38f9d7); box-shadow:0 4px 0px #00b894; color:#1a5e3a;" onclick="signupTeacher()">가입하기</button>
@@ -759,6 +771,78 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
+    // ✅ EmailJS 설정 (비밀번호 재설정 알림 이메일)
+    // ── 아래 3개 값을 EmailJS 대시보드에서 발급받아 채워넣으세요 ──
+    const EMAILJS_PUBLIC_KEY   = 'YOUR_EMAILJS_PUBLIC_KEY';   // Account → API Keys
+    const EMAILJS_SERVICE_ID   = 'YOUR_EMAILJS_SERVICE_ID';   // Email Services → Service ID
+    const EMAILJS_TEMPLATE_ID  = 'YOUR_EMAILJS_TEMPLATE_ID';  // Email Templates → Template ID
+    // ─────────────────────────────────────────────────────────────
+    // 📧 EmailJS 템플릿 변수 (Template 편집 시 아래 변수명 그대로 사용):
+    //   {{to_email}}      — 선생님 이메일
+    //   {{teacher_name}}  — 선생님 이름
+    //   {{student_name}}  — 학생 이름
+    //   {{class_name}}    — 학년/반
+    //   {{request_time}}  — 요청 시각
+    //   {{school_code}}   — 학교 코드
+    if (EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+
+    async function sendPwResetEmailToTeacher(teacherEmail, teacherName, studentName, grade, classNum) {
+        if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'YOUR_EMAILJS_PUBLIC_KEY') return; // 미설정 시 무시
+        if (!teacherEmail) return;
+        const cnKey = `${grade}-${classNum}`;
+        const className = (allClassNames[cnKey] && typeof allClassNames[cnKey] === 'string')
+            ? allClassNames[cnKey] : `${grade}학년 ${classNum}반`;
+        const now = new Date().toLocaleString('ko-KR', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        try {
+            await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                to_email:     teacherEmail,
+                teacher_name: teacherName,
+                student_name: studentName,
+                class_name:   className,
+                request_time: now,
+                school_code:  currentSchoolCode || ''
+            });
+        } catch(e) {
+            console.warn('EmailJS 발송 실패:', e);
+        }
+    }
+
+    // 로그인한 선생님의 이메일 저장
+    async function saveTeacherEmail() {
+        const email = document.getElementById('teacherEmailInput').value.trim();
+        const statusEl = document.getElementById('teacherEmailStatus');
+        if (!email) return alert('이메일 주소를 입력하세요.');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('올바른 이메일 형식이 아닙니다.');
+        if (!currentTeacher || currentTeacher === 'super') return;
+        const matchKey = Object.keys(teacherAccounts).find(k => {
+            const acc = teacherAccounts[k];
+            return typeof acc === 'object' && `${acc.grade}-${acc.classNum}` === currentTeacher;
+        });
+        if (!matchKey) return alert('계정을 찾을 수 없습니다.');
+        await schoolRef(`teacherAccounts_v2/${matchKey}/email`).set(email);
+        statusEl.innerHTML = `✅ <strong>${email}</strong> 저장 완료`;
+        setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
+    }
+
+    // 로그인 시 저장된 이메일 불러오기
+    function loadTeacherEmailToInput() {
+        if (!currentTeacher || currentTeacher === 'super') return;
+        const matchKey = Object.keys(teacherAccounts).find(k => {
+            const acc = teacherAccounts[k];
+            return typeof acc === 'object' && `${acc.grade}-${acc.classNum}` === currentTeacher;
+        });
+        if (!matchKey) return;
+        const acc = teacherAccounts[matchKey];
+        const emailEl = document.getElementById('teacherEmailInput');
+        const statusEl = document.getElementById('teacherEmailStatus');
+        if (emailEl && acc && acc.email) {
+            emailEl.value = acc.email;
+            statusEl.innerHTML = `현재 저장된 이메일: <strong>${acc.email}</strong>`;
+        }
+    }
 
     // ✅ [보안] 비밀번호 SHA-256 해싱 함수
     async function hashPassword(pw) {
@@ -1298,6 +1382,7 @@
         const schoolCode = document.getElementById('signupSchoolCode').value.trim().replace(/\s/g,'');
         const g = document.getElementById('signupTeacherGrade').value;
         const c = document.getElementById('signupTeacherClass').value;
+        const email = (document.getElementById('signupTeacherEmail').value || '').trim();
         const pw = document.getElementById('signupTeacherPw').value;
         const pwConfirm = document.getElementById('signupTeacherPwConfirm').value;
 
@@ -1327,7 +1412,7 @@
             const hashedPw = await hashPassword(pw);
             const reqTime = new Date().toISOString();
             db.ref(`schools/${schoolCode}/teacherPending/${name}`).set({
-                name, grade: g, classNum: c, pw: hashedPw, requestedAt: reqTime, status: 'pending'
+                name, grade: g, classNum: c, pw: hashedPw, email: email || null, requestedAt: reqTime, status: 'pending'
             }).then(() => {
                 alert(`✅ 가입 신청이 완료되었습니다!\n학교 코드: ${schoolCode}\n아이디: ${name}\n\n관리자 승인 후 로그인할 수 있습니다.`);
                 closeAdminModal();
@@ -1450,6 +1535,7 @@
         syncHeaderAndStats(); renderAll(); renderNoticePreview();
         if (isSuper) loadSchoolCodeList();
         updateAddStudentSelects();
+        if (!isSuper) setTimeout(loadTeacherEmailToInput, 500);
     }
 
     // ✅ 담임 교사의 담당 반 외 학년/반 비활성화
@@ -1536,10 +1622,17 @@
                             if (!acc || typeof acc !== 'object') return '';
                             const nm = acc.name || key;
                             const g = acc.grade; const cl = acc.classNum;
+                            const safeCode = code.replace(/'/g, "\\'");
+                            const safeKey = key.replace(/'/g, "\\'");
+                            const safeNm = nm.replace(/'/g, "\\'");
                             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f1fff4;border:1.5px solid #a5d6a7;border-radius:10px;margin-bottom:6px;">
                                 <div>
                                     <div style="font-size:13px;font-weight:bold;color:#4a4a4a;">🏫 ${nm} 선생님</div>
                                     <div style="font-size:11px;color:#aaa;margin-top:2px;">${g}학년 ${cl}반 담임</div>
+                                </div>
+                                <div style="display:flex;gap:4px;">
+                                    <button class="btn-pw" onclick="promptResetTeacherPw('${safeCode}','${safeKey}')">🔑 비번</button>
+                                    <button class="btn-del" onclick="superDeleteTeacher('${safeCode}','${safeKey}','${safeNm}')">삭제</button>
                                 </div>
                             </div>`;
                         }).join('') + `</div>`;
@@ -1592,6 +1685,14 @@
         if (!confirm(`[${schoolCode}] "${name}" 선생님 (${grade}학년 ${classNum}반) 가입 신청을 거절하시겠습니까?`)) return;
         await db.ref(`schools/${schoolCode}/teacherPending/${key}`).remove();
         alert(`"${name}" 선생님 가입 신청이 거절되었습니다.`);
+        loadSchoolCodeList();
+    }
+
+    // ✅ 슈퍼관리자 - 학교 목록에서 승인된 교사 삭제
+    async function superDeleteTeacher(schoolCode, key, name) {
+        if (!confirm(`[${schoolCode}] "${name}" 선생님 계정을 삭제하시겠습니까?\n\n삭제 후 해당 선생님은 로그인할 수 없습니다.`)) return;
+        await db.ref(`schools/${schoolCode}/teacherAccounts_v2/${key}`).remove();
+        alert(`✅ "${name}" 선생님 계정이 삭제되었습니다.`);
         loadSchoolCodeList();
     }
 
@@ -1809,6 +1910,19 @@
         if (existing) return alert(`${s.name} 학생의 재설정 요청이 이미 접수되어 있습니다.\n선생님의 처리를 기다려주세요.`);
         const reqTime = new Date().toISOString();
         await schoolRef('pwResetRequests').push({ sid, name: s.name, grade: s.grade, classNum: s.classNum, requestedAt: reqTime, status: 'pending' });
+
+        // ✅ 담임 선생님 이메일 알림 발송
+        const teacherKey = Object.keys(teacherAccounts).find(k => {
+            const acc = teacherAccounts[k];
+            return typeof acc === 'object' && String(acc.grade) === String(s.grade) && String(acc.classNum) === String(s.classNum);
+        });
+        if (teacherKey) {
+            const tAcc = teacherAccounts[teacherKey];
+            if (tAcc && tAcc.email) {
+                await sendPwResetEmailToTeacher(tAcc.email, tAcc.name, s.name, s.grade, s.classNum);
+            }
+        }
+
         alert(`✅ ${s.name} 학생의 비밀번호 재설정 요청이 접수되었습니다!\n선생님이 확인 후 1234로 초기화해드립니다.`);
         closePwResetRequestModal();
     }
