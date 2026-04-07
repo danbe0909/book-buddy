@@ -310,6 +310,14 @@
                 </div>
             </div>
 
+            <div class="card" id="pwResetRequestSection" style="border-color:#ce93d8; display:none;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                    <h3 style="margin:0; color:#6a1b9a; font-size:17px;">🔑 비밀번호 재설정 요청</h3>
+                    <span id="pwResetBadge" style="background:#6a1b9a; color:white; border-radius:10px; padding:2px 8px; font-size:12px; font-weight:bold;"></span>
+                </div>
+                <div id="pwResetRequestList"><p style="text-align:center; color:#aaa; font-size:13px;">요청이 없습니다.</p></div>
+            </div>
+
             <div class="card">
                 <div class="title-row">
                     <h3>👥 학생 명부 및 신청 관리</h3>
@@ -368,6 +376,9 @@
                     <select id="loginSelect"><option value="">-- 학년/반을 선택하세요 --</option></select>
                     <input type="password" id="loginPw" placeholder="비밀번호">
                     <button class="btn-main" onclick="studentLogin()">로그인하기</button>
+                    <div style="text-align:center; margin-top:6px;">
+                        <button onclick="showPwResetRequestModal()" style="background:none; border:none; color:#ff8e72; font-size:13px; cursor:pointer; text-decoration:underline;">🔑 비밀번호를 잊어버렸어요</button>
+                    </div>
                 </div>
 
                 <!-- ✅ TOP 5 독서왕 카드 (로그인 섹션 내, 학년/반 선택 시 표시) -->
@@ -503,7 +514,10 @@
 
             <div class="card" id="inputCard">
                 <h4 id="inputTitle" style="margin:0 0 12px 0; color:var(--primary-dark); font-size:16px;">📖 독서 기록하기</h4>
-                <input type="text" id="bookTitle" placeholder="책 제목">
+                <!-- 📷 바코드 스캔 -->
+                <button class="btn-main" style="background:linear-gradient(135deg,#43b97f,#2e7d52); box-shadow:0 4px 0px #1b5e35; font-size:15px; padding:13px; margin-bottom:14px;" onclick="openBarcodeScanner()">📷 바코드로 책 찾기</button>
+                <input type="text" id="bookTitle" placeholder="책 제목 (바코드 스캔 또는 직접 입력)">
+                <input type="text" id="bookAuthor" placeholder="지은이 (바코드 스캔 또는 직접 입력)" style="margin-bottom:14px;">
                 <select id="bookRating">
                     <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐ (최고예요!)</option>
                     <option value="⭐⭐⭐⭐">⭐⭐⭐⭐ (재미있어요)</option>
@@ -775,7 +789,7 @@
             .replace(/'/g, '&#39;');
     }
 
-    let students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, teacherPending = {}, currentSid = null, myChart = null;
+    let students = [], rawData = {}, pendingData = {}, allClassNames = {}, teacherAccounts = {}, teacherPending = {}, pwResetRequests = {}, currentSid = null, myChart = null;
     let currentTeacher = null;
     let selectedImagesBase64 = [];
     let editingBookId = null;
@@ -860,6 +874,10 @@
         const tpCb = snap => { teacherPending = snap.val() || {}; renderTeacherAccountList(); };
         const tpRef = schoolRef('teacherPending');
         tpRef.on('value', tpCb); _dbListeners.push({ ref: tpRef, cb: tpCb });
+
+        const prCb = snap => { pwResetRequests = snap.val() || {}; renderPwResetRequests(); };
+        const prRef = schoolRef('pwResetRequests');
+        prRef.on('value', prCb); _dbListeners.push({ ref: prRef, cb: prCb });
 
         const ncCb = snap => {
             classNotices = snap.val() || {};
@@ -1689,6 +1707,7 @@
                     : '';
                 return `<div class="book-item">
                     <div class="book-item-title">${esc(b.title)}</div>
+                    ${b.author ? `<div style="font-size:12px;color:#888;margin-bottom:3px;">✍️ ${esc(b.author)}</div>` : ''}
                     <div class="book-item-rating">${esc(b.rating)}</div>
                     ${imgHtml}
                     ${audioHtml}
@@ -1755,6 +1774,87 @@
         });
     }
     function closePwViewModal() { document.getElementById('pwViewModal').classList.add('hidden'); }
+
+    // ========== 🔑 학생 비밀번호 재설정 요청 기능 ==========
+    function showPwResetRequestModal() {
+        const g = document.getElementById('loginFilterGrade').value;
+        const c = document.getElementById('loginFilterClass').value;
+        if (g) document.getElementById('pwReqGrade').value = g;
+        if (c) document.getElementById('pwReqClass').value = c;
+        updatePwReqStudentList();
+        document.getElementById('pwResetRequestModal').classList.remove('hidden');
+    }
+    function closePwResetRequestModal() {
+        document.getElementById('pwResetRequestModal').classList.add('hidden');
+    }
+    function updatePwReqStudentList() {
+        const g = document.getElementById('pwReqGrade').value;
+        const c = document.getElementById('pwReqClass').value;
+        const sel = document.getElementById('pwReqStudent');
+        const filtered = students.filter(s => String(s.grade) === g && String(s.classNum) === c);
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        sel.innerHTML = '<option value="">-- 이름을 선택하세요 --</option>' +
+            filtered.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+    }
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'pwReqGrade' || e.target.id === 'pwReqClass') updatePwReqStudentList();
+    });
+    async function submitPwResetRequest() {
+        const sid = document.getElementById('pwReqStudent').value;
+        if (!sid) return alert('이름을 선택해주세요.');
+        const s = rawData[sid];
+        if (!s) return alert('학생 정보를 찾을 수 없습니다.');
+        // 이미 요청한 경우 중복 방지
+        const existing = Object.values(pwResetRequests).find(r => r.sid === sid && r.status === 'pending');
+        if (existing) return alert(`${s.name} 학생의 재설정 요청이 이미 접수되어 있습니다.\n선생님의 처리를 기다려주세요.`);
+        const reqTime = new Date().toISOString();
+        await schoolRef('pwResetRequests').push({ sid, name: s.name, grade: s.grade, classNum: s.classNum, requestedAt: reqTime, status: 'pending' });
+        alert(`✅ ${s.name} 학생의 비밀번호 재설정 요청이 접수되었습니다!\n선생님이 확인 후 1234로 초기화해드립니다.`);
+        closePwResetRequestModal();
+    }
+    function renderPwResetRequests() {
+        const section = document.getElementById('pwResetRequestSection');
+        const listEl = document.getElementById('pwResetRequestList');
+        const badge = document.getElementById('pwResetBadge');
+        if (!section) return;
+        // 담임 선생님 필터링
+        let filtered = Object.entries(pwResetRequests).filter(([, r]) => r.status === 'pending');
+        if (currentTeacher && currentTeacher !== 'super') {
+            const [tg, tc] = currentTeacher.split('-');
+            filtered = filtered.filter(([, r]) => String(r.grade) === tg && String(r.classNum) === tc);
+        }
+        if (filtered.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+        section.style.display = '';
+        badge.innerText = filtered.length + '건';
+        listEl.innerHTML = filtered.map(([key, r]) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border:2px solid #ce93d8; border-radius:12px; margin-bottom:8px; background:#fdf4ff;">
+                <div>
+                    <div style="font-weight:bold; font-size:15px; color:#4a1a6a;">${esc(r.name)} <span style="font-size:12px; color:#aaa; font-weight:normal;">${esc(r.grade)}학년 ${esc(r.classNum)}반</span></div>
+                    <div style="font-size:11px; color:#bbb; margin-top:2px;">${new Date(r.requestedAt).toLocaleString()} 요청</div>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn-approve" onclick="approvePwReset('${esc(key)}')">✅ 승인</button>
+                    <button class="btn-reject" onclick="rejectPwReset('${esc(key)}')">❌ 거절</button>
+                </div>
+            </div>`).join('');
+    }
+    async function approvePwReset(key) {
+        const r = pwResetRequests[key]; if (!r) return;
+        if (!confirm(`${r.name} 학생의 비밀번호를 1234로 초기화하시겠습니까?`)) return;
+        const newHash = await hashPassword('1234');
+        await schoolRef(`classData_v2/students/${r.sid}/pw`).set(newHash);
+        await schoolRef(`pwResetRequests/${key}`).update({ status: 'approved' });
+        alert(`✅ ${r.name} 학생의 비밀번호가 1234로 초기화되었습니다.\n학생에게 안내해주세요.`);
+    }
+    async function rejectPwReset(key) {
+        const r = pwResetRequests[key]; if (!r) return;
+        if (!confirm(`${r.name} 학생의 재설정 요청을 거절하시겠습니까?`)) return;
+        await schoolRef(`pwResetRequests/${key}`).update({ status: 'rejected' });
+    }
+    // ========================================================
 
     function _isMyStudent(grade, classNum) {
         if (!currentTeacher || currentTeacher === 'super') return false;
@@ -2166,6 +2266,7 @@
 
     function db_saveBook() {
         const t = document.getElementById('bookTitle').value.trim(), r = document.getElementById('bookRating').value, v = document.getElementById('bookReview').value;
+        const a = document.getElementById('bookAuthor') ? document.getElementById('bookAuthor').value.trim() : '';
         if(!t) return alert("제목을 입력하세요.");
 
         // ✅ 저장 전 전체 데이터 용량 체크 (이미지+오디오 합산 3MB 제한)
@@ -2177,7 +2278,7 @@
 
         if (editingBookId) {
             const origDate = rawData[currentSid].books[editingBookId].date;
-            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: origDate };
+            const bookData = { title: t, author: a || null, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: origDate };
             schoolRef(`classData_v2/students/${currentSid}/books/${editingBookId}`).set(bookData)
                 .then(() => { alert("수정되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         } else {
@@ -2195,7 +2296,7 @@
                 return alert("📚 오늘은 이미 3권을 기록했어요!\n하루 최대 3권까지만 기록할 수 있습니다.");
             }
             const _localDate = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}T${String(_now.getHours()).padStart(2,'0')}:${String(_now.getMinutes()).padStart(2,'0')}:${String(_now.getSeconds()).padStart(2,'0')}`;
-            const bookData = { title: t, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: _localDate };
+            const bookData = { title: t, author: a || null, rating: r, review: v, images: selectedImagesBase64.length > 0 ? selectedImagesBase64 : null, audio: recordedAudioBase64 || null, date: _localDate };
             schoolRef(`classData_v2/students/${currentSid}/books`).push(bookData)
                 .then(() => { alert("저장되었습니다!"); cancelEditBook(); renderHistory(); renderChart(currentSid); renderCalendar(currentSid); });
         }
@@ -2207,6 +2308,7 @@
         editingBookId = bid;
         document.getElementById('inputTitle').innerText = "✏️ 독서 기록 수정하기";
         document.getElementById('bookTitle').value = b.title;
+        if (document.getElementById('bookAuthor')) document.getElementById('bookAuthor').value = b.author || '';
         document.getElementById('bookRating').value = b.rating;
         document.getElementById('bookReview').value = b.review || "";
         if (b.images && Array.isArray(b.images)) {
@@ -2235,6 +2337,7 @@
         editingBookId = null;
         document.getElementById('inputTitle').innerText = "📖 독서 기록하기";
         document.getElementById('bookTitle').value = '';
+        if (document.getElementById('bookAuthor')) document.getElementById('bookAuthor').value = '';
         document.getElementById('bookReview').value = '';
         selectedImagesBase64 = [];
         renderMultiImagePreview();
@@ -2282,6 +2385,7 @@
                         <button class="btn-del" onclick="deleteBook('${esc(key)}')">삭제</button>
                     </div>
                 </div>
+                ${b.author ? `<div style="font-size:13px; color:#888; margin-top:2px;">✍️ ${esc(b.author)}</div>` : ''}
                 <div style="color:var(--primary-dark); font-size:14px; margin:4px 0;">${esc(b.rating)}</div>
                 ${imgHtml}
                 ${audioHtml}
@@ -2386,7 +2490,7 @@
         const startDate = startInput ? new Date(startInput) : null;
         const endDate = endInput ? new Date(endInput) : null;
         if(endDate) endDate.setHours(23, 59, 59, 999);
-        let csvContent = "\uFEFF이름,학년,반,제목,별점,느낀점,날짜\n";
+        let csvContent = "\uFEFF이름,학년,반,제목,지은이,별점,느낀점,날짜\n";
         let hasData = false;
         filteredStudents.forEach(s => {
             if (s.books) {
@@ -2396,7 +2500,7 @@
                     if (startDate && bookDate < startDate) isWithinPeriod = false;
                     if (endDate && bookDate > endDate) isWithinPeriod = false;
                     if (isWithinPeriod) {
-                        const row = [s.name, s.grade, s.classNum, `"${b.title.replace(/"/g,'""')}"`, b.rating, `"${b.review.replace(/"/g,'""')}"`, bookDate.toLocaleDateString()];
+                        const row = [s.name, s.grade, s.classNum, `"${b.title.replace(/"/g,'""')}"`, `"${(b.author||'').replace(/"/g,'""')}"`, b.rating, `"${(b.review||'').replace(/"/g,'""')}"`, bookDate.toLocaleDateString()];
                         csvContent += row.join(",") + "\n";
                         hasData = true;
                     }
@@ -2693,6 +2797,7 @@
                 const audHtml = b.audio&&String(b.audio).startsWith('data:') ? '<div style="margin:6px 0;display:flex;align-items:center;gap:8px;background:#fff0f3;border:2px solid #ffcdd2;border-radius:12px;padding:8px 12px;"><span>🎙️</span><audio controls src="'+b.audio+'" style="flex:1;height:34px;"></audio></div>' : '';
                 return '<div style="padding:12px;border:2px solid #ffe082;border-radius:15px;margin-bottom:10px;background:#fffbe0;">'
                     + '<div style="font-weight:bold;font-size:15px;">'+esc(b.title)+'</div>'
+                    + (b.author?'<div style="font-size:12px;color:#888;margin-top:1px;">✍️ '+esc(b.author)+'</div>':'')
                     + '<div style="color:#ff6b4a;font-size:13px;margin:2px 0;">'+esc(b.rating)+'</div>'
                     + (imgHtml?'<div style="display:flex;gap:5px;flex-wrap:wrap;margin:6px 0;">'+imgHtml+'</div>':'')
                     + audHtml
@@ -2765,6 +2870,210 @@
         document.getElementById('imgZoomImg').src = '';
         document.body.style.overflow = '';
     }
+
+    // =============================================
+    // 📷 바코드 스캐너 (ZXing + Open Library API)
+    // =============================================
+    let _barcodeStream = null;
+    let _barcodeReader = null;
+    let _barcodeScanning = false;
+    let _barcodeFound = { title: '', author: '' };
+
+    function openBarcodeScanner() {
+        document.getElementById('barcodeScanModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('barcodeResult').classList.add('hidden');
+        document.getElementById('barcodeNotFound').classList.add('hidden');
+        document.getElementById('barcodeConfirmBtn').classList.add('hidden');
+        const isbnWrap = document.getElementById('isbnManualWrap');
+        if (isbnWrap) isbnWrap.remove();
+        document.getElementById('barcodeScanStatus').textContent = '📷 책 뒷면 바코드를 촬영하거나 사진을 선택하세요';
+        _barcodeFound = { title: '', author: '' };
+    }
+
+    // 이미지 파일에서 바코드 인식 (Quagga2 사용)
+    async function _scanBarcodeFromImage(input) {
+        if (!input.files || !input.files[0]) return;
+        document.getElementById('barcodeResult').classList.add('hidden');
+        document.getElementById('barcodeNotFound').classList.add('hidden');
+        document.getElementById('barcodeConfirmBtn').classList.add('hidden');
+        document.getElementById('barcodeScanStatus').textContent = '🔍 바코드 인식 중...';
+
+        // Quagga2 동적 로드
+        if (!window.Quagga) {
+            try {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js';
+                    s.onload = resolve; s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+            } catch(e) {
+                document.getElementById('barcodeScanStatus').textContent = '❌ 라이브러리 로드 실패. 아래 ISBN을 직접 입력해주세요.';
+                _showIsbnManualInput();
+                input.value = '';
+                return;
+            }
+        }
+
+        const file = input.files[0];
+        input.value = '';
+
+        // 이미지를 canvas에 그려서 Quagga2로 인식
+        const imgUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            // 너무 큰 이미지는 리사이즈 (인식률 향상)
+            const MAX = 1200;
+            let w = img.width, h = img.height;
+            if (w > MAX || h > MAX) {
+                const ratio = Math.min(MAX/w, MAX/h);
+                w = Math.round(w * ratio);
+                h = Math.round(h * ratio);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            URL.revokeObjectURL(imgUrl);
+
+            Quagga.decodeSingle({
+                decoder: { readers: ['ean_reader', 'ean_8_reader', 'code_128_reader', 'upc_reader'] },
+                locate: true,
+                src: canvas.toDataURL('image/jpeg', 0.92)
+            }, async (result) => {
+                if (result && result.codeResult) {
+                    const code = result.codeResult.code.replace(/-/g, '');
+                    if (/^\d{10,13}$/.test(code)) {
+                        await lookupISBN(code);
+                    } else {
+                        document.getElementById('barcodeScanStatus').textContent = '❌ ISBN이 아닌 바코드예요. 책 뒷면 숫자 바코드를 찍어주세요.';
+                        _showIsbnManualInput();
+                    }
+                } else {
+                    document.getElementById('barcodeScanStatus').textContent = '❌ 바코드를 찾지 못했어요. 다시 찍거나 ISBN을 직접 입력해주세요.';
+                    _showIsbnManualInput();
+                }
+            });
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(imgUrl);
+            document.getElementById('barcodeScanStatus').textContent = '❌ 이미지를 읽지 못했어요.';
+            _showIsbnManualInput();
+        };
+        img.src = imgUrl;
+    }
+
+    // ISBN 직접 입력 폼 표시
+    function _showIsbnManualInput() {
+        if (document.getElementById('isbnManualWrap')) return;
+        const container = document.querySelector('#barcodeScanModal > div > div:nth-child(2)');
+        const wrap = document.createElement('div');
+        wrap.id = 'isbnManualWrap';
+        wrap.style.cssText = 'margin-top:10px; background:#2a2a4e; border-radius:15px; padding:12px;';
+        wrap.innerHTML = `
+            <div style="font-size:12px; color:#aaa; margin-bottom:8px; text-align:center;">책 뒷면 숫자 13자리를 직접 입력해도 돼요</div>
+            <div style="display:flex; gap:8px;">
+                <input id="isbnManualInput" type="number" placeholder="ISBN 13자리 입력" style="flex:1; padding:12px; border-radius:12px; border:none; font-size:15px; margin-bottom:0;">
+                <button onclick="_lookupManualISBN()" style="background:#43b97f; color:white; border:none; border-radius:12px; padding:12px 16px; font-size:14px; font-weight:bold; cursor:pointer;">검색</button>
+            </div>
+        `;
+        container.appendChild(wrap);
+        document.getElementById('isbnManualInput').focus();
+    }
+
+    async function _lookupManualISBN() {
+        const val = (document.getElementById('isbnManualInput').value || '').replace(/-/g, '').trim();
+        if (!/^\d{10,13}$/.test(val)) {
+            alert('ISBN은 10~13자리 숫자예요.');
+            return;
+        }
+        await lookupISBN(val);
+    }
+
+    async function lookupISBN(isbn) {
+        _barcodeScanning = false;
+        document.getElementById('barcodeScanStatus').textContent = '🔍 책 정보 검색 중...';
+
+        // 1순위: 카카오 책 검색 API (한국 도서에 강함) → 프록시 없이 직접 불가하므로 Open Library 사용
+        // 국립중앙도서관 또는 Open Library 사용
+        const apis = [
+            // Open Library (무료, CORS 허용)
+            async () => {
+                const r = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+                const d = await r.json();
+                const key = `ISBN:${isbn}`;
+                if (d[key]) {
+                    const book = d[key];
+                    const title = book.title || '';
+                    const authors = (book.authors || []).map(a => a.name).join(', ');
+                    const publisher = book.publishers ? book.publishers[0]?.name : '';
+                    return { title, author: authors, extra: publisher };
+                }
+                return null;
+            },
+            // 알라딘/네이버 API는 서버사이드 필요하므로 대체: Google Books API
+            async () => {
+                const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+                const d = await r.json();
+                if (d.totalItems > 0) {
+                    const info = d.items[0].volumeInfo;
+                    const title = info.title || '';
+                    const authors = (info.authors || []).join(', ');
+                    const publisher = info.publisher || '';
+                    return { title, author: authors, extra: publisher };
+                }
+                return null;
+            }
+        ];
+
+        let found = null;
+        for (const api of apis) {
+            try {
+                found = await api();
+                if (found && found.title) break;
+            } catch (e) {}
+        }
+
+        if (found && found.title) {
+            _barcodeFound = { title: found.title, author: found.author };
+            document.getElementById('barcodeBookTitle').textContent = '📚 ' + found.title;
+            document.getElementById('barcodeBookAuthor').textContent = found.author ? '✍️ ' + found.author : '';
+            document.getElementById('barcodeBookExtra').textContent = found.extra ? '🏢 ' + found.extra : '';
+            document.getElementById('barcodeResult').classList.remove('hidden');
+            document.getElementById('barcodeConfirmBtn').classList.remove('hidden');
+            document.getElementById('barcodeScanStatus').textContent = '✅ 책을 찾았어요!';
+        } else {
+            document.getElementById('barcodeNotFound').classList.remove('hidden');
+            document.getElementById('barcodeScanStatus').textContent = '❌ 책 정보를 찾지 못했어요';
+        }
+    }
+
+    function confirmBookFromBarcode() {
+        if (_barcodeFound.title) {
+            document.getElementById('bookTitle').value = _barcodeFound.title;
+            if (_barcodeFound.author) {
+                document.getElementById('bookAuthor').value = _barcodeFound.author;
+            }
+        }
+        closeBarcodeScanner();
+        // 입력 폼으로 부드럽게 스크롤
+        setTimeout(() => {
+            document.getElementById('inputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+    }
+
+    function closeBarcodeScanner() {
+        document.getElementById('barcodeScanModal').classList.add('hidden');
+        document.body.style.overflow = '';
+        document.getElementById('barcodeResult').classList.add('hidden');
+        document.getElementById('barcodeNotFound').classList.add('hidden');
+        document.getElementById('barcodeConfirmBtn').classList.add('hidden');
+        const isbnWrap = document.getElementById('isbnManualWrap');
+        if (isbnWrap) isbnWrap.remove();
+        document.getElementById('barcodeScanStatus').textContent = '📷 책 뒷면 바코드를 촬영하거나 사진을 선택하세요';
+        _barcodeFound = { title: '', author: '' };
+    }
 </script>
 
 <div id="pvModal" class="modal hidden">
@@ -2827,6 +3136,77 @@
       <div class="card" style="margin-bottom:0;">
         <div style="font-size:15px;font-weight:bold;color:var(--primary-dark);margin-bottom:12px;">📖 독서 기록</div>
         <div id="pvBooks"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔑 비밀번호 재설정 요청 모달 (학생용) -->
+<div id="pwResetRequestModal" class="modal hidden">
+  <div class="card" style="min-width:300px; max-width:90vw; text-align:center; position:relative;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h4 style="margin:0; color:#6a1b9a; font-size:17px;">🔑 비밀번호 재설정 요청</h4>
+      <button onclick="closePwResetRequestModal()" style="border:none; background:#f1f5f9; border-radius:10px; padding:6px 12px; font-size:14px; cursor:pointer; color:#555;">닫기</button>
+    </div>
+    <p style="font-size:13px; color:#888; margin:0 0 16px 0; line-height:1.7;">
+      선생님께 재설정을 요청하면<br>
+      선생님이 확인 후 <strong>비밀번호를 1234로 초기화</strong>해드려요.<br>
+      이후 직접 변경해주세요.
+    </p>
+    <div class="grade-row">
+      <select id="pwReqGrade">
+        <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+        <option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option>
+      </select>
+      <select id="pwReqClass">
+        <option value="1">1반</option><option value="2">2반</option><option value="3">3반</option>
+        <option value="4">4반</option><option value="5">5반</option><option value="6">6반</option>
+      </select>
+    </div>
+    <select id="pwReqStudent" style="margin-bottom:14px;"><option value="">-- 이름을 선택하세요 --</option></select>
+    <button class="btn-main" style="background:#6a1b9a; box-shadow:0 4px 0px #4a148c;" onclick="submitPwResetRequest()">📨 선생님께 재설정 요청하기</button>
+  </div>
+</div>
+
+<!-- 📷 바코드 스캐너 모달 -->
+<div id="barcodeScanModal" class="modal hidden">
+  <div style="background:#1a1a2e; border-radius:25px; width:96vw; max-width:480px; padding:0; overflow:hidden; position:relative;">
+    <div style="background:linear-gradient(135deg,#43b97f,#2e7d52); padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="color:white; font-size:17px; font-weight:bold;">📷 바코드로 책 찾기</div>
+      <button onclick="closeBarcodeScanner()" style="border:none; background:rgba(255,255,255,0.2); color:white; border-radius:10px; padding:6px 14px; font-size:14px; font-weight:bold; cursor:pointer;">✕ 닫기</button>
+    </div>
+    <div style="padding:16px;">
+      <!-- 안내 -->
+      <div style="background:#2a2a4e; border-radius:15px; padding:14px 16px; margin-bottom:14px; text-align:center;">
+        <div style="font-size:32px; margin-bottom:8px;">📚</div>
+        <div id="barcodeScanStatus" style="color:#ccc; font-size:14px; line-height:1.6;">책 뒷면의 바코드를 촬영하거나<br>사진을 선택해주세요</div>
+      </div>
+      <!-- 사진 선택 버튼 2개 -->
+      <div style="display:flex; gap:10px; margin-bottom:14px;">
+        <label style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#43b97f; color:white; padding:16px 10px; border-radius:18px; font-size:14px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0px #2e7d52; text-align:center; line-height:1.3;">
+          📷 직접 촬영
+          <span style="font-size:11px; opacity:0.85;">카메라로 바코드 찍기</span>
+          <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="_scanBarcodeFromImage(this)">
+        </label>
+        <label style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#4a90d9; color:white; padding:16px 10px; border-radius:18px; font-size:14px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0px #2c6fad; text-align:center; line-height:1.3;">
+          🖼️ 갤러리 선택
+          <span style="font-size:11px; opacity:0.85;">저장된 사진에서 선택</span>
+          <input type="file" accept="image/*" style="display:none;" onchange="_scanBarcodeFromImage(this)">
+        </label>
+      </div>
+      <!-- 결과 표시 -->
+      <div id="barcodeResult" class="hidden" style="background:#f0fff4; border:2px solid #43b97f; border-radius:15px; padding:14px; margin-bottom:12px;">
+        <div style="font-size:13px; color:#2e7d52; font-weight:bold; margin-bottom:6px;">✅ 책을 찾았어요!</div>
+        <div id="barcodeBookTitle" style="font-size:15px; font-weight:bold; color:#1a5e3a; margin-bottom:4px;"></div>
+        <div id="barcodeBookAuthor" style="font-size:13px; color:#388e3c;"></div>
+        <div id="barcodeBookExtra" style="font-size:11px; color:#aaa; margin-top:4px;"></div>
+      </div>
+      <div id="barcodeNotFound" class="hidden" style="background:#fff3f3; border:2px solid #ffcdd2; border-radius:15px; padding:14px; margin-bottom:12px; text-align:center; color:#c62828; font-size:13px;">
+        😅 책 정보를 찾지 못했어요. 제목을 직접 입력해주세요.
+      </div>
+      <button id="barcodeConfirmBtn" class="btn-main hidden" style="background:#43b97f; box-shadow:0 4px 0px #2e7d52;" onclick="confirmBookFromBarcode()">이 책으로 기록하기</button>
+      <div style="text-align:center; margin-top:8px;">
+        <button onclick="closeBarcodeScanner()" style="background:none; border:none; color:#888; font-size:13px; cursor:pointer; text-decoration:underline;">직접 입력할게요</button>
       </div>
     </div>
   </div>
