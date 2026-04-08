@@ -2772,9 +2772,13 @@
         document.getElementById('calMonthCount').innerText = monthBookCount;
         document.getElementById('calReadDays').innerText = monthReadDays;
 
-        // 연속 독서일 (오늘 기준 역순)
+        // 연속 독서일 (오늘 기록 없으면 어제부터 역순 체크)
         let streak = 0;
         const check = new Date(today);
+        const todayKey = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+        if (!dateMap[todayKey]) {
+            check.setDate(check.getDate() - 1); // 오늘 기록 없으면 어제부터 시작
+        }
         while (true) {
             const k = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
             if (dateMap[k]) { streak++; check.setDate(check.getDate() - 1); }
@@ -2956,6 +2960,8 @@
         document.getElementById('pvCalMon').innerText = mc;
         document.getElementById('pvCalDays').innerText = rd;
         let streak=0; const chk=new Date(today);
+        const _todayKey=chk.getFullYear()+'-'+String(chk.getMonth()+1).padStart(2,'0')+'-'+String(chk.getDate()).padStart(2,'0');
+        if(!map[_todayKey]){ chk.setDate(chk.getDate()-1); }
         while(true){ const k=chk.getFullYear()+'-'+String(chk.getMonth()+1).padStart(2,'0')+'-'+String(chk.getDate()).padStart(2,'0'); if(map[k]){streak++;chk.setDate(chk.getDate()-1);}else break; }
         document.getElementById('pvCalStreak').innerText = streak;
         const fd=new Date(_pvYear,_pvMonth,1).getDay(), ld=new Date(_pvYear,_pvMonth+1,0).getDate();
@@ -3232,7 +3238,7 @@
           <div class="cal-streak-divider"></div>
           <div class="cal-streak-item"><div id="pvCalMon" class="cal-streak-num">0</div><div class="cal-streak-label">📚 이번 달 권수</div></div>
           <div class="cal-streak-divider"></div>
-          <div class="cal-streak-item"><div id="pvCalDays" class="cal-streak-num">0</div><div class="cal-streak-label">📅 독서일</div></div>
+          <div class="cal-streak-item"><div id="pvCalDays" class="cal-streak-num">0</div><div class="cal-streak-label">📅 이번 달 독서일</div></div>
         </div>
         <div class="cal-dow">
           <div class="cal-dow-cell sun">일</div><div class="cal-dow-cell">월</div><div class="cal-dow-cell">화</div>
