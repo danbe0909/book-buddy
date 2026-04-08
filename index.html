@@ -1745,6 +1745,24 @@
         } else header.innerText = "학년/반을 선택해주세요";
     }
 
+    // ✅ 오늘 날짜 문자열 반환 (YYYY-MM-DD)
+    function getTodayStr() {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    }
+
+    // ✅ 학생의 books 중 오늘 기록된 책 개수 반환
+    function countTodayBooks(books) {
+        if (!books) return 0;
+        const today = getTodayStr();
+        return Object.values(books).filter(b => {
+            if (!b.date) return false;
+            const d = new Date(b.date);
+            const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            return ds === today;
+        }).length;
+    }
+
     function renderAll() {
         let fg, fc;
         if (currentTeacher && currentTeacher !== 'super') [fg, fc] = currentTeacher.split('-');
@@ -1755,9 +1773,32 @@
         let filtered = combined.filter(s => String(s.grade) === fg && String(s.classNum) === fc);
         if (fs === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
         else if (fs === 'books') filtered.sort((a, b) => (b.books ? Object.keys(b.books).length : 0) - (a.books ? Object.keys(a.books).length : 0));
+
+        // ✅ 오늘 독서한 학생 수 계산 → 헤더 요약 표시
+        const approvedFiltered = filtered.filter(s => !s.isPending);
+        const todayReaderCount = approvedFiltered.filter(s => countTodayBooks(s.books) > 0).length;
+        const totalApproved = approvedFiltered.length;
+
         const tList = document.getElementById('tList');
         if (filtered.length === 0) { tList.innerHTML = `<p style="text-align:center; padding:20px; color:#aaa;">등록된 학생이 없습니다.</p>`; return; }
-        tList.innerHTML = filtered.map(s => {
+
+        // ✅ 오늘 독서 현황 요약 배너
+        const todayBanner = totalApproved > 0 ? `
+        <div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9); border:2px solid #a5d6a7; border-radius:16px; padding:12px 16px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">📖</span>
+                <div>
+                    <div style="font-size:14px; font-weight:bold; color:#2e7d32;">오늘 독서한 학생</div>
+                    <div style="font-size:12px; color:#66bb6a; margin-top:1px;">${new Date().toLocaleDateString('ko-KR', {month:'long', day:'numeric'})} 기준</div>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:22px; font-weight:bold; color:#2e7d32; line-height:1;">${todayReaderCount}<span style="font-size:13px; color:#888; font-weight:normal;">명</span></div>
+                <div style="font-size:11px; color:#aaa; margin-top:1px;">전체 ${totalApproved}명 중</div>
+            </div>
+        </div>` : '';
+
+        tList.innerHTML = todayBanner + filtered.map(s => {
             const bc = s.books ? Object.keys(s.books).length : 0;
             if (s.isPending) {
                 return `<div class="card" style="border-color:#ff9800; background:#fffcf5;">
@@ -1768,9 +1809,18 @@
                     </div></div>`;
             } else {
                 const readingBadge = getReadingBadge(bc);
-                return `<div class="card">
+                const todayCount = countTodayBooks(s.books);
+                const readToday = todayCount > 0;
+                // ✅ 오늘 독서 배지 및 카드 강조
+                const todayBadge = readToday
+                    ? `<span style="display:inline-block; background:linear-gradient(135deg,#43b97f,#2e7d52); color:white; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold; margin-left:5px; vertical-align:middle;">📖 오늘 +${todayCount}권</span>`
+                    : '';
+                const cardStyle = readToday
+                    ? 'border-color:#a5d6a7; background:linear-gradient(135deg,#f0fff4,#e8f5e9);'
+                    : '';
+                return `<div class="card" style="${cardStyle}">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div><div style="font-weight:bold; font-size:16px;">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''}</div>
+                        <div><div style="font-weight:bold; font-size:16px;">${esc(s.name)}${readingBadge ? ' ' + readingBadge : ''}${todayBadge}</div>
                         <div style="font-size:12px; color:#888; margin-top:4px;">${esc(s.grade)}학년 ${esc(s.classNum)}반 | 독서 ${bc}권</div></div>
                         <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
                             <button class="btn-preview" onclick="showStudentPreview('${esc(s.id)}')">👁️ 화면보기</button>
