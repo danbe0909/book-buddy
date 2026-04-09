@@ -94,6 +94,50 @@
         .notice-empty { text-align: center; color: #bbb; font-size: 13px; padding: 10px 0; }
         .notice-teacher-edit { background: #fff8e1; border: 2px solid #ffd54f; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
 
+        /* 🔢 수학 드릴 */
+        .math-op-btn { border: 2px solid #b3e5fc; background: white; color: #0288d1; border-radius: 20px; padding: 7px 16px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.15s; }
+        .math-op-btn.active { background: #4cc9f0; color: white; border-color: #0096c7; }
+        .math-op-btn:hover:not(.active) { background: #e3f2fd; }
+        .math-wrong-item { display:flex; align-items:center; justify-content:space-between; background:#f0f9ff; border:1.5px solid #b3e5fc; border-radius:12px; padding:10px 14px; margin-bottom:8px; }
+        .math-wrong-expr { font-size:16px; font-weight:bold; color:#01579b; }
+        .math-wrong-meta { display:flex; gap:10px; align-items:center; font-size:13px; }
+        .math-wrong-user { color:#aaa; }
+        .math-wrong-correct { color:#2e7d32; font-weight:bold; }
+
+        /* 📖 문장제 드릴 */
+        .wj-level-btn { font-size:13px; font-weight:600; padding:6px 14px; border-radius:8px; border:1.5px solid #e0e0e0; background:white; color:#888; cursor:pointer; transition:0.15s; }
+        .wj-level-btn.active { background:#ff8e72; color:white; border-color:#ff6b4a; }
+        .wj-level-btn:hover:not(.active) { background:#fff0ec; }
+        .wj-problem-card { background:white; border:2px solid #ffe082; border-radius:20px; padding:18px; margin-bottom:12px; }
+        .wj-problem-num { font-size:12px; color:#aaa; margin-bottom:8px; }
+        .wj-category-badge { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; background:#e3f2fd; color:#1565c0; margin-bottom:10px; }
+        .wj-story { font-size:15px; line-height:1.75; color:#4a4a4a; margin-bottom:14px; word-break:keep-all; }
+        .wj-question { font-size:14px; font-weight:700; color:#555; background:#fffbe0; border-radius:10px; padding:10px 14px; margin-bottom:14px; line-height:1.5; }
+        .wj-hint-btn { font-size:12px; color:#1565c0; background:#e3f2fd; border:none; border-radius:999px; padding:4px 14px; cursor:pointer; font-weight:700; }
+        .wj-hint-text { font-size:12px; color:#888; margin-top:6px; font-style:italic; display:none; }
+        .wj-hint-text.visible { display:block; }
+        .wj-answer-row { display:flex; gap:10px; align-items:center; justify-content:center; margin-top:14px; }
+        .wj-input { font-size:24px; font-weight:700; width:120px; text-align:center; border:2px solid #ffe082; border-radius:12px; padding:8px; background:#fffbe0; color:#4a4a4a; outline:none; transition:0.15s; }
+        .wj-input:focus { border-color:#ff8e72; }
+        .wj-input.correct { border-color:#43b97f; background:#e8f5e9; color:#1b5e20; }
+        .wj-input.wrong { border-color:#e57373; background:#ffebee; color:#b71c1c; }
+        .wj-unit { font-size:14px; color:#888; font-weight:600; }
+        .wj-submit-btn { font-size:15px; font-weight:700; padding:10px 20px; border-radius:12px; border:none; background:#ff8e72; color:white; box-shadow:0 4px 0px #ff6b4a; cursor:pointer; transition:0.15s; }
+        .wj-submit-btn:active { transform:translateY(2px); box-shadow:0 2px 0px #ff6b4a; }
+        .wj-submit-btn:disabled { opacity:0.35; cursor:default; box-shadow:none; transform:none; }
+        .wj-feedback { font-size:14px; font-weight:700; text-align:center; min-height:22px; margin:10px 0; }
+        .wj-explain { font-size:13px; color:#666; text-align:center; background:#fff9e6; border-radius:10px; padding:10px 14px; margin-bottom:10px; line-height:1.5; display:none; }
+        .wj-nav-row { display:flex; gap:8px; margin-bottom:8px; }
+        .wj-nav-btn { flex:1; font-size:13px; padding:10px; border-radius:12px; border:2px solid #ffe082; background:white; color:#888; cursor:pointer; transition:0.15s; }
+        .wj-nav-btn:hover { background:#fffbe0; }
+        .wj-nav-btn.primary { background:#ff8e72; color:white; border-color:#ff6b4a; box-shadow:0 3px 0px #ff6b4a; }
+        .wj-wrong-item { background:#fffbe0; border:1.5px solid #ffe082; border-radius:12px; padding:12px 14px; margin-bottom:8px; }
+        .wj-wrong-story { font-size:13px; color:#666; line-height:1.5; margin-bottom:6px; }
+        .wj-wrong-meta { display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:13px; }
+        .wj-wrong-user { color:#aaa; }
+        .wj-wrong-correct { color:#2e7d32; font-weight:700; }
+        .wj-wrong-explain { font-size:12px; color:#888; margin-top:6px; line-height:1.4; }
+
         /* 🎙️ 녹음 기능 스타일 */
         .rec-wrapper { margin-bottom: 14px; }
         .rec-btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
@@ -202,6 +246,8 @@
 
 <div class="mode-selector">
     <button id="sModeBtn" class="mode-btn active" onclick="executeSwitch('student')">👶 학생 접속</button>
+    <button id="mModeBtn" class="mode-btn" onclick="executeSwitch('math')">🔢 연산 드릴</button>
+    <button id="wjModeBtn" class="mode-btn" onclick="executeSwitch('wordjang')">📖 문장제 드릴</button>
     <button id="tModeBtn" class="mode-btn" onclick="openTeacherModal()">👩‍🏫 교사 관리 🔒</button>
 </div>
 
@@ -212,6 +258,226 @@
 </header>
 
 <div class="container">
+
+    <!-- ══════════════════════════════════════
+         🔢 수학 연산 드릴 뷰
+    ══════════════════════════════════════ -->
+    <div id="mathView" class="hidden">
+      <div class="card" style="padding:0; overflow:hidden; border-color:#81d4fa;">
+
+        <!-- 설정 화면 -->
+        <div id="mathViewSetup" style="padding:22px;">
+          <h4 style="margin:0 0 16px 0; color:#0077b6; font-size:18px;">🔢 수학 연산 드릴</h4>
+
+          <div style="font-size:13px; color:#888; margin-bottom:8px; font-weight:bold;">연산 종류 (복수 선택 가능)</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;" id="mathOpButtons">
+            <button class="math-op-btn active" data-op="add" onclick="mathToggleOp(this)">덧셈 +</button>
+            <button class="math-op-btn" data-op="sub" onclick="mathToggleOp(this)">뺄셈 −</button>
+            <button class="math-op-btn" data-op="mul" onclick="mathToggleOp(this)">곱셈 ×</button>
+            <button class="math-op-btn" data-op="div" onclick="mathToggleOp(this)">나눗셈 ÷</button>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+            <span style="font-size:13px; color:#888; min-width:52px;">문제 수</span>
+            <input type="range" min="5" max="30" step="5" value="10" id="mathCountSlider"
+              oninput="document.getElementById('mathCountVal').textContent=this.value+'개'"
+              style="flex:1;">
+            <span style="font-size:14px; font-weight:bold; color:#0077b6; min-width:36px;" id="mathCountVal">10개</span>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:22px;">
+            <span style="font-size:13px; color:#888; min-width:52px;">숫자 범위</span>
+            <input type="range" min="1" max="5" step="1" value="1" id="mathRangeSlider"
+              oninput="mathUpdateRangeLabel()"
+              style="flex:1;">
+            <span style="font-size:14px; font-weight:bold; color:#0077b6; min-width:72px; text-align:right;" id="mathRangeVal">1 ~ 10</span>
+          </div>
+
+          <button class="btn-main" style="background:#4cc9f0; box-shadow:0 4px 0px #0096c7;" onclick="mathStartDrill()">시작하기 →</button>
+        </div>
+
+        <!-- 문제 풀기 화면 -->
+        <div id="mathViewDrill" style="display:none; padding:22px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:14px; font-weight:bold; color:#0077b6;" id="mathProblemNum">문제 1 / 10</span>
+            <span style="font-size:13px; color:#888; background:#e3f2fd; border-radius:20px; padding:3px 12px;" id="mathScoreLabel">0 / 0</span>
+          </div>
+          <div style="background:#e3f2fd; border-radius:99px; height:6px; margin-bottom:18px; overflow:hidden;">
+            <div id="mathProgressBar" style="height:6px; border-radius:99px; background:#0096c7; transition:width 0.3s; width:0%;"></div>
+          </div>
+
+          <div style="background:#f0f9ff; border:2px solid #b3e5fc; border-radius:20px; padding:24px 16px; text-align:center; margin-bottom:12px;">
+            <div style="font-size:12px; color:#aaa; margin-bottom:8px;" id="mathProbNumSub">문제 1</div>
+            <div style="font-size:40px; font-weight:bold; color:#01579b; letter-spacing:2px; margin-bottom:20px;" id="mathProblemExpr"></div>
+            <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+              <input id="mathAnswerInput" type="number" placeholder="?"
+                style="font-size:28px; font-weight:bold; width:120px; text-align:center; border:2px solid #b3e5fc; border-radius:12px; padding:8px; background:white; color:#01579b; outline:none;"
+                autocomplete="off" onkeydown="if(event.key==='Enter') mathCheckAnswer()">
+              <button class="btn-main" id="mathSubmitBtn" onclick="mathCheckAnswer()"
+                style="background:#4cc9f0; box-shadow:0 4px 0px #0096c7; font-size:15px; padding:10px 20px; width:auto;">확인</button>
+            </div>
+          </div>
+
+          <div id="mathFeedback" style="font-size:14px; font-weight:bold; text-align:center; min-height:22px; margin-bottom:12px;"></div>
+
+          <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <button class="btn-edit" style="flex:1; padding:10px; font-size:14px; border-radius:12px;" onclick="mathSkipProblem()">건너뛰기</button>
+            <button class="btn-main" id="mathNextBtn" onclick="mathNextProblem()"
+              style="flex:1; display:none; background:#4cc9f0; box-shadow:0 4px 0px #0096c7; font-size:14px; padding:10px;">다음 →</button>
+            <button class="btn-main" id="mathFinishBtn" onclick="mathShowResult()"
+              style="flex:1; display:none; background:#43b97f; box-shadow:0 4px 0px #2e7d32; font-size:14px; padding:10px;">결과 보기 →</button>
+          </div>
+          <button class="btn-edit" style="width:100%; padding:9px; font-size:13px; border-radius:12px;" onclick="mathGoSetup()">← 설정으로</button>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="mathViewResult" style="display:none; padding:22px;">
+          <h4 style="margin:0 0 14px 0; color:#0077b6; font-size:18px;">📊 결과</h4>
+
+          <div style="background:linear-gradient(135deg,#e3f2fd,#b3e5fc); border-radius:20px; padding:20px; text-align:center; margin-bottom:16px;">
+            <div style="font-size:52px; font-weight:bold; color:#01579b; line-height:1;" id="mathResultPct">0%</div>
+            <div style="font-size:14px; color:#0288d1; margin-top:6px;" id="mathResultMsg"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px;">
+              <div style="background:white; border-radius:12px; padding:10px;">
+                <div style="font-size:20px; font-weight:bold; color:#01579b;" id="mathRTotal">0</div>
+                <div style="font-size:11px; color:#aaa; margin-top:2px;">전체</div>
+              </div>
+              <div style="background:white; border-radius:12px; padding:10px;">
+                <div style="font-size:20px; font-weight:bold; color:#2e7d32;" id="mathRCorrect">0</div>
+                <div style="font-size:11px; color:#aaa; margin-top:2px;">맞힌 수</div>
+              </div>
+              <div style="background:white; border-radius:12px; padding:10px;">
+                <div style="font-size:20px; font-weight:bold; color:#c62828;" id="mathRWrong">0</div>
+                <div style="font-size:11px; color:#aaa; margin-top:2px;">틀린 수</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 탭 -->
+          <div style="display:flex; border-bottom:2px solid #e0e0e0; margin-bottom:14px;">
+            <button id="mathTabWrongBtn" onclick="mathShowTab('wrong')"
+              style="flex:1; border:none; background:none; padding:9px; font-size:13px; font-weight:bold; color:#0077b6; border-bottom:3px solid #0077b6; cursor:pointer;">오답 노트</button>
+            <button id="mathTabSkipBtn" onclick="mathShowTab('skip')"
+              style="flex:1; border:none; background:none; padding:9px; font-size:13px; font-weight:bold; color:#aaa; border-bottom:3px solid transparent; cursor:pointer;">건너뛴 문제</button>
+          </div>
+
+          <div id="mathTabWrong"><div id="mathWrongList"></div></div>
+          <div id="mathTabSkip" style="display:none;"><div id="mathSkipList"></div></div>
+
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <button class="btn-edit" style="flex:1; padding:11px; font-size:14px; border-radius:12px;" onclick="mathGoSetup()">설정으로</button>
+            <button class="btn-main" style="flex:1; background:#ff8e72; box-shadow:0 4px 0px #ff6b4a; font-size:14px; padding:11px;" onclick="mathRetryWrong()">오답 다시 풀기</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ══ 수학 드릴 뷰 끝 ══ -->
+
+    <!-- ══════════════════════════════════════
+         📖 문장제 드릴 뷰
+    ══════════════════════════════════════ -->
+    <div id="wordjangView" class="hidden">
+      <div class="card" style="padding:0; overflow:hidden; border-color:#ffe082;">
+
+        <!-- 설정 화면 -->
+        <div id="wjViewSetup" style="padding:22px;">
+          <h4 style="margin:0 0 16px 0; color:#e65100; font-size:18px;">📖 문장제 드릴</h4>
+          <div style="font-size:13px; color:#888; margin-bottom:8px; font-weight:bold;">난이도</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px;">
+            <button class="wj-level-btn active" data-level="1" onclick="wjSelectLevel(this)">⭐ 기본</button>
+            <button class="wj-level-btn" data-level="2" onclick="wjSelectLevel(this)">⭐⭐ 심화</button>
+            <button class="wj-level-btn" data-level="3" onclick="wjSelectLevel(this)">⭐⭐⭐ 최상위</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+            <span style="font-size:13px; color:#888; min-width:52px;">문제 수</span>
+            <input type="range" min="5" max="20" step="5" value="10" id="wjCountSlider"
+              oninput="document.getElementById('wjCountVal').textContent=this.value+'문제'"
+              style="flex:1;">
+            <span style="font-size:14px; font-weight:bold; color:#e65100; min-width:60px; text-align:right;" id="wjCountVal">10문제</span>
+          </div>
+          <div style="background:#fff9e6; border:1.5px solid #ffe082; border-radius:12px; padding:10px 14px; margin-bottom:18px; font-size:12px; color:#795548; line-height:1.6;">
+            💡 문장을 꼼꼼히 읽고 필요한 값을 찾아 계산하세요. 단위에 주의하세요!
+          </div>
+          <button class="btn-main" style="background:#ff8e72; box-shadow:0 4px 0px #ff6b4a;" onclick="wjStartDrill()">시작하기 →</button>
+        </div>
+
+        <!-- 문제 풀기 화면 -->
+        <div id="wjViewDrill" style="display:none; padding:22px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:14px; font-weight:bold; color:#e65100;" id="wjProbNum">문제 1 / 10</span>
+            <span style="font-size:13px; color:#888; background:#fff9e6; border-radius:20px; padding:3px 12px;" id="wjScoreLabel">0 / 0</span>
+          </div>
+          <div style="background:#ffe082; border-radius:99px; height:6px; margin-bottom:16px; overflow:hidden;">
+            <div id="wjProgressBar" style="height:6px; border-radius:99px; background:#ff8e72; transition:width 0.3s; width:0%;"></div>
+          </div>
+
+          <div class="wj-problem-card">
+            <div class="wj-category-badge" id="wjCategory">🛒 일상생활</div>
+            <div class="wj-story" id="wjStory"></div>
+            <div class="wj-question" id="wjQuestion"></div>
+            <div id="wjHintWrap">
+              <button class="wj-hint-btn" onclick="wjToggleHint()" id="wjHintBtn">💡 힌트 보기</button>
+              <div class="wj-hint-text" id="wjHintText"></div>
+            </div>
+            <div class="wj-answer-row">
+              <input type="number" class="wj-input" id="wjAnswerInput" placeholder="?"
+                autocomplete="off" onkeydown="if(event.key==='Enter') wjCheckAnswer()">
+              <span class="wj-unit" id="wjUnit"></span>
+              <button class="wj-submit-btn" id="wjSubmitBtn" onclick="wjCheckAnswer()">확인</button>
+            </div>
+          </div>
+
+          <div class="wj-feedback" id="wjFeedback"></div>
+          <div class="wj-explain" id="wjExplain"></div>
+
+          <div class="wj-nav-row">
+            <button class="wj-nav-btn" onclick="wjGoSetup()">설정으로</button>
+            <button class="wj-nav-btn" onclick="wjSkipProblem()">건너뛰기</button>
+            <button class="wj-nav-btn primary" id="wjNextBtn" style="display:none" onclick="wjNextProblem()">다음 →</button>
+            <button class="wj-nav-btn primary" id="wjFinishBtn" style="display:none" onclick="wjShowResult()">결과 보기 →</button>
+          </div>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="wjViewResult" style="display:none; padding:22px;">
+          <h4 style="margin:0 0 14px 0; color:#e65100; font-size:18px;">📊 결과</h4>
+          <div style="background:linear-gradient(135deg,#fff9e6,#ffe082); border-radius:20px; padding:20px; text-align:center; margin-bottom:16px;">
+            <div style="font-size:52px; font-weight:bold; color:#e65100; line-height:1;" id="wjResultPct">0%</div>
+            <div style="font-size:14px; color:#795548; margin-top:6px;" id="wjResultMsg"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px;">
+              <div style="background:white; border-radius:12px; padding:10px;">
+                <div style="font-size:20px; font-weight:bold; color:#e65100;" id="wjRTotal">0</div>
+                <div style="font-size:11px; color:#aaa; margin-top:2px;">전체</div>
+              </div>
+              <div style="background:white; border-radius:12px; padding:10px;">
+                <div style="font-size:20px; font-weight:bold; color:#2e7d32;" id="wjRCorrect">0</div>
+                <div style="font-size:11px; color:#aaa; margin-top:2px;">맞힌 수</div>
+              </div>
+              <div style="background:white; border-radius:12px; padding:10px;">
+                <div style="font-size:20px; font-weight:bold; color:#c62828;" id="wjRWrong">0</div>
+                <div style="font-size:11px; color:#aaa; margin-top:2px;">틀린 수</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; border-bottom:2px solid #ffe082; margin-bottom:14px;">
+            <button id="wjTabWrongBtn" onclick="wjShowTab('wrong')"
+              style="flex:1; border:none; background:none; padding:9px; font-size:13px; font-weight:bold; color:#e65100; border-bottom:3px solid #ff8e72; cursor:pointer;">오답 노트</button>
+            <button id="wjTabSkipBtn" onclick="wjShowTab('skip')"
+              style="flex:1; border:none; background:none; padding:9px; font-size:13px; font-weight:bold; color:#aaa; border-bottom:3px solid transparent; cursor:pointer;">건너뛴 문제</button>
+          </div>
+          <div id="wjTabWrong"><div id="wjWrongList"></div></div>
+          <div id="wjTabSkip" style="display:none;"><div id="wjSkipList"></div></div>
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <button class="btn-edit" style="flex:1; padding:11px; font-size:14px; border-radius:12px;" onclick="wjGoSetup()">설정으로</button>
+            <button class="btn-main" style="flex:1; background:#ff8e72; box-shadow:0 4px 0px #ff6b4a; font-size:14px; padding:11px;" onclick="wjRetryWrong()">오답 다시 풀기</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ══ 문장제 드릴 뷰 끝 ══ -->
+
     <div id="teacherView" class="hidden">
         <button class="btn-main" style="background:#888; box-shadow:0 4px 0px #666; margin-bottom:18px; font-size:16px;" onclick="teacherLogout()">교사 모드 종료 (로그아웃)</button>
 
@@ -2120,8 +2386,12 @@
     function executeSwitch(mode) {
         document.getElementById('teacherView').classList.toggle('hidden', mode !== 'teacher');
         document.getElementById('studentView').classList.toggle('hidden', mode !== 'student');
+        document.getElementById('mathView').classList.toggle('hidden', mode !== 'math');
+        document.getElementById('wordjangView').classList.toggle('hidden', mode !== 'wordjang');
         document.getElementById('tModeBtn').classList.toggle('active', mode === 'teacher');
         document.getElementById('sModeBtn').classList.toggle('active', mode === 'student');
+        document.getElementById('mModeBtn').classList.toggle('active', mode === 'math');
+        document.getElementById('wjModeBtn').classList.toggle('active', mode === 'wordjang');
         if (mode === 'student') { document.getElementById('headerTeacherBadge').innerHTML = ''; document.getElementById('editNameGrade').disabled = false; document.getElementById('editNameClass').disabled = false; currentTeacher = null; }
         syncHeaderAndStats();
     }
@@ -3244,6 +3514,860 @@
         document.getElementById('barcodeScanStatus').textContent = '📷 책 뒷면 바코드를 촬영하거나 사진을 선택하세요';
         _barcodeFound = { title: '', author: '' };
     }
+
+    // ══════════════════════════════════════
+    // 🔢 수학 연산 드릴 로직
+    // ══════════════════════════════════════
+    let mathProblems = [], mathIdx = 0, mathCorrect = 0;
+    let mathWrongItems = [], mathSkipItems = [];
+    let mathAnswered = false;
+    let mathSelectedOps = ['add'];
+    let mathMaxNum = 10;
+
+    function mathUpdateRangeLabel() {
+        const v = +document.getElementById('mathRangeSlider').value;
+        const labels  = ['1 ~ 10', '1 ~ 20', '1 ~ 99', '1 ~ 999', '1 ~ 9999'];
+        const maxNums = [10, 20, 99, 999, 9999];
+        document.getElementById('mathRangeVal').textContent = labels[v - 1];
+        mathMaxNum = maxNums[v - 1];
+    }
+
+    function mathToggleOp(btn) {
+        const op = btn.dataset.op;
+        const i = mathSelectedOps.indexOf(op);
+        if (i > -1) {
+            if (mathSelectedOps.length === 1) return;
+            mathSelectedOps.splice(i, 1);
+            btn.classList.remove('active');
+        } else {
+            mathSelectedOps.push(op);
+            btn.classList.add('active');
+        }
+    }
+
+    function mathRandInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function mathMakeProblem() {
+        const op = mathSelectedOps[Math.floor(Math.random() * mathSelectedOps.length)];
+        let a, b, ans, expr;
+        if (op === 'add') {
+            a = mathRandInt(1, mathMaxNum); b = mathRandInt(1, mathMaxNum);
+            ans = a + b; expr = a + ' + ' + b + ' = ';
+        } else if (op === 'sub') {
+            a = mathRandInt(1, mathMaxNum); b = mathRandInt(1, a);
+            ans = a - b; expr = a + ' − ' + b + ' = ';
+        } else if (op === 'mul') {
+            // 자릿수 단계별: 1~10→1자리×1자리, 1~20→2자리×1자리, 1~99→2자리×2자리, 1~999→3자리×2자리, 1~9999→3자리×3자리
+            let mulA, mulB;
+            if (mathMaxNum <= 10)       { mulA = 9;   mulB = 9; }
+            else if (mathMaxNum <= 20)  { mulA = 20;  mulB = 9; }
+            else if (mathMaxNum <= 99)  { mulA = 99;  mulB = 99; }
+            else if (mathMaxNum <= 999) { mulA = 999; mulB = 99; }
+            else                        { mulA = 999; mulB = 999; }
+            a = mathRandInt(1, mulA); b = mathRandInt(1, mulB);
+            ans = a * b; expr = a + ' × ' + b + ' = ';
+        } else {
+            // 나누기: 피제수와 몫의 범위를 자릿수 단계별로 확대
+            let divB, divAns;
+            if (mathMaxNum <= 10)       { divB = 9;   divAns = 9; }
+            else if (mathMaxNum <= 20)  { divB = 9;   divAns = 20; }
+            else if (mathMaxNum <= 99)  { divB = 99;  divAns = 99; }
+            else if (mathMaxNum <= 999) { divB = 99;  divAns = 999; }
+            else                        { divB = 999; divAns = 999; }
+            b = mathRandInt(1, divB); ans = mathRandInt(1, divAns);
+            a = b * ans; expr = a + ' ÷ ' + b + ' = ';
+        }
+        return { expr, ans };
+    }
+
+    function mathStartDrill(retryProblems) {
+        const count = +document.getElementById('mathCountSlider').value;
+        mathProblems = retryProblems || Array.from({ length: count }, mathMakeProblem);
+        mathIdx = 0; mathCorrect = 0; mathWrongItems = []; mathSkipItems = []; mathAnswered = false;
+        mathShowPanel('drill');
+        mathShowProblem();
+    }
+
+    function mathShowProblem() {
+        if (mathIdx >= mathProblems.length) { mathShowResult(); return; }
+        const p = mathProblems[mathIdx];
+        document.getElementById('mathProblemNum').textContent = '문제 ' + (mathIdx + 1) + ' / ' + mathProblems.length;
+        document.getElementById('mathProbNumSub').textContent = '문제 ' + (mathIdx + 1);
+        document.getElementById('mathProblemExpr').textContent = p.expr;
+        const inp = document.getElementById('mathAnswerInput');
+        inp.value = ''; inp.style.borderColor = '#b3e5fc'; inp.style.background = 'white'; inp.style.color = '#01579b';
+        inp.disabled = false; inp.focus();
+        document.getElementById('mathFeedback').textContent = '';
+        document.getElementById('mathFeedback').style.color = '';
+        document.getElementById('mathSubmitBtn').disabled = false;
+        document.getElementById('mathNextBtn').style.display = 'none';
+        document.getElementById('mathFinishBtn').style.display = 'none';
+        const pct = Math.round(mathIdx / mathProblems.length * 100);
+        document.getElementById('mathProgressBar').style.width = pct + '%';
+        document.getElementById('mathScoreLabel').textContent = mathCorrect + ' / ' + mathIdx;
+        mathAnswered = false;
+    }
+
+    function mathCheckAnswer() {
+        if (mathAnswered) return;
+        const inp = document.getElementById('mathAnswerInput');
+        if (inp.value.trim() === '') return;
+        const p = mathProblems[mathIdx];
+        const userAns = parseInt(inp.value);
+        mathAnswered = true;
+        inp.disabled = true;
+        document.getElementById('mathSubmitBtn').disabled = true;
+        const fb = document.getElementById('mathFeedback');
+        const isLast = mathIdx === mathProblems.length - 1;
+        if (userAns === p.ans) {
+            mathCorrect++;
+            inp.style.borderColor = '#43b97f'; inp.style.background = '#e8f5e9'; inp.style.color = '#1b5e20';
+            fb.textContent = '🎉 정답이에요!'; fb.style.color = '#2e7d32';
+        } else {
+            mathWrongItems.push({ ...p, userAns });
+            inp.style.borderColor = '#e57373'; inp.style.background = '#ffebee'; inp.style.color = '#b71c1c';
+            fb.textContent = '아쉬워요! 정답은 ' + p.ans + '이에요.'; fb.style.color = '#c62828';
+        }
+        document.getElementById('mathScoreLabel').textContent = mathCorrect + ' / ' + (mathIdx + 1);
+        if (isLast) document.getElementById('mathFinishBtn').style.display = '';
+        else        document.getElementById('mathNextBtn').style.display = '';
+    }
+
+    function mathNextProblem() { mathIdx++; mathShowProblem(); }
+
+    function mathSkipProblem() {
+        if (mathAnswered) return;
+        mathSkipItems.push(mathProblems[mathIdx]);
+        mathIdx++;
+        if (mathIdx >= mathProblems.length) mathShowResult();
+        else mathShowProblem();
+    }
+
+    function mathShowResult() {
+        mathShowPanel('result');
+        const total = mathProblems.length;
+        const pct = Math.round(mathCorrect / total * 100);
+        document.getElementById('mathResultPct').textContent = pct + '%';
+        const msgs = ['한 번 더 도전해 봐요! 💪', '조금만 더 연습해요!', '잘 하고 있어요! 👍', '훌륭해요! 🌟', '완벽해요! 🏆'];
+        document.getElementById('mathResultMsg').textContent = msgs[Math.min(Math.floor(pct / 20), 4)];
+        document.getElementById('mathRTotal').textContent = total;
+        document.getElementById('mathRCorrect').textContent = mathCorrect;
+        document.getElementById('mathRWrong').textContent = mathWrongItems.length;
+        document.getElementById('mathProgressBar').style.width = '100%';
+        mathRenderList('mathWrongList', mathWrongItems, true);
+        mathRenderList('mathSkipList', mathSkipItems, false);
+        mathShowTab('wrong');
+    }
+
+    function mathRenderList(elId, list, showUser) {
+        const el = document.getElementById(elId);
+        if (list.length === 0) {
+            el.innerHTML = '<p style="text-align:center; color:#aaa; font-size:13px; padding:14px;">없음</p>'; return;
+        }
+        el.innerHTML = list.map(p => `
+            <div class="math-wrong-item">
+                <div class="math-wrong-expr">${p.expr}<strong>${p.ans}</strong></div>
+                <div class="math-wrong-meta">
+                    ${showUser && p.userAns !== undefined ? '<span class="math-wrong-user">내 답: ' + p.userAns + '</span>' : ''}
+                    <span class="math-wrong-correct">정답: ${p.ans}</span>
+                </div>
+            </div>`).join('');
+    }
+
+    function mathRetryWrong() {
+        const retry = [...mathWrongItems, ...mathSkipItems].map(p => ({ ...p, userAns: undefined }));
+        if (retry.length === 0) { mathGoSetup(); return; }
+        mathStartDrill(retry);
+    }
+
+    function mathShowTab(name) {
+        document.getElementById('mathTabWrong').style.display = name === 'wrong' ? '' : 'none';
+        document.getElementById('mathTabSkip').style.display  = name === 'skip'  ? '' : 'none';
+        document.getElementById('mathTabWrongBtn').style.color = name === 'wrong' ? '#0077b6' : '#aaa';
+        document.getElementById('mathTabWrongBtn').style.borderBottomColor = name === 'wrong' ? '#0077b6' : 'transparent';
+        document.getElementById('mathTabSkipBtn').style.color = name === 'skip' ? '#0077b6' : '#aaa';
+        document.getElementById('mathTabSkipBtn').style.borderBottomColor = name === 'skip' ? '#0077b6' : 'transparent';
+    }
+
+    function mathGoSetup() { mathShowPanel('setup'); }
+
+    function mathShowPanel(panel) {
+        document.getElementById('mathViewSetup').style.display  = panel === 'setup'  ? '' : 'none';
+        document.getElementById('mathViewDrill').style.display  = panel === 'drill'  ? '' : 'none';
+        document.getElementById('mathViewResult').style.display = panel === 'result' ? '' : 'none';
+    }
+
+    // ══════════════════════════════════════
+    // 📖 문장제 드릴 로직
+    // ══════════════════════════════════════
+
+  // ── 랜덤 숫자 헬퍼 ───────────────────────────────────────────────────────────
+  function wjRnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function wjPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // ── 조사 헬퍼 ─────────────────────────────────────────────────────────────
+  // 단어 마지막 글자에 받침이 있으면 true
+  function wjHasBatchim(word) {
+    const code = word.charCodeAt(word.length - 1);
+    if (code < 0xAC00 || code > 0xD7A3) return false;
+    return (code - 0xAC00) % 28 !== 0;
+  }
+  // 이름 뒤 '이는'/'는', '이가'/'가', '이의'/'의' 등을 처리
+  function wjNameEun(name) { return wjHasBatchim(name) ? name + '이는' : name + '는'; }
+  function wjNameGa(name)  { return wjHasBatchim(name) ? name + '이가' : name + '가'; }
+  // 일반 단어 조사
+  function wjJosaEun(word) { return wjHasBatchim(word) ? '은' : '는'; }
+  function wjJosaGa(word)  { return wjHasBatchim(word) ? '이' : '가'; }
+  function wjJosaEul(word) { return wjHasBatchim(word) ? '을' : '를'; }
+  function wjJosaWa(word)  { return wjHasBatchim(word) ? '과' : '와'; }
+
+  // ── 문제 템플릿 (generate 함수가 매번 새 숫자로 문제 생성) ──────────────────
+  const WJ_TEMPLATES = [
+
+    // ══ 일상생활 기본(1) ══
+    { type:'everyday', level:1, generate() {
+      const perBag = wjRnd(3,9), bags = wjRnd(2,8);
+      const ans = perBag * bags;
+      const fruits = wjPick(['사과','귤','배','감']);
+      return { story:`${fruits}${wjJosaGa(fruits)} 한 봉지에 ${perBag}개씩 들어 있습니다. 봉지가 ${bags}개 있습니다.`,
+        question:`${fruits}${wjJosaEun(fruits)} 모두 몇 개인가요?`, hint:`${perBag} × ${bags}`,
+        ans, unit:'개', explain:`${perBag} × ${bags} = ${ans}개` }; }},
+    { type:'everyday', level:1, generate() {
+      const people = wjPick([2,3,4,5,6]);
+      const ans = wjRnd(3,8);
+      const t2 = people * ans;
+      const items = wjPick(['연필','색연필','지우개','사탕']);
+      return { story:`${items} ${t2}개를 친구 ${people}명에게 똑같이 나누어 주려 합니다.`,
+        question:`한 명이 받는 ${items}${wjJosaEun(items)} 몇 개인가요?`, hint:`${t2} ÷ ${people}`,
+        ans, unit:'개', explain:`${t2} ÷ ${people} = ${ans}개` }; }},
+    { type:'everyday', level:1, generate() {
+      const start = wjRnd(5,19) * 100; const remain = wjRnd(1, start/100 - 1) * 100;
+      const ans = start - remain;
+      const names = wjPick(['수진','지훈','민준','하은']);
+      const items = wjPick(['빵','과자','음료수','아이스크림']);
+      return { story:`${wjNameEun(names)} ${start}원을 가지고 있었는데 ${items}${wjJosaEul(items)} 사고 ${remain}원이 남았습니다.`,
+        question:`${items}의 값은 얼마인가요?`, hint:'처음 금액 − 남은 금액',
+        ans, unit:'원', explain:`${start} − ${remain} = ${ans}원` }; }},
+    { type:'everyday', level:1, generate() {
+      const a = wjRnd(2,8), b = wjRnd(2,8);
+      const names = ['지현','민준','수진','태훈'];
+      const n1 = names[wjRnd(0,3)];
+      let n2; do { n2 = names[wjRnd(0,3)]; } while (n2 === n1);
+      const fruit = wjPick(['사탕','초콜릿','젤리','쿠키']);
+      const ans = a + b;
+      return { story:`${wjNameGa(n1)} ${fruit} ${a}개, ${wjNameGa(n2)} ${fruit} ${b}개를 가지고 있습니다.`,
+        question:`두 사람이 가진 ${fruit}${wjJosaEun(fruit)} 모두 몇 개인가요?`, hint:`${a} + ${b}`,
+        ans, unit:'개', explain:`${a} + ${b} = ${ans}개` }; }},
+
+    // 기본 5: 남은 개수
+    { type:'everyday', level:1, generate() {
+      const total = wjRnd(10,30); const used = wjRnd(1, total-1);
+      const ans = total - used;
+      const item = wjPick(['색종이','스티커','연필','지우개']);
+      const names = wjPick(['지훈','수진','민준','하은']);
+      return { story:`${wjNameEun(names)} ${item} ${total}개를 가지고 있었는데 ${used}개를 친구에게 주었습니다.`,
+        question:`남은 ${item}${wjJosaEun(item)} 몇 개인가요?`, hint:`${total} − ${used}`,
+        ans, unit:'개', explain:`${total} − ${used} = ${ans}개` }; }},
+
+    // 기본 6: 묶음 총 개수
+    { type:'everyday', level:1, generate() {
+      const perPack = wjRnd(3,9); const packs = wjRnd(2,7);
+      const ans = perPack * packs;
+      const item = wjPick(['공책','색연필','빵','연필']);
+      return { story:`${item}${wjJosaGa(item)} 한 묶음에 ${perPack}개씩 ${packs}묶음 있습니다.`,
+        question:`${item}${wjJosaEun(item)} 모두 몇 개인가요?`, hint:`${perPack} × ${packs}`,
+        ans, unit:'개', explain:`${perPack} × ${packs} = ${ans}개` }; }},
+
+    // 기본 7: 거리 합산
+    { type:'everyday', level:1, generate() {
+      const a = wjRnd(100,900); const b = wjRnd(100,900);
+      const ans = a + b;
+      return { story:`학교에서 도서관까지 ${a}m, 도서관에서 집까지 ${b}m입니다.`,
+        question:'학교에서 집까지 도서관을 거쳐 가면 몇 m인가요?', hint:`${a} + ${b}`,
+        ans, unit:'m', explain:`${a} + ${b} = ${ans}m` }; }},
+
+    // 기본 8: 시간 계산 (분 단위)
+    { type:'everyday', level:1, generate() {
+      const startH = wjPick([9,10,11,14,15]); const startM = wjPick([0,10,20,30]);
+      const dur = wjPick([10,20,30,40,50]);
+      const totalM = startM + dur;
+      const endH = startH + Math.floor(totalM / 60);
+      const endM = totalM % 60;
+      const act = wjPick(['독서','운동','그림 그리기','피아노 연습']);
+      // 60분 넘지 않는 문제만 출제
+      if (startM + dur >= 60) throw new Error('retry');
+      const ansM = startM + dur;
+      return {
+        story:`${startH}시 ${startM}분에 ${act}${wjJosaEul(act)} 시작하여 ${dur}분 동안 했습니다.`,
+        question:`${act}${wjJosaGa(act)} 끝난 시각은 ${startH}시 몇 분인가요?`,
+        hint:`${startM} + ${dur}`,
+        ans: ansM, unit:'분', explain:`${startM} + ${dur} = ${ansM}분 → ${startH}시 ${ansM}분`
+      }; }},
+
+    // 기본 9: 무게 합산
+    { type:'everyday', level:1, generate() {
+      const a = wjRnd(1,9) * 100; const b = wjRnd(1,9) * 100;
+      const ans = a + b;
+      const i1 = wjPick(['사과','배','감','귤']); const i2 = wjPick(['포도','키위','딸기','참외']);
+      return { story:`${i1} 한 개의 무게는 ${a}g이고, ${i2} 한 개의 무게는 ${b}g입니다.`,
+        question:`두 과일의 무게의 합은 몇 g인가요?`, hint:`${a} + ${b}`,
+        ans, unit:'g', explain:`${a} + ${b} = ${ans}g` }; }},
+
+    // 기본 10: 가격 비교 (더 비싼 것)
+    { type:'everyday', level:1, generate() {
+      const p1 = wjRnd(2,9) * 100; const p2 = wjRnd(2,9) * 100;
+      if (p1 === p2) throw new Error('retry');
+      const ans = Math.abs(p1 - p2);
+      const i1 = wjPick(['연필','색연필','자','지우개']); const i2 = wjPick(['공책','풀','가위','테이프']);
+      return { story:`${i1}${wjJosaEun(i1)} ${p1}원이고 ${i2}${wjJosaEun(i2)} ${p2}원입니다.`,
+        question:`두 물건의 가격 차이는 얼마인가요?`, hint:`큰 수 − 작은 수`,
+        ans, unit:'원', explain:`|${p1} − ${p2}| = ${ans}원` }; }},
+
+    // 기본 11: 줄 세우기 순서
+    { type:'everyday', level:1, generate() {
+      const total = wjRnd(15,30); const pos = wjRnd(2, total-1);
+      const ans = total - pos + 1;
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`${total}명이 한 줄로 서 있습니다. ${wjNameEun(names)} 앞에서 ${pos}번째입니다.`,
+        question:`${wjNameGa(names)} 뒤에서 몇 번째인가요?`, hint:`${total} − ${pos} + 1`,
+        ans, unit:'번째', explain:`${total} − ${pos} + 1 = ${ans}번째` }; }},
+
+    // 기본 12: 하루 용돈 모으기
+    { type:'everyday', level:1, generate() {
+      const perDay = wjRnd(2,9) * 100; const days = wjRnd(2,7);
+      const ans = perDay * days;
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`${wjNameEun(names)} 매일 ${perDay}원씩 용돈을 받습니다.`,
+        question:`${days}일 동안 받은 용돈은 모두 얼마인가요?`, hint:`${perDay} × ${days}`,
+        ans, unit:'원', explain:`${perDay} × ${days} = ${ans}원` }; }},
+
+    // 기본 13: 남은 돈 계산
+    { type:'everyday', level:1, generate() {
+      const have = wjRnd(3,10) * 1000; const price = wjRnd(1, have/1000 - 1) * 1000;
+      const ans = have - price;
+      const names = wjPick(['지훈','수진','민준','하은']);
+      const item = wjPick(['장난감','책','과자','음료수']);
+      return { story:`${wjNameEun(names)} ${have}원을 가지고 있습니다. ${price}원짜리 ${item}${wjJosaEul(item)} 샀습니다.`,
+        question:`남은 돈은 얼마인가요?`, hint:`${have} − ${price}`,
+        ans, unit:'원', explain:`${have} − ${price} = ${ans}원` }; }},
+
+    // 기본 14: 사람 수 합산
+    { type:'everyday', level:1, generate() {
+      const boys = wjRnd(5,20); const girls = wjRnd(5,20);
+      const ans = boys + girls;
+      return { story:`우리 반 남학생은 ${boys}명, 여학생은 ${girls}명입니다.`,
+        question:`우리 반 학생은 모두 몇 명인가요?`, hint:`${boys} + ${girls}`,
+        ans, unit:'명', explain:`${boys} + ${girls} = ${ans}명` }; }},
+
+    // 기본 15: 나눠 먹기
+    { type:'everyday', level:1, generate() {
+      const people = wjPick([2,3,4,5,6]); const ans = wjRnd(2,8);
+      const total = people * ans;
+      const item = wjPick(['귤','사탕','쿠키','포도']);
+      return { story:`${item} ${total}개를 ${people}명이 똑같이 나누어 먹으려 합니다.`,
+        question:`한 명이 먹을 수 있는 ${item}${wjJosaEun(item)} 몇 개인가요?`, hint:`${total} ÷ ${people}`,
+        ans, unit:'개', explain:`${total} ÷ ${people} = ${ans}개` }; }},
+
+    // ══ 일상생활 심화(2) ══
+    { type:'everyday', level:2, generate() {
+      const p1 = wjRnd(2,6) * 100 + wjPick([0,50]); const p2 = wjRnd(4,9) * 100 + wjPick([0,50]);
+      const n1 = wjRnd(2,5); const n2 = wjRnd(2,4);
+      const ans = p1*n1 + p2*n2;
+      const f1 = wjPick(['사과','귤','딸기']); const f2 = wjPick(['배','수박','포도']);
+      return { story:`마트에서 ${f1} 1개에 ${p1}원, ${f2} 1개에 ${p2}원입니다. ${f1} ${n1}개와 ${f2} ${n2}개를 샀습니다.`,
+        question:'지불해야 할 금액은 모두 얼마인가요?', hint:`${f1} 합계 + ${f2} 합계`,
+        ans, unit:'원', explain:`(${p1}×${n1}) + (${p2}×${n2}) = ${p1*n1} + ${p2*n2} = ${ans}원` }; }},
+    { type:'everyday', level:2, generate() {
+      const interval = wjPick([5,6,7,8,10]); const nth = wjRnd(2,5);
+      const ans = interval * nth;
+      return { story:`버스 정류장에서 버스가 ${interval}분마다 옵니다. 오전 7시 00분에 첫 버스가 출발했습니다.`,
+        question:`${nth}번째 버스는 몇 분 후에 오나요?`, hint:`${interval}분 × ${nth}`,
+        ans, unit:'분 후', explain:`${interval} × ${nth} = ${ans}분 후` }; }},
+    { type:'everyday', level:2, generate() {
+      const total = wjPick([3000,4000,5000,6000]);
+      const a = wjRnd(5,15) * 100; const b = wjRnd(3,10) * 100;
+      if (a + b >= total) throw new Error("retry");
+      const ans = total - a - b;
+      const names = wjPick(['지훈','수진','민준','하은']);
+      const i1 = wjPick(['과자','빵','초콜릿']); const i2 = wjPick(['음료수','주스','우유']);
+      return { story:`${wjNameEun(names)} 용돈 ${total}원을 받아 ${a}원짜리 ${i1}${wjJosaWa(i1)} ${b}원짜리 ${i2}를 샀습니다.`,
+        question:'남은 용돈은 얼마인가요?', hint:`${total} − ${a} − ${b}`,
+        ans, unit:'원', explain:`${total} − ${a} − ${b} = ${ans}원` }; }},
+    { type:'everyday', level:2, generate() {
+      const perTray = wjPick([10,12,15,20,30]); const trays = wjRnd(2,6); const eaten = wjRnd(1,9);
+      const ans = perTray * trays - eaten;
+      const item = wjPick(['달걀','귤','사탕','쿠키']);
+      return { story:`${item} 한 판에 ${perTray}개입니다. ${item} ${trays}판을 사서 ${eaten}개를 먹었습니다.`,
+        question:`남은 ${item}${wjJosaEun(item)} 몇 개인가요?`, hint:`(${trays}판 × ${perTray}개) − ${eaten}개`,
+        ans, unit:'개', explain:`${perTray} × ${trays} = ${perTray*trays}개, ${perTray*trays} − ${eaten} = ${ans}개` }; }},
+    { type:'everyday', level:2, generate() {
+      const adult = wjPick([8,10,12,15]) * 1000; const child = wjPick([4,5,6,7]) * 1000;
+      const na = wjRnd(1,3); const nc = wjRnd(1,4);
+      const ans = adult*na + child*nc;
+      const place = wjPick(['놀이공원','수족관','박물관','영화관']);
+      return { story:`${place} 입장료는 어른 ${adult}원, 어린이 ${child}원입니다. 어른 ${na}명과 어린이 ${nc}명이 입장하려 합니다.`,
+        question:'입장료 합계는 얼마인가요?', hint:'어른 합계 + 어린이 합계',
+        ans, unit:'원', explain:`(${adult}×${na}) + (${child}×${nc}) = ${adult*na} + ${child*nc} = ${ans}원` }; }},
+
+    // 심화 6: 거리 × 시간 (왕복)
+    { type:'everyday', level:2, generate() {
+      const one = wjRnd(3,15) * 100;
+      const ans = one * 2;
+      const place = wjPick(['학교','도서관','마트','공원']);
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`집에서 ${place}까지 ${one}m입니다. ${wjNameEun(names)} 집에서 ${place}에 갔다가 다시 집으로 돌아왔습니다.`,
+        question:`${wjNameGa(names)} 이동한 거리는 모두 몇 m인가요?`, hint:`${one} × 2`,
+        ans, unit:'m', explain:`${one} × 2 = ${ans}m` }; }},
+
+    // 심화 7: 할인 가격
+    { type:'everyday', level:2, generate() {
+      const original = wjRnd(2,9) * 1000;
+      const discount = wjPick([100,200,300,500]);
+      const cnt = wjRnd(2,5);
+      const ans = (original - discount) * cnt;
+      const item = wjPick(['공책','음료수','과자','빵']);
+      return { story:`${item} 한 개의 원래 가격은 ${original}원인데 오늘은 ${discount}원 할인합니다.`,
+        question:`${item} ${cnt}개를 사면 얼마인가요?`, hint:`(${original} − ${discount}) × ${cnt}`,
+        ans, unit:'원', explain:`(${original} − ${discount}) × ${cnt} = ${original-discount} × ${cnt} = ${ans}원` }; }},
+
+    // 심화 8: 속도 문제 (분당 거리)
+    { type:'everyday', level:2, generate() {
+      const speed = wjPick([60,80,100,120]);
+      const time = wjRnd(3,10);
+      const ans = speed * time;
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`${wjNameEun(names)} 1분에 ${speed}m를 달립니다.`,
+        question:`${time}분 동안 달리면 몇 m를 달리나요?`, hint:`${speed} × ${time}`,
+        ans, unit:'m', explain:`${speed} × ${time} = ${ans}m` }; }},
+
+    // 심화 9: 시작 시각 구하기
+    { type:'everyday', level:2, generate() {
+      const endH = wjPick([9,10,11,14,15,16]);
+      const endM = wjPick([10,20,30,40,50]);
+      const dur = wjPick([10,20,30,40]);
+      if (endM < dur) throw new Error('retry');
+      const startM = endM - dur;
+      const act = wjPick(['수업','공연','운동','독서']);
+      return { story:`${act}${wjJosaGa(act)} ${endH}시 ${endM}분에 끝났습니다. ${act}${wjJosaEun(act)} ${dur}분 동안 진행되었습니다.`,
+        question:`${act}${wjJosaEun(act)} ${endH}시 몇 분에 시작했나요?`, hint:`${endM} − ${dur}`,
+        ans: startM, unit:'분', explain:`${endM} − ${dur} = ${startM}분 → ${endH}시 ${startM}분 시작` }; }},
+
+    // 심화 10: 남은 페이지
+    { type:'everyday', level:2, generate() {
+      const total = wjRnd(8,20) * 10;
+      const perDay = wjRnd(2,7) * 5;
+      const days = wjRnd(2,5);
+      const read = perDay * days;
+      if (read >= total) throw new Error('retry');
+      const ans = total - read;
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`${wjNameEun(names)} ${total}쪽짜리 책을 읽고 있습니다. 매일 ${perDay}쪽씩 ${days}일 동안 읽었습니다.`,
+        question:`남은 페이지는 몇 쪽인가요?`, hint:`${total} − (${perDay} × ${days})`,
+        ans, unit:'쪽', explain:`${perDay} × ${days} = ${read}쪽. ${total} − ${read} = ${ans}쪽` }; }},
+
+    // 심화 11: 물건 개수 역산
+    { type:'everyday', level:2, generate() {
+      const price = wjPick([200,300,400,500,600]);
+      const cnt = wjRnd(3,8);
+      const total = price * cnt;
+      const item = wjPick(['연필','지우개','자','스티커']);
+      return { story:`${item} 여러 개를 샀더니 ${total}원이었습니다. ${item} 한 개의 가격은 ${price}원입니다.`,
+        question:`몇 개를 산 것인가요?`, hint:`${total} ÷ ${price}`,
+        ans: cnt, unit:'개', explain:`${total} ÷ ${price} = ${cnt}개` }; }},
+
+    // 심화 12: 두 사람 합산 후 비교
+    { type:'everyday', level:2, generate() {
+      const a = wjRnd(3,9) * 100; const b = wjRnd(3,9) * 100;
+      const goal = (a + b) + wjRnd(1,5) * 100;
+      const ans = goal - (a + b);
+      const names = [wjPick(['민준','지훈']), wjPick(['수진','하은'])];
+      const item = wjPick(['스티커','카드','구슬']);
+      return { story:`${wjNameEun(names[0])} ${item} ${a}개, ${wjNameEun(names[1])} ${item} ${b}개를 가지고 있습니다. 두 사람의 ${item}${wjJosaEul(item)} 합쳐서 ${goal}개를 만들려면`,
+        question:`${item}${wjJosaGa(item)} 몇 개 더 필요한가요?`, hint:`${goal} − (${a} + ${b})`,
+        ans, unit:'개', explain:`${a} + ${b} = ${a+b}개. ${goal} − ${a+b} = ${ans}개` }; }},
+
+    // 심화 13: 한 주 동안 모은 금액
+    { type:'everyday', level:2, generate() {
+      const weekday = wjRnd(1,5) * 100; const weekend = wjRnd(2,8) * 100;
+      const ans = weekday * 5 + weekend * 2;
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`${wjNameEun(names)} 평일에는 하루에 ${weekday}원, 주말에는 하루에 ${weekend}원씩 저금합니다.`,
+        question:`일주일 동안 저금한 금액은 모두 얼마인가요?`, hint:`(${weekday} × 5) + (${weekend} × 2)`,
+        ans, unit:'원', explain:`평일: ${weekday}×5=${weekday*5}원, 주말: ${weekend}×2=${weekend*2}원. 합계: ${ans}원` }; }},
+
+    // 심화 14: 무게 초과 여부
+    { type:'everyday', level:2, generate() {
+      const limit = wjPick([3,4,5,6]) * 1000;
+      const items = wjRnd(2,4);
+      const perItem = wjRnd(5,15) * 100;
+      const total = items * perItem;
+      if (total === limit) throw new Error('retry');
+      const over = total > limit;
+      const diff = Math.abs(total - limit);
+      const ans = diff;
+      const box = wjPick(['상자','가방','바구니']);
+      return { story:`${box}에 담을 수 있는 최대 무게는 ${limit}g입니다. 한 개에 ${perItem}g인 물건을 ${items}개 넣으려 합니다.`,
+        question:`최대 무게보다 몇 g ${over?'초과하나요':'부족한가요'}?`, hint:`|${limit} − ${total}|`,
+        ans, unit:'g', explain:`${perItem} × ${items} = ${total}g. |${limit} − ${total}| = ${ans}g ${over?'초과':'여유'}` }; }},
+
+    // 심화 15: 규칙적인 배열 (n번째 수)
+    { type:'everyday', level:2, generate() {
+      const start = wjRnd(2,8) * 10; const step = wjRnd(1,5) * 10; const nth = wjRnd(4,8);
+      const ans = start + step * (nth - 1);
+      return { story:`${start}, ${start+step}, ${start+step*2}, ${start+step*3}, … 규칙에 따라 수가 늘어납니다.`,
+        question:`${nth}번째 수는 얼마인가요?`, hint:`${start} + ${step} × (${nth} − 1)`,
+        ans, unit:'', explain:`${start} + ${step} × ${nth-1} = ${start} + ${step*(nth-1)} = ${ans}` }; }},
+
+    // ══ 일상생활 최상위(3) ══
+    { type:'everyday', level:3, generate() {
+      const buy = wjRnd(2,4); const free = 1; const unitP = wjPick([800,1000,1200,1500]);
+      const want = (buy+free) * wjRnd(2,4);
+      const sets = want / (buy+free);
+      const ans = sets * buy * unitP;
+      return { story:`편의점에서 음료 ${buy}개를 사면 ${free}개를 공짜로 줍니다. 음료 1개의 가격은 ${unitP}원입니다. 음료를 ${want}개 가지려면`,
+        question:'지불해야 할 금액은 얼마인가요?', hint:`${want}개를 얻으려면 몇 개를 사야 할까요?`,
+        ans, unit:'원', explain:`${buy+free}개당 ${buy}개 값. ${want}개 = ${sets}묶음 × ${buy}개 구매. ${sets*buy} × ${unitP} = ${ans}원` }; }},
+    { type:'everyday', level:3, generate() {
+      const w1 = wjRnd(2,5); const w2 = wjRnd(2,5); const wk = wjRnd(3,8);
+      const ansF = (w1+w2)*wk;
+      const namePool = ['민준','수진','지훈','하은'];
+      const n1 = namePool[wjRnd(0,3)];
+      let n2; do { n2 = namePool[wjRnd(0,3)]; } while (n2 === n1);
+      const item = wjPick(['독서','줄넘기','일기쓰기']);
+      return { story:`${wjNameEun(n1)} 일주일에 ${w1}번, ${wjNameEun(n2)} 일주일에 ${w2}번 ${item}${wjJosaEul(item)} 합니다.`,
+        question:`두 사람이 ${wk}주 동안 ${item}${wjJosaEul(item)} 한 횟수의 합은 모두 몇 번인가요?`,
+        hint:`(${w1}+${w2}) × ${wk}`,
+        ans:ansF, unit:'번', explain:`(${w1}+${w2}) × ${wk} = ${w1+w2} × ${wk} = ${ansF}번` }; }},
+
+    // 3. 거스름돈 + 물건값 역산
+    { type:'everyday', level:3, generate() {
+      const cnt = wjRnd(2,5);
+      const unitPrice = wjPick([200,300,400,500,600,800,1000]);
+      const total = cnt * unitPrice;
+      const paid = total <= 3000 ? 5000 : 10000;
+      const change = paid - total;
+      const item = wjPick(['지우개','연필','자','스티커']);
+      return { story:`${item} ${cnt}개를 사고 ${paid}원을 냈더니 거스름돈이 ${change}원이었습니다.`,
+        question:`${item} 한 개의 값은 얼마인가요?`,
+        hint:`(${paid} − ${change}) ÷ ${cnt}`,
+        ans: unitPrice, unit:'원', explain:`지불 금액: ${paid} − ${change} = ${total}원. ${total} ÷ ${cnt} = ${unitPrice}원` }; }},
+
+    // 4. 포장 묶음 — 남는 개수 계산
+    { type:'everyday', level:3, generate() {
+      const perBox = wjPick([4,5,6,8,10]);
+      const total = wjRnd(3,9) * perBox + wjRnd(1, perBox-1);
+      const boxes = Math.floor(total / perBox);
+      const remain = total % perBox;
+      const item = wjPick(['사탕','쿠키','귤','달걀']);
+      return { story:`${item} ${total}개를 한 상자에 ${perBox}개씩 담으려 합니다.`,
+        question:`상자는 몇 개 필요하고, 몇 개가 남나요? (남는 개수를 답하세요)`,
+        hint:`${total} ÷ ${perBox} = ${boxes} ···`,
+        ans: remain, unit:'개', explain:`${total} ÷ ${perBox} = ${boxes}상자 나머지 ${remain}개` }; }},
+
+    // 5. 두 사람의 나이 관계
+    { type:'everyday', level:3, generate() {
+      const diff = wjRnd(2,8);
+      const younger = wjRnd(8,13);
+      const older = younger + diff;
+      const after = wjRnd(2,6);
+      const sumAfter = (younger+after) + (older+after);
+      const sibling = wjPick(['누나','오빠','언니','형']);
+      return { story:`${sibling}${wjJosaEun(sibling)} ${older}살이고 동생은 ${younger}살입니다.`,
+        question:`${after}년 후에 두 사람의 나이의 합은 몇 살인가요?`,
+        hint:`(${older}+${after}) + (${younger}+${after})`,
+        ans: sumAfter, unit:'살', explain:`${after}년 후: ${older+after}살 + ${younger+after}살 = ${sumAfter}살` }; }},
+
+    // 6. 계단식 요금 (초과 요금)
+    { type:'everyday', level:3, generate() {
+      const base = wjPick([1000,1500,2000]);
+      const freeKm = wjPick([2,3,5]);
+      const extraPerKm = wjPick([200,300,500]);
+      const dist = freeKm + wjRnd(2,6);
+      const ans = base + (dist - freeKm) * extraPerKm;
+      return { story:`택시 기본요금은 ${base}원이고 ${freeKm}km까지입니다. ${freeKm}km 초과 시 1km당 ${extraPerKm}원이 추가됩니다.`,
+        question:`${dist}km를 탔을 때 요금은 얼마인가요?`,
+        hint:`기본요금 + (${dist} − ${freeKm}) × ${extraPerKm}`,
+        ans, unit:'원', explain:`${base} + ${dist-freeKm} × ${extraPerKm} = ${base} + ${(dist-freeKm)*extraPerKm} = ${ans}원` }; }},
+
+    // 7. 일정 속도로 걷기 — 시간 계산
+    { type:'everyday', level:3, generate() {
+      const speed = wjPick([50,60,80,100]); // 분당 m
+      const minutes = wjRnd(3,10);
+      const dist = speed * minutes;
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`${wjNameEun(names)} 1분에 ${speed}m를 걷습니다.`,
+        question:`${dist}m를 걷는 데 몇 분이 걸리나요?`,
+        hint:`${dist} ÷ ${speed}`,
+        ans: minutes, unit:'분', explain:`${dist} ÷ ${speed} = ${minutes}분` }; }},
+
+    // 8. 저금 목표 달성
+    { type:'everyday', level:3, generate() {
+      const perDay = wjPick([200,300,400,500]);
+      const days = wjRnd(5,20);
+      const saved = wjRnd(1,4) * 1000;
+      const goal = saved + perDay * days;
+      const names = wjPick(['지훈','수진','민준','하은']);
+      return { story:`${wjNameEun(names)} ${goal}원짜리 책을 사고 싶습니다. 지금까지 ${saved}원을 모았고, 매일 ${perDay}원씩 저금합니다.`,
+        question:`목표 금액을 채우려면 앞으로 며칠이 더 필요한가요?`,
+        hint:`(${goal} − ${saved}) ÷ ${perDay}`,
+        ans: days, unit:'일', explain:`필요한 금액: ${goal} − ${saved} = ${perDay*days}원. ${perDay*days} ÷ ${perDay} = ${days}일` }; }},
+
+    // 9. 두 가게 비교 — 어느 쪽이 이득?
+    { type:'everyday', level:3, generate() {
+      const cnt = wjPick([4,5,6,8,10]);
+      const priceA = wjRnd(3,9) * 100;
+      const priceB = wjRnd(3,9) * 100;
+      if (priceA === priceB) throw new Error('retry');
+      const totalA = priceA * cnt;
+      const totalB = priceB * cnt;
+      const cheaper = totalA < totalB ? 'A' : 'B';
+      const diff = Math.abs(totalA - totalB);
+      const item = wjPick(['연필','지우개','자','스티커']);
+      return { story:`A 문구점에서 ${item} 한 개에 ${priceA}원, B 문구점에서 ${priceB}원입니다.`,
+        question:`${item} ${cnt}개를 살 때 두 가게의 가격 차이는 얼마인가요?`,
+        hint:`|${priceA} − ${priceB}| × ${cnt}`,
+        ans: diff, unit:'원', explain:`A: ${priceA}×${cnt}=${totalA}원, B: ${priceB}×${cnt}=${totalB}원. 차이: ${diff}원 (${cheaper} 가게가 더 쌈)` }; }},
+
+    // 10. 일한 시간 × 시급
+    { type:'everyday', level:3, generate() {
+      const hourly = wjPick([5000,6000,8000,10000]);
+      const hours = wjRnd(2,6);
+      const bonus = wjPick([1000,2000,3000]);
+      const ans = hourly * hours + bonus;
+      const names = wjPick(['민준','수진','지훈','하은']);
+      return { story:`${wjNameEun(names)} 시간당 ${hourly}원을 받고 ${hours}시간 일했습니다. 오늘은 열심히 해서 보너스로 ${bonus}원을 더 받았습니다.`,
+        question:'오늘 받은 돈은 모두 얼마인가요?',
+        hint:`${hourly} × ${hours} + ${bonus}`,
+        ans, unit:'원', explain:`${hourly} × ${hours} = ${hourly*hours}원. ${hourly*hours} + ${bonus} = ${ans}원` }; }},
+
+    // 11. 나눠 담기 — 필요한 상자 수 (올림)
+    { type:'everyday', level:3, generate() {
+      const perBox = wjPick([4,5,6,8]);
+      const extra = wjRnd(1, perBox-1);
+      const boxes = wjRnd(2,6);
+      const total = perBox * boxes + extra;
+      const needed = boxes + 1;
+      const item = wjPick(['귤','사과','달걀','쿠키']);
+      return { story:`${item} ${total}개를 한 바구니에 ${perBox}개씩 담으려 합니다.`,
+        question:`바구니는 최소 몇 개 필요한가요?`,
+        hint:`${total} ÷ ${perBox} → 나머지가 있으면 1 더하기`,
+        ans: needed, unit:'개', explain:`${total} ÷ ${perBox} = ${boxes} 나머지 ${extra}. 나머지가 있으므로 ${boxes}+1 = ${needed}개` }; }},
+
+    // 12. 평균 구하기
+    { type:'everyday', level:3, generate() {
+      const cnt = wjPick([3,4,5]);
+      const avg = wjRnd(4,18) * 5;
+      // 평균이 avg가 되도록 점수 생성 (합 = avg*cnt)
+      const scores = [];
+      let remain = avg * cnt;
+      for (let i = 0; i < cnt - 1; i++) {
+        const s = wjPick([60,65,70,75,80,85,90,95,100]);
+        scores.push(s);
+        remain -= s;
+      }
+      scores.push(remain);
+      if (remain < 50 || remain > 100 || remain % 5 !== 0) throw new Error('retry');
+      const sum = avg * cnt;
+      const subject = wjPick(['수학','국어','받아쓰기','체육']);
+      const names = wjPick(['민준','수진','지훈','하은']);
+      const nameUi = wjHasBatchim(names) ? names + '이의' : names + '의';
+      return { story:`${nameUi} ${cnt}번의 ${subject} 점수는 ${scores.join('점, ')}점입니다.`,
+        question:`${nameUi} 평균 점수는 몇 점인가요?`,
+        hint:`(${scores.join(' + ')}) ÷ ${cnt}`,
+        ans: avg, unit:'점', explain:`합계: ${sum}점. ${sum} ÷ ${cnt} = ${avg}점` }; }},
+
+  ];
+
+  // 템플릿에서 문제 생성 (generate 호출)
+  function wjGenerateProblem(tpl, attempt = 0) {
+    if (attempt > 50) {
+      // 안전 폴백: 간단한 기본 문제 반환
+      const a = wjRnd(2,9), b = wjRnd(2,9);
+      return { type: tpl.type, level: tpl.level,
+        story:`사과가 ${a}개, 귤이 ${b}개 있습니다.`,
+        question:'과일은 모두 몇 개인가요?', hint:`${a} + ${b}`,
+        ans: a+b, unit:'개', explain:`${a} + ${b} = ${a+b}개` };
+    }
+    try { const p = tpl.generate(); return { type:tpl.type, level:tpl.level, ...p }; }
+    catch(e) { return wjGenerateProblem(tpl, attempt + 1); }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  let wjProblems = [], wjIdx = 0, wjCorrect = 0;
+  let wjWrongItems = [], wjSkipItems = [];
+  let wjAnswered = false;
+  let wjSelectedTypes = ['everyday'];
+  let wjSelectedLevel = 1;
+
+  const WJ_TYPE_LABEL = {
+    everyday: '🛒 일상생활'
+  };
+
+  function wjSelectLevel(btn) {
+    document.querySelectorAll('.wj-level-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    wjSelectedLevel = +btn.dataset.level;
+  }
+
+  function wjShuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function wjMakeProblems(count) {
+    let pool = WJ_TEMPLATES.filter(t =>
+      wjSelectedTypes.includes(t.type) && t.level === wjSelectedLevel
+    );
+    if (pool.length === 0) pool = WJ_TEMPLATES.filter(t => wjSelectedTypes.includes(t.type));
+    wjShuffle(pool);
+    // 매 문제마다 랜덤 숫자로 새로 생성
+    const result = [];
+    for (let i = 0; i < count; i++) {
+      result.push(wjGenerateProblem(pool[i % pool.length]));
+    }
+    return result;
+  }
+
+  function wjStartDrill(retryProblems) {
+    const count = +document.getElementById('wjCountSlider').value;
+    wjProblems = retryProblems || wjMakeProblems(count);
+    wjIdx = 0; wjCorrect = 0; wjWrongItems = []; wjSkipItems = []; wjAnswered = false;
+    wjShow('wjViewDrill');
+    wjShowProblem();
+  }
+
+  function wjShowProblem() {
+    if (wjIdx >= wjProblems.length) { wjShowResult(); return; }
+    const p = wjProblems[wjIdx];
+    document.getElementById('wjProbNum').textContent = '문제 ' + (wjIdx+1) + ' / ' + wjProblems.length;
+    document.getElementById('wjCategory').textContent = WJ_TYPE_LABEL[p.type] || p.type;
+    document.getElementById('wjStory').textContent = p.story;
+    document.getElementById('wjQuestion').textContent = '❓ ' + p.question;
+    document.getElementById('wjHintText').textContent = p.hint ? '힌트: ' + p.hint : '';
+    document.getElementById('wjHintText').classList.remove('visible');
+    document.getElementById('wjHintBtn').textContent = '💡 힌트 보기';
+    document.getElementById('wjHintWrap').style.display = p.hint ? '' : 'none';
+    document.getElementById('wjUnit').textContent = p.unit || '';
+    const inp = document.getElementById('wjAnswerInput');
+    inp.value = ''; inp.className = 'wj-input'; inp.disabled = false;
+    inp.focus();
+    document.getElementById('wjFeedback').textContent = '';
+    document.getElementById('wjFeedback').className = 'wj-feedback';
+    document.getElementById('wjExplain').style.display = 'none';
+    document.getElementById('wjSubmitBtn').disabled = false;
+    document.getElementById('wjNextBtn').style.display = 'none';
+    document.getElementById('wjFinishBtn').style.display = 'none';
+    const pct = Math.round(wjIdx / wjProblems.length * 100);
+    document.getElementById('wjProgressBar').style.width = pct + '%';
+    document.getElementById('wjScoreLabel').textContent = wjCorrect + ' / ' + wjIdx;
+    wjAnswered = false;
+  }
+
+  function wjCheckAnswer() {
+    if (wjAnswered) return;
+    const inp = document.getElementById('wjAnswerInput');
+    if (inp.value.trim() === '') return;
+    const p = wjProblems[wjIdx];
+    const userAns = parseInt(inp.value);
+    wjAnswered = true;
+    inp.disabled = true;
+    document.getElementById('wjSubmitBtn').disabled = true;
+    const fb = document.getElementById('wjFeedback');
+    const fe = document.getElementById('wjExplain');
+    const isLast = wjIdx === wjProblems.length - 1;
+    if (userAns === p.ans) {
+      wjCorrect++;
+      inp.className = 'wj-input correct';
+      fb.textContent = '정답이에요! 🎉';
+      fb.className = 'wj-feedback ok';
+      fe.textContent = '📝 풀이: ' + p.explain;
+      fe.style.display = 'block';
+    } else {
+      wjWrongItems.push({ ...p, userAns });
+      inp.className = 'wj-input wrong';
+      const noFinalConsonant = ['개','m','g','번째','분 후',''].includes(p.unit || '');
+      fb.textContent = '아쉬워요! 정답은 ' + p.ans + (p.unit ? ' '+p.unit : '') + (noFinalConsonant ? '예요.' : '이에요.');
+      fb.className = 'wj-feedback ng';
+      fe.textContent = '📝 풀이: ' + p.explain;
+      fe.style.display = 'block';
+    }
+    document.getElementById('wjScoreLabel').textContent = wjCorrect + ' / ' + (wjIdx + 1);
+    if (isLast) document.getElementById('wjFinishBtn').style.display = '';
+    else         document.getElementById('wjNextBtn').style.display = '';
+  }
+
+  function wjToggleHint() {
+    const hint = document.getElementById('wjHintText');
+    const btn = document.getElementById('wjHintBtn');
+    const visible = hint.classList.toggle('visible');
+    btn.textContent = visible ? '💡 힌트 숨기기' : '💡 힌트 보기';
+  }
+
+  function wjNextProblem() { wjIdx++; wjShowProblem(); }
+
+  function wjSkipProblem() {
+    if (wjAnswered) return;
+    wjSkipItems.push(wjProblems[wjIdx]);
+    wjIdx++;
+    if (wjIdx >= wjProblems.length) wjShowResult();
+    else wjShowProblem();
+  }
+
+  function wjShowResult() {
+    wjShow('wjViewResult');
+    const total = wjProblems.length;
+    const pct = Math.round(wjCorrect / total * 100);
+    document.getElementById('wjResultPct').textContent = pct + '%';
+    const msgs = ['한 번 더 도전해 봐요!', '조금만 더 연습해요!', '잘 하고 있어요!', '훌륭해요!', '완벽해요!'];
+    document.getElementById('wjResultMsg').textContent = msgs[Math.min(Math.floor(pct / 20), 4)];
+    document.getElementById('wjRTotal').textContent = total;
+    document.getElementById('wjRCorrect').textContent = wjCorrect;
+    document.getElementById('wjRWrong').textContent = wjWrongItems.length;
+    wjRenderWrongList('wrongList', wjWrongItems, true);
+    wjRenderWrongList('skipList', wjSkipItems, false);
+    wjShowTab('wrong', document.querySelector('.tab'));
+  }
+
+  function wjRenderWrongList(elId, list, showUser) {
+    const el = document.getElementById(elId);
+    if (list.length === 0) {
+      el.innerHTML = '<div class="wj-empty-msg">없음</div>'; return;
+    }
+    el.innerHTML = list.map(p => `
+      <div class="wj-wrong-item">
+        <div class="wj-wrong-story">${p.story}<br><strong>${p.question}</strong></div>
+        <div class="wj-wrong-meta">
+          ${showUser && p.userAns !== undefined ? '<span class="wj-wrong-user">내 답: ' + p.userAns + (p.unit?' '+p.unit:'') + '</span>' : ''}
+          <span class="wj-wrong-correct">정답: ${p.ans}${p.unit?' '+p.unit:''}</span>
+        </div>
+        <div class="wj-wrong-explain">📝 ${p.explain}</div>
+      </div>`).join('');
+  }
+
+  function wjRetryWrong() {
+    const retry = [...wjWrongItems, ...wjSkipItems].map(p => ({ ...p, userAns: undefined }));
+    if (retry.length === 0) { wjGoSetup(); return; }
+    wjStartDrill(retry);
+  }
+
+  function wjShowTab(name, btn) {
+    document.querySelectorAll('.wj-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.getElementById('wjTabWrong').style.display = name === 'wrong' ? '' : 'none';
+    document.getElementById('wjTabSkip').style.display  = name === 'skip'  ? '' : 'none';
+  }
+
+  function wjGoSetup() { wjShow('wjViewSetup'); }
+
+  function wjShow(id) {
+    ['wjViewSetup', 'wjViewDrill', 'wjViewResult'].forEach(v => {
+      document.getElementById(v).style.display = v === id ? '' : 'none';
+    });
+  }
+
 </script>
 
 <div id="pvModal" class="modal hidden">
