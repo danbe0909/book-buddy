@@ -235,6 +235,134 @@
         .cal-legend { display: flex; align-items: center; gap: 6px; margin-top: 10px; justify-content: flex-end; }
         .cal-legend-item { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #888; }
         .cal-legend-box { width: 12px; height: 12px; border-radius: 3px; }
+
+    /* ── 영단어 별나라 CSS ── */
+    .eng-app { position: relative; z-index: 1; max-width: 500px; margin: 0 auto; padding: 0 16px 60px; }
+    .eng-header {
+      text-align: center;
+      background: linear-gradient(135deg, #ff9a8b 0%, #ff8e72 100%);
+      color: white; padding: 14px 20px 12px;
+      border-radius: 0 0 50% 50% / 0 0 20px 20px;
+      box-shadow: 0 4px 10px rgba(255,142,114,0.3); margin-bottom: 20px;
+    }
+    .eng-header h1 { font-family: 'Baloo 2', cursive; font-size: 2.3rem; font-weight: 800; color: white; }
+    .eng-header p { font-size: 1.2rem; color: rgba(255,255,255,0.85); margin-top: 2px; }
+    .eng-category-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+    .eng-cat-btn {
+      padding: 5px 11px; border-radius: 20px; border: 2px solid #ffe082;
+      background: white; color: #999; font-size: 1.1rem;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .eng-cat-btn.active { border-color: #ff8e72; color: #ff8e72; background: #fff3e0; font-weight: bold; }
+    .eng-mode-cards { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .eng-mode-card {
+      background: white; border: 2px solid #ffe082; border-radius: 16px;
+      padding: 12px 14px; cursor: pointer; transition: all 0.2s;
+      text-align: left; display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 4px 0px rgba(255,224,130,0.5);
+    }
+    .eng-mode-card:hover { border-color: #ff8e72; transform: translateY(-3px); }
+    .eng-mode-icon { font-size: 2.4rem; flex-shrink: 0; }
+    .eng-mode-info h3 { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; color: #ff8e72; }
+    .eng-mode-info p { font-size: 0.85rem; color: #999; margin-top: 2px; line-height: 1.4; }
+    .eng-back-btn { background: none; border: none; color: #999; font-size: 1.4rem; cursor: pointer; padding: 4px 0; margin-bottom: 14px; }
+    .eng-back-btn:hover { color: #ff8e72; }
+    /* 플래시카드 */
+    .eng-flash-progress { text-align: right; color: #999; font-size: 1.4rem; margin-bottom: 10px; font-weight: bold; }
+    .eng-flash-card-wrap { perspective: 1000px; margin-bottom: 14px; }
+    .eng-flash-card {
+      width: 100%; min-height: 290px; position: relative;
+      transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); cursor: pointer;
+    }
+    .eng-flash-card.flipped { transform: rotateY(180deg); }
+    .eng-flash-face {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: white; border: 3px solid #ffe082; border-radius: 25px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 28px 24px; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-sizing: border-box;
+      box-shadow: 0 6px 0px rgba(255,224,130,0.6);
+    }
+    /* 앞/뒤 면 중 더 큰 쪽이 카드 높이를 결정하도록 투명 spacer 사용 */
+    .eng-flash-spacer { visibility: hidden; pointer-events: none; min-height: 290px; width: 100%; }
+    .eng-flash-face.back { transform: rotateY(180deg); background: #fff9f0; }
+    .eng-flash-word { font-family: 'Baloo 2', cursive; font-size: 4rem; font-weight: 800; color: #ff8e72; }
+    .eng-flash-hint { font-size: 1.3rem; color: #999; margin-top: 10px; }
+    .eng-flash-meaning { font-size: 2.4rem; font-weight: 700; color: #4a4a4a; text-align: center; }
+    .eng-flash-example {
+      font-size: 1.5rem; color: #888; margin-top: 10px; text-align: center; font-style: italic;
+      cursor: pointer; padding: 6px 14px; border-radius: 10px; transition: background 0.15s;
+    }
+    .eng-flash-example:hover { background: #fff3e0; color: #ff8e72; }
+    .eng-flash-example-trans { font-size: 1.1rem; color: #bbb; margin-top: 4px; text-align: center; }
+    .eng-flash-emoji { font-size: 5rem; margin-bottom: 8px; }
+    .eng-sound-btn {
+      margin-top: 12px; background: #fff3e0; border: 2px solid #ffe082;
+      border-radius: 30px; color: #ff8e72; padding: 6px 16px;
+      font-size: 1.4rem; cursor: pointer; font-weight: bold;
+    }
+    .eng-flash-btns { display: flex; gap: 8px; position: relative; z-index: 10; margin-top: 4px; }
+    .eng-flash-btns.disabled .eng-flash-btn { opacity: 0.35; cursor: not-allowed; pointer-events: none; filter: grayscale(0.4); }
+    .eng-flash-btn {
+      flex: 1; padding: 9px; border-radius: 50px; border: none;
+      font-size: 1.3rem; font-weight: 700; cursor: pointer;
+    }
+    .eng-btn-know { background: #4ade80; color: white; box-shadow: 0 3px 0px #16a34a; }
+    .eng-btn-again { background: #f87171; color: white; box-shadow: 0 3px 0px #dc2626; }
+    .eng-flash-stats { display: flex; gap: 8px; margin-top: 10px; }
+    .eng-stat-box { flex: 1; background: white; border-radius: 12px; padding: 7px; text-align: center; border: 2px solid #ffe082; }
+    .eng-stat-num { font-family: 'Baloo 2', cursive; font-size: 1.9rem; font-weight: 800; }
+    .eng-stat-label { font-size: 1rem; color: #999; }
+    .eng-stat-know .eng-stat-num { color: #16a34a; }
+    .eng-stat-again .eng-stat-num { color: #f87171; }
+    .eng-stat-left .eng-stat-num { color: #ff8e72; }
+    /* 골든벨 */
+    .eng-quiz-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .eng-quiz-score { font-family: 'Baloo 2', cursive; font-size: 2.4rem; font-weight: 800; color: #ff8e72; }
+    .eng-quiz-lives { display: flex; gap: 4px; }
+    .eng-heart { font-size: 2.2rem; transition: all 0.2s; }
+    .eng-heart.lost { filter: grayscale(1); opacity: 0.3; transform: scale(0.8); }
+    .eng-timer-bar-wrap { background: #f1f5f9; border-radius: 6px; height: 8px; margin-bottom: 18px; overflow: hidden; }
+    .eng-timer-bar { height: 100%; background: #ff8e72; border-radius: 6px; transition: width 0.1s linear, background 0.3s; }
+    .eng-quiz-card {
+      background: white; border: 3px solid #ffe082; border-radius: 25px;
+      padding: 24px 20px; margin-bottom: 14px; text-align: center;
+      box-shadow: 0 6px 0px rgba(255,224,130,0.5);
+    }
+    .eng-quiz-type-label { font-size: 1.2rem; color: #999; margin-bottom: 8px; font-weight: bold; }
+    .eng-quiz-question { font-family: 'Baloo 2', cursive; font-size: 3.2rem; font-weight: 800; color: #ff8e72; }
+    .eng-quiz-img { font-size: 6rem; margin-bottom: 6px; display: block; }
+    .eng-quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .eng-quiz-opt {
+      padding: 13px 10px; border-radius: 15px; border: 2px solid #ffe082;
+      background: white; color: #4a4a4a; font-family: 'Baloo 2', cursive;
+      font-size: 1.7rem; font-weight: 600; cursor: pointer; transition: all 0.18s; text-align: center;
+    }
+    .eng-quiz-opt:hover:not(:disabled) { border-color: #ff8e72; color: #ff8e72; background: #fff3e0; }
+    .eng-quiz-opt.correct { border-color: #16a34a; background: #dcfce7; color: #16a34a; }
+    .eng-quiz-opt.wrong { border-color: #dc2626; background: #fee2e2; color: #dc2626; }
+    .eng-quiz-opt:disabled { cursor: default; }
+    .eng-quiz-feedback { text-align: center; min-height: 32px; font-family: 'Baloo 2', cursive; font-size: 2rem; font-weight: 700; }
+    .eng-feedback-correct { color: #16a34a; }
+    .eng-feedback-wrong { color: #dc2626; }
+    /* 결과 */
+    .eng-result-screen { display: none; text-align: center; padding: 20px 0; }
+    .eng-result-emoji { font-size: 8rem; margin-bottom: 10px; display: block; }
+    .eng-result-title { font-family: 'Baloo 2', cursive; font-size: 3.2rem; font-weight: 800; color: #ff8e72; margin-bottom: 6px; }
+    .eng-result-score { font-family: 'Baloo 2', cursive; font-size: 5rem; font-weight: 800; color: #ff6b4a; margin-bottom: 14px; }
+    .eng-result-grade { display: inline-block; padding: 6px 20px; border-radius: 30px; font-size: 1.7rem; font-weight: 700; margin-bottom: 18px; }
+    .eng-grade-s { background: #fff9c4; color: #f57f17; border: 2px solid #ffd54f; }
+    .eng-grade-a { background: #dcfce7; color: #16a34a; border: 2px solid #86efac; }
+    .eng-grade-b { background: #dbeafe; color: #1d4ed8; border: 2px solid #93c5fd; }
+    .eng-grade-c { background: #fee2e2; color: #dc2626; border: 2px solid #fca5a5; }
+    .eng-retry-btn {
+      padding: 14px 36px; border-radius: 50px; border: none;
+      background: #ff8e72; color: white; font-family: 'Baloo 2', cursive;
+      font-size: 1.9rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0px #ff6b4a;
+    }
+    @keyframes eng-pop { 0%{transform:scale(1)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
+    .eng-pop { animation: eng-pop 0.3s ease; }
+    @keyframes eng-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+    .eng-shake { animation: eng-shake 0.35s ease; }
     </style>
     <script>
   if ('serviceWorker' in navigator) {
@@ -248,6 +376,7 @@
     <button id="sModeBtn" class="mode-btn active" onclick="executeSwitch('student')">👶 학생 접속</button>
     <button id="mModeBtn" class="mode-btn" onclick="executeSwitch('math')">🔢 연산 드릴</button>
     <button id="wjModeBtn" class="mode-btn" onclick="executeSwitch('wordjang')">📖 문장제 드릴</button>
+    <button id="engModeBtn" class="mode-btn" onclick="executeSwitch('english')">⭐ 영단어 드릴</button>
     <button id="tModeBtn" class="mode-btn" onclick="openTeacherModal()">👩‍🏫 교사 관리 🔒</button>
 </div>
 
@@ -477,6 +606,104 @@
       </div>
     </div>
     <!-- ══ 문장제 드릴 뷰 끝 ══ -->
+
+    <!-- ══ 영단어 별나라 뷰 ══ -->
+    <div id="engView" class="hidden">
+      <div class="eng-app">
+        <div class="eng-header">
+          <h1>⭐ 영단어 별나라</h1>
+          <p>영어 단어를 재미있게 배워요!</p>
+        </div>
+
+        <!-- 홈 -->
+        <div id="eng-home-screen">
+          <div style="margin-bottom:14px;">
+            <div style="font-size:1.2rem; color:#999; margin-bottom:8px; font-weight:bold;">📚 단어 세트 선택</div>
+            <div class="eng-category-bar" id="eng-home-cats"></div>
+          </div>
+          <div class="eng-mode-cards">
+            <div class="eng-mode-card" onclick="engStartFlash()">
+              <span class="eng-mode-icon">🃏</span>
+              <div class="eng-mode-info">
+                <h3>플래시카드</h3>
+                <p>카드를 뒤집어서 뜻을 확인해요.<br>아는 단어와 모르는 단어를 분류하며 외워요.</p>
+              </div>
+            </div>
+            <div class="eng-mode-card" onclick="engStartQuiz()">
+              <span class="eng-mode-icon">🔔</span>
+              <div class="eng-mode-info">
+                <h3>골든벨 퀴즈</h3>
+                <p>4가지 보기 중에서 정답을 골라요.<br>목숨 3개! 모두 소진되면 끝!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 플래시카드 -->
+        <div id="eng-flash-screen" style="display:none;">
+          <button class="eng-back-btn" onclick="engShowHome()">← 홈으로</button>
+          <div class="eng-flash-progress" id="eng-flash-progress"></div>
+          <div class="eng-flash-card-wrap">
+            <div class="eng-flash-card" id="eng-flash-card" onclick="engFlipCard(event)">
+              <!-- 높이를 확보하는 투명 spacer -->
+              <div class="eng-flash-spacer"></div>
+              <div class="eng-flash-face front" id="eng-flash-front">
+                <span class="eng-flash-word" id="eng-flash-word"></span>
+                <span class="eng-flash-hint">카드를 탭하면 뜻이 나와요</span>
+                <button class="eng-sound-btn" onclick="event.stopPropagation(); engSpeakWord()">🔊 발음 듣기</button>
+              </div>
+              <div class="eng-flash-face back" id="eng-flash-back">
+                <span class="eng-flash-emoji" id="eng-flash-emoji"></span>
+                <span class="eng-flash-meaning" id="eng-flash-meaning"></span>
+                <span class="eng-flash-example" id="eng-flash-example"
+                  onclick="event.stopPropagation(); engSpeakExample()"
+                  ontouchend="event.stopPropagation(); event.preventDefault(); engSpeakExample()">🔊</span>
+                <span class="eng-flash-example-trans" id="eng-flash-example-trans"></span>
+              </div>
+            </div>
+          </div>
+          <div class="eng-flash-btns disabled" id="eng-flash-btns">
+            <button class="eng-flash-btn eng-btn-again" onclick="engMarkCard(false)">😅 다시</button>
+            <button class="eng-flash-btn eng-btn-know" onclick="engMarkCard(true)">😄 알아요!</button>
+          </div>
+          <div class="eng-flash-stats">
+            <div class="eng-stat-box eng-stat-know"><div class="eng-stat-num" id="eng-stat-know">0</div><div class="eng-stat-label">알아요</div></div>
+            <div class="eng-stat-box eng-stat-again"><div class="eng-stat-num" id="eng-stat-again">0</div><div class="eng-stat-label">다시</div></div>
+            <div class="eng-stat-box eng-stat-left"><div class="eng-stat-num" id="eng-stat-left">0</div><div class="eng-stat-label">남은 카드</div></div>
+          </div>
+        </div>
+
+        <!-- 골든벨 퀴즈 -->
+        <div id="eng-quiz-screen" style="display:none;">
+          <button class="eng-back-btn" onclick="engShowHome()">← 홈으로</button>
+          <div class="eng-quiz-info">
+            <div class="eng-quiz-score">⭐ <span id="eng-quiz-score">0</span></div>
+            <div class="eng-quiz-lives" id="eng-quiz-lives"></div>
+          </div>
+          <div class="eng-timer-bar-wrap"><div class="eng-timer-bar" id="eng-timer-bar"></div></div>
+          <div class="eng-quiz-card">
+            <div class="eng-quiz-type-label" id="eng-quiz-type-label"></div>
+            <span class="eng-quiz-img" id="eng-quiz-img"></span>
+            <div class="eng-quiz-question" id="eng-quiz-question"></div>
+          </div>
+          <div class="eng-quiz-options" id="eng-quiz-options"></div>
+          <div class="eng-quiz-feedback" id="eng-quiz-feedback"></div>
+        </div>
+
+        <!-- 결과 -->
+        <div class="eng-result-screen" id="eng-result-screen">
+          <span class="eng-result-emoji" id="eng-result-emoji"></span>
+          <div class="eng-result-title" id="eng-result-title"></div>
+          <div class="eng-result-score" id="eng-result-score"></div>
+          <div class="eng-result-grade" id="eng-result-grade"></div>
+          <br><br>
+          <button class="eng-retry-btn" onclick="engStartQuiz()">🔄 다시 도전!</button>
+          <br><br>
+          <button class="eng-retry-btn" style="background:white; color:#4a4a4a; border:1.5px solid #ddd;" onclick="engShowHome()">🏠 홈으로</button>
+        </div>
+      </div>
+    </div>
+    <!-- ══ 영단어 별나라 뷰 끝 ══ -->
 
     <div id="teacherView" class="hidden">
         <button class="btn-main" style="background:#888; box-shadow:0 4px 0px #666; margin-bottom:18px; font-size:16px;" onclick="teacherLogout()">교사 모드 종료 (로그아웃)</button>
@@ -2388,6 +2615,13 @@
         document.getElementById('studentView').classList.toggle('hidden', mode !== 'student');
         document.getElementById('mathView').classList.toggle('hidden', mode !== 'math');
         document.getElementById('wordjangView').classList.toggle('hidden', mode !== 'wordjang');
+        document.getElementById('engView').classList.toggle('hidden', mode !== 'english');
+        document.getElementById('tModeBtn').classList.toggle('active', mode === 'teacher');
+        document.getElementById('sModeBtn').classList.toggle('active', mode === 'student');
+        document.getElementById('mModeBtn').classList.toggle('active', mode === 'math');
+        document.getElementById('wjModeBtn').classList.toggle('active', mode === 'wordjang');
+        document.getElementById('engModeBtn').classList.toggle('active', mode === 'english');
+        if (mode === 'english') { engShowHome(); }
         document.getElementById('tModeBtn').classList.toggle('active', mode === 'teacher');
         document.getElementById('sModeBtn').classList.toggle('active', mode === 'student');
         document.getElementById('mModeBtn').classList.toggle('active', mode === 'math');
@@ -3622,6 +3856,7 @@
         if (userAns === p.ans) {
             mathCorrect++;
             inp.style.borderColor = '#43b97f'; inp.style.background = '#e8f5e9'; inp.style.color = '#1b5e20';
+            engPlayCorrectSound();
             fb.textContent = '🎉 정답이에요!'; fb.style.color = '#2e7d32';
         } else {
             mathWrongItems.push({ ...p, userAns });
@@ -4281,6 +4516,7 @@
     if (userAns === p.ans) {
       wjCorrect++;
       inp.className = 'wj-input correct';
+      engPlayCorrectSound();
       fb.textContent = '정답이에요! 🎉';
       fb.className = 'wj-feedback ok';
       fe.textContent = '📝 풀이: ' + p.explain;
@@ -4367,6 +4603,614 @@
       document.getElementById(v).style.display = v === id ? '' : 'none';
     });
   }
+
+// ===== 영단어 별나라 JS =====
+const engWordSets = {
+  "알파벳": [
+    { word:"Aa", meaning:"에이", emoji:"🍎", example:"A is for apple.", exampleTrans:"A는 사과예요." },
+    { word:"Bb", meaning:"비", emoji:"🍌", example:"B is for banana.", exampleTrans:"B는 바나나예요." },
+    { word:"Cc", meaning:"씨", emoji:"🐱", example:"C is for cat.", exampleTrans:"C는 고양이예요." },
+    { word:"Dd", meaning:"디", emoji:"🐶", example:"D is for dog.", exampleTrans:"D는 강아지예요." },
+    { word:"Ee", meaning:"이", emoji:"🥚", example:"E is for egg.", exampleTrans:"E는 달걀이에요." },
+    { word:"Ff", meaning:"에프", emoji:"🐸", example:"F is for frog.", exampleTrans:"F는 개구리예요." },
+    { word:"Gg", meaning:"지", emoji:"🍇", example:"G is for grape.", exampleTrans:"G는 포도예요." },
+    { word:"Hh", meaning:"에이치", emoji:"🏠", example:"H is for house.", exampleTrans:"H는 집이에요." },
+    { word:"Ii", meaning:"아이", emoji:"🍦", example:"I is for ice cream.", exampleTrans:"I는 아이스크림이에요." },
+    { word:"Jj", meaning:"제이", emoji:"🧃", example:"J is for juice.", exampleTrans:"J는 주스예요." },
+    { word:"Kk", meaning:"케이", emoji:"🪁", example:"K is for kite.", exampleTrans:"K는 연이에요." },
+    { word:"Ll", meaning:"엘", emoji:"🦁", example:"L is for lion.", exampleTrans:"L는 사자예요." },
+    { word:"Mm", meaning:"엠", emoji:"🌙", example:"M is for moon.", exampleTrans:"M은 달이에요." },
+    { word:"Nn", meaning:"엔", emoji:"📓", example:"N is for notebook.", exampleTrans:"N은 공책이에요." },
+    { word:"Oo", meaning:"오", emoji:"🐙", example:"O is for octopus.", exampleTrans:"O는 문어예요." },
+    { word:"Pp", meaning:"피", emoji:"🐧", example:"P is for penguin.", exampleTrans:"P는 펭귄이에요." },
+    { word:"Qq", meaning:"큐", emoji:"👑", example:"Q is for queen.", exampleTrans:"Q는 여왕이에요." },
+    { word:"Rr", meaning:"아르", emoji:"🌈", example:"R is for rainbow.", exampleTrans:"R은 무지개예요." },
+    { word:"Ss", meaning:"에스", emoji:"☀️", example:"S is for sun.", exampleTrans:"S는 태양이에요." },
+    { word:"Tt", meaning:"티", emoji:"🐢", example:"T is for turtle.", exampleTrans:"T는 거북이예요." },
+    { word:"Uu", meaning:"유", emoji:"☂️", example:"U is for umbrella.", exampleTrans:"U는 우산이에요." },
+    { word:"Vv", meaning:"브이", emoji:"🎻", example:"V is for violin.", exampleTrans:"V는 바이올린이에요." },
+    { word:"Ww", meaning:"더블유", emoji:"🌊", example:"W is for wave.", exampleTrans:"W는 파도예요." },
+    { word:"Xx", meaning:"엑스", emoji:"🎸", example:"X is for xylophone.", exampleTrans:"X는 실로폰이에요." },
+    { word:"Yy", meaning:"와이", emoji:"🪀", example:"Y is for yo-yo.", exampleTrans:"Y는 요요예요." },
+    { word:"Zz", meaning:"지", emoji:"🦓", example:"Z is for zebra.", exampleTrans:"Z는 얼룩말이에요." },
+  ],
+  "동물": [
+    { word:"cat", meaning:"고양이", emoji:"🐱", example:"The cat is cute.", exampleTrans:"고양이는 귀여워요." },
+    { word:"dog", meaning:"강아지", emoji:"🐶", example:"My dog is big.", exampleTrans:"우리 개는 커요." },
+    { word:"bird", meaning:"새", emoji:"🐦", example:"The bird can fly.", exampleTrans:"새는 날 수 있어요." },
+    { word:"fish", meaning:"물고기", emoji:"🐟", example:"I see a fish.", exampleTrans:"물고기가 보여요." },
+    { word:"rabbit", meaning:"토끼", emoji:"🐰", example:"The rabbit is white.", exampleTrans:"토끼는 하얀색이에요." },
+    { word:"bear", meaning:"곰", emoji:"🐻", example:"A bear is in the zoo.", exampleTrans:"곰이 동물원에 있어요." },
+    { word:"tiger", meaning:"호랑이", emoji:"🐯", example:"The tiger is strong.", exampleTrans:"호랑이는 강해요." },
+    { word:"horse", meaning:"말", emoji:"🐴", example:"The horse runs fast.", exampleTrans:"말은 빠르게 달려요." },
+    { word:"frog", meaning:"개구리", emoji:"🐸", example:"The frog can jump.", exampleTrans:"개구리는 점프할 수 있어요." },
+    { word:"duck", meaning:"오리", emoji:"🦆", example:"The duck swims.", exampleTrans:"오리가 수영해요." },
+  ],
+  "음식": [
+    { word:"soup", meaning:"국·수프", emoji:"🍲", example:"The soup is hot.", exampleTrans:"수프가 뜨거워요." },
+    { word:"sandwich", meaning:"샌드위치", emoji:"🥪", example:"I eat a sandwich.", exampleTrans:"나는 샌드위치를 먹어요." },
+    { word:"bread", meaning:"빵", emoji:"🍞", example:"I eat bread.", exampleTrans:"나는 빵을 먹어요." },
+    { word:"cake", meaning:"케이크", emoji:"🎂", example:"Happy birthday cake!", exampleTrans:"생일 축하 케이크!" },
+    { word:"milk", meaning:"우유", emoji:"🥛", example:"Drink your milk.", exampleTrans:"우유를 마셔요." },
+    { word:"pizza", meaning:"피자", emoji:"🍕", example:"Pizza is yummy.", exampleTrans:"피자는 맛있어요." },
+    { word:"rice", meaning:"밥·쌀", emoji:"🍚", example:"I have rice for lunch.", exampleTrans:"나는 점심으로 밥을 먹어요." },
+    { word:"egg", meaning:"달걀", emoji:"🥚", example:"Eggs are healthy.", exampleTrans:"달걀은 건강에 좋아요." },
+    { word:"candy", meaning:"사탕", emoji:"🍬", example:"I like candy.", exampleTrans:"나는 사탕을 좋아해요." },
+    { word:"juice", meaning:"주스", emoji:"🧃", example:"Orange juice is sweet.", exampleTrans:"오렌지 주스는 달콤해요." },
+  ],
+  "색깔": [
+    { word:"red", meaning:"빨간색", emoji:"🔴", example:"The apple is red.", exampleTrans:"사과는 빨간색이에요." },
+    { word:"blue", meaning:"파란색", emoji:"🔵", example:"The sky is blue.", exampleTrans:"하늘은 파란색이에요." },
+    { word:"yellow", meaning:"노란색", emoji:"🟡", example:"Bananas are yellow.", exampleTrans:"바나나는 노란색이에요." },
+    { word:"green", meaning:"초록색", emoji:"🟢", example:"Grass is green.", exampleTrans:"잔디는 초록색이에요." },
+    { word:"white", meaning:"흰색", emoji:"⬜", example:"Snow is white.", exampleTrans:"눈은 흰색이에요." },
+    { word:"black", meaning:"검은색", emoji:"⬛", example:"The night is black.", exampleTrans:"밤은 검은색이에요." },
+    { word:"pink", meaning:"분홍색", emoji:"🌸", example:"Roses can be pink.", exampleTrans:"장미는 분홍색일 수 있어요." },
+    { word:"purple", meaning:"보라색", emoji:"🟣", example:"I like purple.", exampleTrans:"나는 보라색을 좋아해요." },
+    { word:"orange", meaning:"주황색", emoji:"🟠", example:"The pumpkin is orange.", exampleTrans:"호박은 주황색이에요." },
+    { word:"brown", meaning:"갈색", emoji:"🤎", example:"Chocolate is brown.", exampleTrans:"초콜릿은 갈색이에요." },
+  ],
+  "숫자": [
+    { word:"one", meaning:"1 (하나)", emoji:"1️⃣", example:"I have one cat.", exampleTrans:"나는 고양이가 한 마리 있어요." },
+    { word:"two", meaning:"2 (둘)", emoji:"2️⃣", example:"I have two dogs.", exampleTrans:"나는 개가 두 마리 있어요." },
+    { word:"three", meaning:"3 (셋)", emoji:"3️⃣", example:"Three birds are here.", exampleTrans:"여기 새가 세 마리 있어요." },
+    { word:"four", meaning:"4 (넷)", emoji:"4️⃣", example:"I see four fish.", exampleTrans:"물고기가 네 마리 보여요." },
+    { word:"five", meaning:"5 (다섯)", emoji:"5️⃣", example:"Five apples are red.", exampleTrans:"사과 다섯 개가 빨간색이에요." },
+    { word:"six", meaning:"6 (여섯)", emoji:"6️⃣", example:"Six eggs are in a box.", exampleTrans:"상자 안에 달걀이 여섯 개 있어요." },
+    { word:"seven", meaning:"7 (일곱)", emoji:"7️⃣", example:"Seven days in a week.", exampleTrans:"일주일은 7일이에요." },
+    { word:"eight", meaning:"8 (여덟)", emoji:"8️⃣", example:"I have eight crayons.", exampleTrans:"나는 크레용이 여덟 개 있어요." },
+    { word:"nine", meaning:"9 (아홉)", emoji:"9️⃣", example:"Nine stars shine bright.", exampleTrans:"별 아홉 개가 밝게 빛나요." },
+    { word:"ten", meaning:"10 (열)", emoji:"🔟", example:"I can count to ten.", exampleTrans:"나는 열까지 셀 수 있어요." },
+  ],
+  "학교": [
+    { word:"book", meaning:"책", emoji:"📚", example:"Read your book.", exampleTrans:"책을 읽어요." },
+    { word:"pen", meaning:"펜", emoji:"🖊️", example:"I write with a pen.", exampleTrans:"나는 펜으로 써요." },
+    { word:"desk", meaning:"책상", emoji:"🪑", example:"Sit at your desk.", exampleTrans:"책상에 앉아요." },
+    { word:"class", meaning:"수업·반", emoji:"🏫", example:"I love my class.", exampleTrans:"나는 우리 반을 사랑해요." },
+    { word:"friend", meaning:"친구", emoji:"👫", example:"She is my friend.", exampleTrans:"그녀는 내 친구예요." },
+    { word:"teacher", meaning:"선생님", emoji:"👩‍🏫", example:"My teacher is kind.", exampleTrans:"우리 선생님은 친절해요." },
+    { word:"school", meaning:"학교", emoji:"🏫", example:"I go to school.", exampleTrans:"나는 학교에 가요." },
+    { word:"bag", meaning:"가방", emoji:"🎒", example:"My bag is heavy.", exampleTrans:"내 가방은 무거워요." },
+    { word:"ruler", meaning:"자", emoji:"📏", example:"Use a ruler.", exampleTrans:"자를 사용해요." },
+    { word:"eraser", meaning:"지우개", emoji:"🧹", example:"I need an eraser.", exampleTrans:"나는 지우개가 필요해요." },
+  ],
+  "신체": [
+    { word:"head", meaning:"머리", emoji:"🗣️", example:"I nod my head.", exampleTrans:"나는 머리를 끄덕여요." },
+    { word:"eye", meaning:"눈", emoji:"👁️", example:"I have two eyes.", exampleTrans:"나는 눈이 두 개 있어요." },
+    { word:"nose", meaning:"코", emoji:"👃", example:"My nose is small.", exampleTrans:"내 코는 작아요." },
+    { word:"mouth", meaning:"입", emoji:"👄", example:"Open your mouth.", exampleTrans:"입을 벌려요." },
+    { word:"ear", meaning:"귀", emoji:"👂", example:"I hear with my ear.", exampleTrans:"나는 귀로 들어요." },
+    { word:"hand", meaning:"손", emoji:"✋", example:"Wash your hands.", exampleTrans:"손을 씻어요." },
+    { word:"foot", meaning:"발", emoji:"🦶", example:"My foot is big.", exampleTrans:"내 발은 커요." },
+    { word:"arm", meaning:"팔", emoji:"💪", example:"My arm is strong.", exampleTrans:"내 팔은 강해요." },
+    { word:"leg", meaning:"다리", emoji:"🦵", example:"I run with my legs.", exampleTrans:"나는 다리로 달려요." },
+    { word:"back", meaning:"등", emoji:"🧍", example:"My back hurts.", exampleTrans:"내 등이 아파요." },
+  ],
+  "감정": [
+    { word:"happy", meaning:"행복한", emoji:"😊", example:"I am happy today.", exampleTrans:"나는 오늘 행복해요." },
+    { word:"sad", meaning:"슬픈", emoji:"😢", example:"She looks sad.", exampleTrans:"그녀는 슬퍼 보여요." },
+    { word:"angry", meaning:"화난", emoji:"😠", example:"He is angry.", exampleTrans:"그는 화났어요." },
+    { word:"scared", meaning:"무서운", emoji:"😨", example:"I am scared of thunder.", exampleTrans:"나는 천둥이 무서워요." },
+    { word:"tired", meaning:"피곤한", emoji:"😴", example:"I am so tired.", exampleTrans:"나는 너무 피곤해요." },
+    { word:"excited", meaning:"신나는", emoji:"🤩", example:"She is excited.", exampleTrans:"그녀는 신나요." },
+    { word:"surprised", meaning:"놀란", emoji:"😲", example:"He is surprised.", exampleTrans:"그는 놀랐어요." },
+    { word:"bored", meaning:"지루한", emoji:"😑", example:"I feel bored.", exampleTrans:"나는 지루함을 느껴요." },
+    { word:"proud", meaning:"자랑스러운", emoji:"😤", example:"I am proud of you.", exampleTrans:"나는 네가 자랑스러워요." },
+    { word:"shy", meaning:"수줍은", emoji:"😳", example:"She is very shy.", exampleTrans:"그녀는 매우 수줍어요." },
+  ],
+  "날씨": [
+    { word:"sunny", meaning:"맑은", emoji:"☀️", example:"It is sunny today.", exampleTrans:"오늘은 맑아요." },
+    { word:"cloudy", meaning:"흐린", emoji:"☁️", example:"The sky is cloudy.", exampleTrans:"하늘이 흐려요." },
+    { word:"rainy", meaning:"비오는", emoji:"🌧️", example:"It is rainy outside.", exampleTrans:"밖에 비가 와요." },
+    { word:"windy", meaning:"바람부는", emoji:"💨", example:"It is very windy.", exampleTrans:"바람이 많이 불어요." },
+    { word:"snowy", meaning:"눈오는", emoji:"❄️", example:"It is snowy today.", exampleTrans:"오늘 눈이 와요." },
+    { word:"hot", meaning:"더운", emoji:"🥵", example:"Summer is hot.", exampleTrans:"여름은 더워요." },
+    { word:"cold", meaning:"추운", emoji:"🥶", example:"Winter is cold.", exampleTrans:"겨울은 추워요." },
+    { word:"warm", meaning:"따뜻한", emoji:"🌤️", example:"Spring is warm.", exampleTrans:"봄은 따뜻해요." },
+    { word:"foggy", meaning:"안개낀", emoji:"🌫️", example:"It is foggy this morning.", exampleTrans:"오늘 아침은 안개가 껴요." },
+    { word:"stormy", meaning:"폭풍우치는", emoji:"⛈️", example:"It is stormy tonight.", exampleTrans:"오늘 밤은 폭풍이 쳐요." },
+  ],
+  "집/가구": [
+    { word:"door", meaning:"문", emoji:"🚪", example:"Open the door.", exampleTrans:"문을 열어요." },
+    { word:"window", meaning:"창문", emoji:"🪟", example:"Close the window.", exampleTrans:"창문을 닫아요." },
+    { word:"bed", meaning:"침대", emoji:"🛏️", example:"I sleep on my bed.", exampleTrans:"나는 침대에서 자요." },
+    { word:"chair", meaning:"의자", emoji:"🪑", example:"Sit on the chair.", exampleTrans:"의자에 앉아요." },
+    { word:"table", meaning:"식탁·테이블", emoji:"🪵", example:"Eat at the table.", exampleTrans:"식탁에서 먹어요." },
+    { word:"sofa", meaning:"소파", emoji:"🛋️", example:"I sit on the sofa.", exampleTrans:"나는 소파에 앉아요." },
+    { word:"lamp", meaning:"램프·조명", emoji:"💡", example:"Turn on the lamp.", exampleTrans:"램프를 켜요." },
+    { word:"clock", meaning:"시계", emoji:"🕐", example:"Look at the clock.", exampleTrans:"시계를 봐요." },
+    { word:"mirror", meaning:"거울", emoji:"🪞", example:"I look in the mirror.", exampleTrans:"나는 거울을 봐요." },
+    { word:"stairs", meaning:"계단", emoji:"🪜", example:"Walk up the stairs.", exampleTrans:"계단을 올라가요." },
+  ],
+  "자연/계절": [
+    { word:"spring", meaning:"봄", emoji:"🌸", example:"Flowers bloom in spring.", exampleTrans:"봄에 꽃이 피어요." },
+    { word:"summer", meaning:"여름", emoji:"☀️", example:"Summer is hot.", exampleTrans:"여름은 더워요." },
+    { word:"autumn", meaning:"가을", emoji:"🍂", example:"Leaves fall in autumn.", exampleTrans:"가을에 나뭇잎이 떨어져요." },
+    { word:"winter", meaning:"겨울", emoji:"⛄", example:"Winter is cold.", exampleTrans:"겨울은 추워요." },
+    { word:"tree", meaning:"나무", emoji:"🌳", example:"The tree is tall.", exampleTrans:"나무가 키가 커요." },
+    { word:"flower", meaning:"꽃", emoji:"🌷", example:"The flower is pretty.", exampleTrans:"꽃이 예뻐요." },
+    { word:"river", meaning:"강", emoji:"🏞️", example:"The river is wide.", exampleTrans:"강이 넓어요." },
+    { word:"mountain", meaning:"산", emoji:"⛰️", example:"I climb the mountain.", exampleTrans:"나는 산을 올라요." },
+    { word:"sea", meaning:"바다", emoji:"🌊", example:"The sea is deep.", exampleTrans:"바다는 깊어요." },
+    { word:"sky", meaning:"하늘", emoji:"🌤️", example:"The sky is blue.", exampleTrans:"하늘은 파란색이에요." },
+  ],
+  "스포츠": [
+    { word:"soccer", meaning:"축구", emoji:"⚽", example:"I play soccer.", exampleTrans:"나는 축구를 해요." },
+    { word:"baseball", meaning:"야구", emoji:"⚾", example:"Baseball is fun.", exampleTrans:"야구는 재미있어요." },
+    { word:"basketball", meaning:"농구", emoji:"🏀", example:"I love basketball.", exampleTrans:"나는 농구를 좋아해요." },
+    { word:"swimming", meaning:"수영", emoji:"🏊", example:"I go swimming.", exampleTrans:"나는 수영하러 가요." },
+    { word:"running", meaning:"달리기", emoji:"🏃", example:"Running is healthy.", exampleTrans:"달리기는 건강에 좋아요." },
+    { word:"tennis", meaning:"테니스", emoji:"🎾", example:"She plays tennis.", exampleTrans:"그녀는 테니스를 해요." },
+    { word:"skiing", meaning:"스키", emoji:"⛷️", example:"I go skiing in winter.", exampleTrans:"나는 겨울에 스키를 타요." },
+    { word:"cycling", meaning:"자전거타기", emoji:"🚴", example:"I enjoy cycling.", exampleTrans:"나는 자전거 타기를 즐겨요." },
+    { word:"jumping", meaning:"점프", emoji:"🤸", example:"I am jumping high.", exampleTrans:"나는 높이 점프해요." },
+    { word:"taekwondo", meaning:"태권도", emoji:"🥋", example:"I do taekwondo.", exampleTrans:"나는 태권도를 해요." },
+  ],
+  "취미": [
+    { word:"music", meaning:"음악", emoji:"🎵", example:"I love music.", exampleTrans:"나는 음악을 좋아해요." },
+    { word:"drawing", meaning:"그림그리기", emoji:"🎨", example:"I enjoy drawing.", exampleTrans:"나는 그림 그리기를 즐겨요." },
+    { word:"reading", meaning:"독서", emoji:"📖", example:"Reading is fun.", exampleTrans:"독서는 재미있어요." },
+    { word:"cooking", meaning:"요리", emoji:"🍳", example:"I like cooking.", exampleTrans:"나는 요리를 좋아해요." },
+    { word:"dancing", meaning:"춤추기", emoji:"💃", example:"She loves dancing.", exampleTrans:"그녀는 춤추는 걸 사랑해요." },
+    { word:"singing", meaning:"노래하기", emoji:"🎤", example:"I sing every day.", exampleTrans:"나는 매일 노래해요." },
+    { word:"gaming", meaning:"게임하기", emoji:"🎮", example:"He enjoys gaming.", exampleTrans:"그는 게임을 즐겨요." },
+    { word:"gardening", meaning:"정원가꾸기", emoji:"🌱", example:"She likes gardening.", exampleTrans:"그녀는 정원 가꾸기를 좋아해요." },
+    { word:"camping", meaning:"캠핑", emoji:"⛺", example:"We go camping.", exampleTrans:"우리는 캠핑을 가요." },
+    { word:"crafting", meaning:"만들기", emoji:"✂️", example:"I love crafting.", exampleTrans:"나는 만들기를 좋아해요." },
+  ],
+  "옷": [
+    { word:"shirt", meaning:"셔츠", emoji:"👕", example:"I wear a shirt.", exampleTrans:"나는 셔츠를 입어요." },
+    { word:"pants", meaning:"바지", emoji:"👖", example:"My pants are blue.", exampleTrans:"내 바지는 파란색이에요." },
+    { word:"dress", meaning:"드레스", emoji:"👗", example:"She wears a dress.", exampleTrans:"그녀는 드레스를 입어요." },
+    { word:"shoes", meaning:"신발", emoji:"👟", example:"I put on my shoes.", exampleTrans:"나는 신발을 신어요." },
+    { word:"hat", meaning:"모자", emoji:"🧢", example:"Wear your hat.", exampleTrans:"모자를 써요." },
+    { word:"jacket", meaning:"재킷", emoji:"🧥", example:"Put on your jacket.", exampleTrans:"재킷을 입어요." },
+    { word:"socks", meaning:"양말", emoji:"🧦", example:"I wear warm socks.", exampleTrans:"나는 따뜻한 양말을 신어요." },
+    { word:"gloves", meaning:"장갑", emoji:"🧤", example:"My gloves are red.", exampleTrans:"내 장갑은 빨간색이에요." },
+    { word:"scarf", meaning:"목도리", emoji:"🧣", example:"She wears a scarf.", exampleTrans:"그녀는 목도리를 해요." },
+    { word:"boots", meaning:"부츠", emoji:"👢", example:"I wear boots in winter.", exampleTrans:"나는 겨울에 부츠를 신어요." },
+  ],
+  "탈것": [
+    { word:"car", meaning:"자동차", emoji:"🚗", example:"I ride in a car.", exampleTrans:"나는 자동차를 타요." },
+    { word:"bus", meaning:"버스", emoji:"🚌", example:"I take the bus.", exampleTrans:"나는 버스를 타요." },
+    { word:"train", meaning:"기차", emoji:"🚂", example:"The train is fast.", exampleTrans:"기차는 빨라요." },
+    { word:"plane", meaning:"비행기", emoji:"✈️", example:"I fly on a plane.", exampleTrans:"나는 비행기를 타요." },
+    { word:"bike", meaning:"자전거", emoji:"🚲", example:"I ride my bike.", exampleTrans:"나는 자전거를 타요." },
+    { word:"ship", meaning:"배", emoji:"🚢", example:"The ship is big.", exampleTrans:"배는 커요." },
+    { word:"taxi", meaning:"택시", emoji:"🚕", example:"I take a taxi.", exampleTrans:"나는 택시를 타요." },
+    { word:"subway", meaning:"지하철", emoji:"🚇", example:"I ride the subway.", exampleTrans:"나는 지하철을 타요." },
+    { word:"helicopter", meaning:"헬리콥터", emoji:"🚁", example:"The helicopter flies high.", exampleTrans:"헬리콥터는 높이 날아요." },
+    { word:"rocket", meaning:"로켓", emoji:"🚀", example:"The rocket goes to space.", exampleTrans:"로켓은 우주로 가요." },
+  ],
+  "과일/채소": [
+    { word:"apple", meaning:"사과", emoji:"🍎", example:"I eat an apple.", exampleTrans:"나는 사과를 먹어요." },
+    { word:"banana", meaning:"바나나", emoji:"🍌", example:"Monkeys love bananas.", exampleTrans:"원숭이는 바나나를 좋아해요." },
+    { word:"grape", meaning:"포도", emoji:"🍇", example:"I like grapes.", exampleTrans:"나는 포도를 좋아해요." },
+    { word:"strawberry", meaning:"딸기", emoji:"🍓", example:"Strawberries are sweet.", exampleTrans:"딸기는 달콤해요." },
+    { word:"watermelon", meaning:"수박", emoji:"🍉", example:"Watermelon is refreshing.", exampleTrans:"수박은 시원해요." },
+    { word:"carrot", meaning:"당근", emoji:"🥕", example:"Rabbits eat carrots.", exampleTrans:"토끼는 당근을 먹어요." },
+    { word:"tomato", meaning:"토마토", emoji:"🍅", example:"Tomatoes are red.", exampleTrans:"토마토는 빨간색이에요." },
+    { word:"potato", meaning:"감자", emoji:"🥔", example:"I like potatoes.", exampleTrans:"나는 감자를 좋아해요." },
+    { word:"onion", meaning:"양파", emoji:"🧅", example:"Onions make me cry.", exampleTrans:"양파는 눈물이 나게 해요." },
+    { word:"corn", meaning:"옥수수", emoji:"🌽", example:"I love corn.", exampleTrans:"나는 옥수수를 좋아해요." },
+  ],
+  "요일": [
+    { word:"Monday", meaning:"월요일", emoji:"1️⃣", example:"School starts on Monday.", exampleTrans:"학교는 월요일에 시작해요." },
+    { word:"Tuesday", meaning:"화요일", emoji:"2️⃣", example:"I have PE on Tuesday.", exampleTrans:"화요일에 체육 수업이 있어요." },
+    { word:"Wednesday", meaning:"수요일", emoji:"3️⃣", example:"We have art on Wednesday.", exampleTrans:"수요일에 미술 수업이 있어요." },
+    { word:"Thursday", meaning:"목요일", emoji:"4️⃣", example:"I like Thursday.", exampleTrans:"나는 목요일을 좋아해요." },
+    { word:"Friday", meaning:"금요일", emoji:"5️⃣", example:"Friday is fun!", exampleTrans:"금요일은 신나요!" },
+    { word:"Saturday", meaning:"토요일", emoji:"6️⃣", example:"I play on Saturday.", exampleTrans:"토요일에 놀아요." },
+    { word:"Sunday", meaning:"일요일", emoji:"7️⃣", example:"I rest on Sunday.", exampleTrans:"일요일에 쉬어요." },
+    { word:"today", meaning:"오늘", emoji:"📆", example:"Today is a great day.", exampleTrans:"오늘은 멋진 날이에요." },
+    { word:"tomorrow", meaning:"내일", emoji:"🔜", example:"See you tomorrow!", exampleTrans:"내일 봐요!" },
+    { word:"yesterday", meaning:"어제", emoji:"⏮️", example:"Yesterday was fun.", exampleTrans:"어제는 재미있었어요." },
+  ],
+  "월": [
+    { word:"January", meaning:"1월", emoji:"🌨️", example:"January is cold.", exampleTrans:"1월은 추워요." },
+    { word:"February", meaning:"2월", emoji:"❄️", example:"February is short.", exampleTrans:"2월은 짧아요." },
+    { word:"March", meaning:"3월", emoji:"🌱", example:"March brings spring.", exampleTrans:"3월은 봄을 데려와요." },
+    { word:"April", meaning:"4월", emoji:"🌸", example:"April has spring flowers.", exampleTrans:"4월에는 봄꽃이 피어요." },
+    { word:"May", meaning:"5월", emoji:"🌼", example:"May is warm.", exampleTrans:"5월은 따뜻해요." },
+    { word:"June", meaning:"6월", emoji:"☀️", example:"June is sunny.", exampleTrans:"6월은 맑아요." },
+    { word:"July", meaning:"7월", emoji:"🏖️", example:"July is hot.", exampleTrans:"7월은 더워요." },
+    { word:"August", meaning:"8월", emoji:"🌊", example:"August is summer.", exampleTrans:"8월은 여름이에요." },
+    { word:"September", meaning:"9월", emoji:"🍂", example:"September starts autumn.", exampleTrans:"9월에 가을이 시작돼요." },
+    { word:"October", meaning:"10월", emoji:"🎃", example:"October is autumn.", exampleTrans:"10월은 가을이에요." },
+    { word:"November", meaning:"11월", emoji:"🍁", example:"November is cool.", exampleTrans:"11월은 시원해요." },
+    { word:"December", meaning:"12월", emoji:"🎄", example:"December is cold.", exampleTrans:"12월은 추워요." },
+  ],
+  "직업": [
+    { word:"doctor", meaning:"의사", emoji:"👨‍⚕️", example:"The doctor helps sick people.", exampleTrans:"의사는 아픈 사람을 도와요." },
+    { word:"police", meaning:"경찰관", emoji:"👮", example:"The police keep us safe.", exampleTrans:"경찰은 우리를 안전하게 지켜요." },
+    { word:"chef", meaning:"요리사", emoji:"👨‍🍳", example:"The chef cooks well.", exampleTrans:"요리사는 요리를 잘해요." },
+    { word:"farmer", meaning:"농부", emoji:"👨‍🌾", example:"The farmer grows food.", exampleTrans:"농부는 음식을 키워요." },
+    { word:"firefighter", meaning:"소방관", emoji:"👨‍🚒", example:"Firefighters are brave.", exampleTrans:"소방관은 용감해요." },
+    { word:"pilot", meaning:"조종사", emoji:"👨‍✈️", example:"The pilot flies the plane.", exampleTrans:"조종사는 비행기를 조종해요." },
+    { word:"nurse", meaning:"간호사", emoji:"👩‍⚕️", example:"The nurse is caring.", exampleTrans:"간호사는 돌봄이 좋아요." },
+    { word:"artist", meaning:"예술가", emoji:"🧑‍🎨", example:"The artist paints pictures.", exampleTrans:"예술가는 그림을 그려요." },
+    { word:"scientist", meaning:"과학자", emoji:"👩‍🔬", example:"The scientist does experiments.", exampleTrans:"과학자는 실험을 해요." },
+    { word:"teacher", meaning:"선생님", emoji:"👩‍🏫", example:"My teacher is kind.", exampleTrans:"우리 선생님은 친절해요." },
+  ],
+  "가족": [
+    { word:"mom", meaning:"엄마", emoji:"👩", example:"I love my mom.", exampleTrans:"나는 엄마를 사랑해요." },
+    { word:"dad", meaning:"아빠", emoji:"👨", example:"My dad is tall.", exampleTrans:"우리 아빠는 키가 커요." },
+    { word:"sister", meaning:"언니·누나·여동생", emoji:"👧", example:"My sister is funny.", exampleTrans:"내 언니(여동생)는 재미있어요." },
+    { word:"brother", meaning:"오빠·형·남동생", emoji:"👦", example:"My brother is strong.", exampleTrans:"내 오빠(남동생)는 강해요." },
+    { word:"grandma", meaning:"할머니", emoji:"👵", example:"Grandma bakes cookies.", exampleTrans:"할머니는 쿠키를 구워요." },
+    { word:"grandpa", meaning:"할아버지", emoji:"👴", example:"Grandpa tells stories.", exampleTrans:"할아버지는 이야기를 해줘요." },
+    { word:"baby", meaning:"아기", emoji:"👶", example:"The baby is sleeping.", exampleTrans:"아기가 자고 있어요." },
+    { word:"family", meaning:"가족", emoji:"👨‍👩‍👧‍👦", example:"I love my family.", exampleTrans:"나는 우리 가족을 사랑해요." },
+    { word:"uncle", meaning:"삼촌", emoji:"🧔", example:"My uncle is funny.", exampleTrans:"삼촌은 재미있어요." },
+    { word:"aunt", meaning:"이모·고모", emoji:"👩‍🦰", example:"My aunt is kind.", exampleTrans:"이모(고모)는 친절해요." },
+  ],
+  "장소": [
+    { word:"gym", meaning:"체육관", emoji:"🏋️", example:"I exercise at the gym.", exampleTrans:"나는 체육관에서 운동해요." },
+    { word:"hospital", meaning:"병원", emoji:"🏥", example:"The doctor is at the hospital.", exampleTrans:"의사가 병원에 있어요." },
+    { word:"park", meaning:"공원", emoji:"🌳", example:"I play in the park.", exampleTrans:"나는 공원에서 놀아요." },
+    { word:"library", meaning:"도서관", emoji:"📚", example:"I read at the library.", exampleTrans:"나는 도서관에서 책을 읽어요." },
+    { word:"store", meaning:"가게", emoji:"🏪", example:"I buy food at the store.", exampleTrans:"나는 가게에서 음식을 사요." },
+    { word:"restaurant", meaning:"식당", emoji:"🍽️", example:"We eat at a restaurant.", exampleTrans:"우리는 식당에서 먹어요." },
+    { word:"airport", meaning:"공항", emoji:"✈️", example:"The plane is at the airport.", exampleTrans:"비행기가 공항에 있어요." },
+    { word:"beach", meaning:"해변", emoji:"🏖️", example:"I swim at the beach.", exampleTrans:"나는 해변에서 수영해요." },
+    { word:"museum", meaning:"박물관", emoji:"🏛️", example:"We visit the museum.", exampleTrans:"우리는 박물관을 방문해요." },
+    { word:"zoo", meaning:"동물원", emoji:"🦁", example:"I see lions at the zoo.", exampleTrans:"나는 동물원에서 사자를 봐요." },
+  ],
+  "사물의 상태": [
+    { word:"soft", meaning:"부드러운", emoji:"🧸", example:"The pillow is soft.", exampleTrans:"베개가 부드러워요." },
+    { word:"hard", meaning:"딱딱한", emoji:"🪨", example:"The rock is hard.", exampleTrans:"바위는 딱딱해요." },
+    { word:"sweet", meaning:"달콤한", emoji:"🍯", example:"Honey is sweet.", exampleTrans:"꿀은 달콤해요." },
+    { word:"bright", meaning:"밝은", emoji:"☀️", example:"The sun is bright.", exampleTrans:"해가 밝아요." },
+    { word:"dark", meaning:"어두운", emoji:"🌙", example:"The room is dark.", exampleTrans:"방이 어두워요." },
+    { word:"round", meaning:"둥근", emoji:"⚽", example:"A ball is round.", exampleTrans:"공은 둥글어요." },
+    { word:"flat", meaning:"평평한", emoji:"📄", example:"The table is flat.", exampleTrans:"테이블은 평평해요." },
+    { word:"sticky", meaning:"끈적한", emoji:"🍬", example:"The candy is sticky.", exampleTrans:"사탕이 끈적해요." },
+    { word:"slow", meaning:"느린", emoji:"🐢", example:"The turtle is slow.", exampleTrans:"거북이는 느려요." },
+    { word:"small", meaning:"작은", emoji:"🐭", example:"The mouse is small.", exampleTrans:"쥐는 작아요." },
+    { word:"sharp", meaning:"날카로운", emoji:"🔪", example:"The knife is sharp.", exampleTrans:"칼이 날카로워요." },
+    { word:"wet", meaning:"젖은", emoji:"💧", example:"My clothes are wet.", exampleTrans:"내 옷이 젖었어요." },
+    { word:"dry", meaning:"마른", emoji:"🏜️", example:"The towel is dry.", exampleTrans:"수건이 말랐어요." },
+    { word:"full", meaning:"가득 찬", emoji:"🫙", example:"The cup is full.", exampleTrans:"컵이 가득 찼어요." },
+    { word:"empty", meaning:"비어 있는", emoji:"🪣", example:"The bottle is empty.", exampleTrans:"병이 비어 있어요." },
+    { word:"thin", meaning:"얇은·가는", emoji:"📝", example:"The paper is thin.", exampleTrans:"종이가 얇아요." },
+    { word:"light", meaning:"가벼운", emoji:"🪶", example:"The feather is light.", exampleTrans:"깃털은 가벼워요." },
+    { word:"shiny", meaning:"반짝이는", emoji:"✨", example:"The star is shiny.", exampleTrans:"별이 반짝여요." },
+    { word:"bumpy", meaning:"울퉁불퉁한", emoji:"🪨", example:"The road is bumpy.", exampleTrans:"길이 울퉁불퉁해요." },
+    { word:"quiet", meaning:"조용한", emoji:"🤫", example:"The library is quiet.", exampleTrans:"도서관은 조용해요." },
+  ],
+  "일상동작": [
+    { word:"wake up", meaning:"일어나다", emoji:"⏰", example:"I wake up at 7.", exampleTrans:"나는 7시에 일어나요." },
+    { word:"wash", meaning:"씻다", emoji:"🧼", example:"I wash my face.", exampleTrans:"나는 세수해요." },
+    { word:"brush", meaning:"닦다", emoji:"🪥", example:"Brush your teeth.", exampleTrans:"이를 닦아요." },
+    { word:"eat", meaning:"먹다", emoji:"🍽️", example:"I eat breakfast.", exampleTrans:"나는 아침을 먹어요." },
+    { word:"drink", meaning:"마시다", emoji:"🥤", example:"I drink water.", exampleTrans:"나는 물을 마셔요." },
+    { word:"walk", meaning:"걷다", emoji:"🚶", example:"I walk to school.", exampleTrans:"나는 학교까지 걸어요." },
+    { word:"run", meaning:"달리다", emoji:"🏃", example:"I run every morning.", exampleTrans:"나는 매일 아침 달려요." },
+    { word:"study", meaning:"공부하다", emoji:"📖", example:"I study English.", exampleTrans:"나는 영어를 공부해요." },
+    { word:"write", meaning:"쓰다", emoji:"✏️", example:"I write in my notebook.", exampleTrans:"나는 공책에 써요." },
+    { word:"read", meaning:"읽다", emoji:"📚", example:"I read a book.", exampleTrans:"나는 책을 읽어요." },
+    { word:"listen", meaning:"듣다", emoji:"👂", example:"I listen to music.", exampleTrans:"나는 음악을 들어요." },
+    { word:"speak", meaning:"말하다", emoji:"💬", example:"I speak English.", exampleTrans:"나는 영어로 말해요." },
+    { word:"play", meaning:"놀다", emoji:"🎮", example:"I play with friends.", exampleTrans:"나는 친구들과 놀아요." },
+    { word:"sleep", meaning:"자다", emoji:"😴", example:"I sleep at 9.", exampleTrans:"나는 9시에 자요." },
+    { word:"cook", meaning:"요리하다", emoji:"🍳", example:"Mom cooks dinner.", exampleTrans:"엄마가 저녁을 요리해요." },
+    { word:"smile", meaning:"미소 짓다", emoji:"😊", example:"I smile at my friend.", exampleTrans:"나는 친구에게 미소 지어요." },
+    { word:"shower", meaning:"샤워하다", emoji:"🚿", example:"I take a shower.", exampleTrans:"나는 샤워해요." },
+    { word:"wave", meaning:"손을 흔들다", emoji:"👋", example:"I wave to my teacher.", exampleTrans:"나는 선생님께 손을 흔들어요." },
+    { word:"go", meaning:"가다", emoji:"🚶‍♀️", example:"I go to the park.", exampleTrans:"나는 공원에 가요." },
+    { word:"come", meaning:"오다", emoji:"🙋", example:"Come here, please.", exampleTrans:"여기로 와 주세요." },
+  ],
+  "시간과 때": [
+    { word:"morning", meaning:"아침", emoji:"🌅", example:"I eat breakfast in the morning.", exampleTrans:"나는 아침에 밥을 먹어요." },
+    { word:"afternoon", meaning:"오후", emoji:"🌤️", example:"We play in the afternoon.", exampleTrans:"우리는 오후에 놀아요." },
+    { word:"evening", meaning:"저녁때", emoji:"🌆", example:"I watch TV in the evening.", exampleTrans:"나는 저녁때 TV를 봐요." },
+    { word:"night", meaning:"밤", emoji:"🌙", example:"Stars shine at night.", exampleTrans:"밤에 별이 빛나요." },
+    { word:"noon", meaning:"정오", emoji:"🕛", example:"We eat lunch at noon.", exampleTrans:"우리는 정오에 점심을 먹어요." },
+    { word:"now", meaning:"지금", emoji:"⏱️", example:"I am studying now.", exampleTrans:"나는 지금 공부하고 있어요." },
+    { word:"soon", meaning:"곧", emoji:"⏳", example:"Dinner is ready soon.", exampleTrans:"저녁이 곧 준비돼요." },
+    { word:"early", meaning:"일찍", emoji:"🐓", example:"I wake up early.", exampleTrans:"나는 일찍 일어나요." },
+    { word:"late", meaning:"늦은", emoji:"😅", example:"Don't be late.", exampleTrans:"늦지 마세요." },
+    { word:"always", meaning:"항상", emoji:"♾️", example:"I always brush my teeth.", exampleTrans:"나는 항상 이를 닦아요." },
+    { word:"usually", meaning:"보통", emoji:"📋", example:"I usually walk to school.", exampleTrans:"나는 보통 학교까지 걸어요." },
+    { word:"sometimes", meaning:"가끔", emoji:"🎲", example:"I sometimes eat candy.", exampleTrans:"나는 가끔 사탕을 먹어요." },
+    { word:"never", meaning:"절대 ~하지 않는", emoji:"🚫", example:"I never skip breakfast.", exampleTrans:"나는 절대 아침을 거르지 않아요." },
+    { word:"before", meaning:"~전에", emoji:"⬅️", example:"Wash hands before eating.", exampleTrans:"먹기 전에 손을 씻어요." },
+    { word:"after", meaning:"~후에", emoji:"➡️", example:"I play after school.", exampleTrans:"나는 학교 끝나고 놀아요." },
+    { word:"again", meaning:"다시", emoji:"🔁", example:"Say it again, please.", exampleTrans:"다시 말해 주세요." },
+    { word:"first", meaning:"먼저·첫째", emoji:"🥇", example:"First, wash your hands.", exampleTrans:"먼저 손을 씻어요." },
+    { word:"last", meaning:"마지막", emoji:"🏁", example:"I was last in line.", exampleTrans:"나는 줄에서 마지막이었어요." },
+    { word:"every day", meaning:"매일", emoji:"📅", example:"I read every day.", exampleTrans:"나는 매일 책을 읽어요." },
+    { word:"week", meaning:"주·일주일", emoji:"🗓️", example:"There are 7 days in a week.", exampleTrans:"일주일은 7일이에요." },
+  ],
+  "반대말": [
+    { word:"big", meaning:"큰 ↔ small(작은)", emoji:"🐘", example:"An elephant is big.", exampleTrans:"코끼리는 커요." },
+    { word:"fast", meaning:"빠른 ↔ slow(느린)", emoji:"🐆", example:"A cheetah is fast.", exampleTrans:"치타는 빨라요." },
+    { word:"long", meaning:"긴 ↔ short(짧은)", emoji:"📏", example:"This road is long.", exampleTrans:"이 길은 길어요." },
+    { word:"high", meaning:"높은 ↔ low(낮은)", emoji:"⛰️", example:"The mountain is high.", exampleTrans:"산이 높아요." },
+    { word:"heavy", meaning:"무거운 ↔ light(가벼운)", emoji:"🏋️", example:"The box is heavy.", exampleTrans:"상자가 무거워요." },
+    { word:"clean", meaning:"깨끗한 ↔ dirty(더러운)", emoji:"🧹", example:"Keep your room clean.", exampleTrans:"방을 깨끗하게 유지해요." },
+    { word:"new", meaning:"새로운 ↔ old(오래된)", emoji:"✨", example:"I have a new bag.", exampleTrans:"나는 새 가방이 있어요." },
+    { word:"easy", meaning:"쉬운 ↔ hard(어려운)", emoji:"😊", example:"This game is easy.", exampleTrans:"이 게임은 쉬워요." },
+    { word:"loud", meaning:"시끄러운 ↔ quiet(조용한)", emoji:"📢", example:"The music is loud.", exampleTrans:"음악이 시끄러워요." },
+    { word:"open", meaning:"열린 ↔ closed(닫힌)", emoji:"🚪", example:"The door is open.", exampleTrans:"문이 열려 있어요." },
+  ],
+};
+
+let engCurrentCat = "알파벳";
+let engFlashDeck = [], engFlashIndex = 0, engFlashKnow = 0, engFlashAgain = 0, engIsFlipped = false;
+let engQuizWords = [], engQuizIndex = 0, engQuizScore = 0, engQuizLives = 3;
+let engTimerInterval, engTimeLeft = 10, engTotalTime = 10, engAnswered = false;
+
+function engRenderCatBtns() {
+  const el = document.getElementById('eng-home-cats');
+  el.innerHTML = '';
+  Object.keys(engWordSets).forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'eng-cat-btn' + (cat === engCurrentCat ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', () => { engCurrentCat = cat; engRenderCatBtns(); });
+    el.appendChild(btn);
+  });
+}
+
+function engShowHome() {
+  clearInterval(engTimerInterval);
+  document.getElementById('eng-home-screen').style.display = 'block';
+  document.getElementById('eng-flash-screen').style.display = 'none';
+  document.getElementById('eng-quiz-screen').style.display = 'none';
+  document.getElementById('eng-result-screen').style.display = 'none';
+  engRenderCatBtns();
+}
+
+function engStartFlash() {
+  engFlashDeck = [...engWordSets[engCurrentCat]].sort(() => Math.random()-0.5);
+  engFlashIndex = 0; engFlashKnow = 0; engFlashAgain = 0;
+  document.getElementById('eng-home-screen').style.display = 'none';
+  document.getElementById('eng-flash-screen').style.display = 'block';
+  document.getElementById('eng-result-screen').style.display = 'none';
+  engIsFlipped = false;
+  engShowFlashCard();
+}
+
+function engShowFlashCard() {
+  if (engFlashIndex >= engFlashDeck.length) { engShowFlashComplete(); return; }
+  const w = engFlashDeck[engFlashIndex];
+  document.getElementById('eng-flash-word').textContent = w.word;
+  document.getElementById('eng-flash-meaning').textContent = w.meaning;
+  document.getElementById('eng-flash-example').textContent = '🔊 ' + w.example;
+  document.getElementById('eng-flash-example-trans').textContent = w.exampleTrans || '';
+  document.getElementById('eng-flash-emoji').textContent = w.emoji;
+  document.getElementById('eng-flash-progress').textContent = `${engFlashIndex+1} / ${engFlashDeck.length}`;
+  document.getElementById('eng-stat-know').textContent = engFlashKnow;
+  document.getElementById('eng-stat-again').textContent = engFlashAgain;
+  document.getElementById('eng-stat-left').textContent = engFlashDeck.length - engFlashIndex;
+  const card = document.getElementById('eng-flash-card');
+  card.classList.remove('flipped');
+  engIsFlipped = false;
+  document.getElementById('eng-flash-btns').classList.add('disabled');
+}
+
+function engFlipCard(e) {
+  if (e && e.target.closest('.eng-sound-btn')) return;
+  if (engIsFlipped) return;
+  document.getElementById('eng-flash-card').classList.add('flipped');
+  engIsFlipped = true;
+  document.getElementById('eng-flash-btns').classList.remove('disabled');
+  engSpeakWord();
+}
+
+function engMarkCard(know) {
+  if (know) engFlashKnow++; else engFlashAgain++;
+  engFlashIndex++;
+  engShowFlashCard();
+}
+
+function engShowFlashComplete() {
+  document.getElementById('eng-flash-screen').style.display = 'none';
+  const rs = document.getElementById('eng-result-screen');
+  rs.style.display = 'block';
+  const pct = Math.round(engFlashKnow / (engFlashKnow + engFlashAgain) * 100);
+  document.getElementById('eng-result-emoji').textContent = pct >= 80 ? '🌟' : pct >= 60 ? '😊' : '💪';
+  document.getElementById('eng-result-title').textContent = '플래시카드 완료!';
+  document.getElementById('eng-result-score').textContent = `${engFlashKnow} / ${engFlashKnow+engFlashAgain}`;
+  const g = document.getElementById('eng-result-grade');
+  if (pct >= 90) { g.textContent = '⭐ 완벽해요!'; g.className = 'eng-result-grade eng-grade-s'; }
+  else if (pct >= 70) { g.textContent = '👍 잘했어요!'; g.className = 'eng-result-grade eng-grade-a'; }
+  else if (pct >= 50) { g.textContent = '😊 조금 더!'; g.className = 'eng-result-grade eng-grade-b'; }
+  else { g.textContent = '💪 다시 도전!'; g.className = 'eng-result-grade eng-grade-c'; }
+}
+
+function engSpeakWord() {
+  let word = engFlashDeck[engFlashIndex]?.word;
+  if (!word) return;
+  if (engCurrentCat === '알파벳' && word.length === 2) word = word[0];
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-US'; u.rate = 0.85;
+  speechSynthesis.speak(u);
+}
+
+function engSpeakExample() {
+  const example = engFlashDeck[engFlashIndex]?.example;
+  if (!example) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(example);
+  u.lang = 'en-US'; u.rate = 0.8;
+  speechSynthesis.speak(u);
+}
+
+function engStartQuiz() {
+  engQuizWords = [...engWordSets[engCurrentCat]].sort(() => Math.random()-0.5);
+  engQuizIndex = 0; engQuizScore = 0; engQuizLives = 3;
+  document.getElementById('eng-home-screen').style.display = 'none';
+  document.getElementById('eng-result-screen').style.display = 'none';
+  document.getElementById('eng-quiz-screen').style.display = 'block';
+  engRenderLives();
+  engNextQuestion();
+}
+
+function engRenderLives() {
+  const el = document.getElementById('eng-quiz-lives');
+  el.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const h = document.createElement('span');
+    h.className = 'eng-heart' + (i >= engQuizLives ? ' lost' : '');
+    h.textContent = '❤️';
+    el.appendChild(h);
+  }
+}
+
+function engNextQuestion() {
+  if (engQuizIndex >= engQuizWords.length) { engShowQuizResult(); return; }
+  clearInterval(engTimerInterval);
+  engAnswered = false;
+  const w = engQuizWords[engQuizIndex];
+  const allWords = engWordSets[engCurrentCat];
+  const isWordToMeaning = Math.random() > 0.5;
+  document.getElementById('eng-quiz-img').textContent = engCurrentCat === '숫자' ? '' : w.emoji;
+  document.getElementById('eng-quiz-feedback').textContent = '';
+  document.getElementById('eng-quiz-feedback').className = 'eng-quiz-feedback';
+  document.getElementById('eng-quiz-score').textContent = engQuizScore;
+  if (isWordToMeaning) {
+    document.getElementById('eng-quiz-type-label').textContent = '🔤 이 단어의 뜻은?';
+    document.getElementById('eng-quiz-question').textContent = w.word;
+  } else {
+    document.getElementById('eng-quiz-type-label').textContent = '💬 이 뜻에 맞는 단어는?';
+    document.getElementById('eng-quiz-question').textContent = w.meaning;
+  }
+  const wrongs = allWords.filter(x => x.word !== w.word).sort(() => Math.random()-0.5).slice(0,3);
+  const opts = [...wrongs, w].sort(() => Math.random()-0.5);
+  const container = document.getElementById('eng-quiz-options');
+  container.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'eng-quiz-opt';
+    btn.textContent = isWordToMeaning ? opt.meaning : opt.word;
+    btn.addEventListener('click', () => engSelectAnswer(btn, opt.word === w.word, w, isWordToMeaning));
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); engSelectAnswer(btn, opt.word === w.word, w, isWordToMeaning); });
+    container.appendChild(btn);
+  });
+  engStartTimer();
+}
+
+function engStartTimer() {
+  engTimeLeft = engTotalTime;
+  engUpdateTimerBar();
+  engTimerInterval = setInterval(() => {
+    engTimeLeft -= 0.1;
+    engUpdateTimerBar();
+    if (engTimeLeft <= 0) { clearInterval(engTimerInterval); if (!engAnswered) engTimeUp(); }
+  }, 100);
+}
+
+function engUpdateTimerBar() {
+  const bar = document.getElementById('eng-timer-bar');
+  const pct = Math.max(0, engTimeLeft / engTotalTime * 100);
+  bar.style.width = pct + '%';
+  bar.style.background = pct > 50 ? '#ff8e72' : pct > 25 ? '#ff9f43' : '#f87171';
+}
+
+
+function engPlayCorrectSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const start = ctx.currentTime + i * 0.12;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.22);
+      osc.start(start); osc.stop(start + 0.22);
+    });
+  } catch(e) {}
+}
+function engSelectAnswer(btn, correct, word, isWordToMeaning) {
+  if (engAnswered) return;
+  engAnswered = true;
+  clearInterval(engTimerInterval);
+  const opts = document.querySelectorAll('.eng-quiz-opt');
+  opts.forEach(b => { b.disabled = true; });
+  const fb = document.getElementById('eng-quiz-feedback');
+  if (correct) {
+    btn.classList.add('correct', 'eng-pop');
+    engQuizScore++;
+    engPlayCorrectSound();
+    fb.textContent = '🎉 정답이에요!';
+    fb.className = 'eng-quiz-feedback eng-feedback-correct';
+  } else {
+    btn.classList.add('wrong', 'eng-shake');
+    engQuizLives--;
+    engRenderLives();
+    opts.forEach(b => {
+      if ((isWordToMeaning && b.textContent === word.meaning) || (!isWordToMeaning && b.textContent === word.word))
+        b.classList.add('correct');
+    });
+    fb.textContent = `😅 정답은 "${isWordToMeaning ? word.meaning : word.word}" 이에요`;
+    fb.className = 'eng-quiz-feedback eng-feedback-wrong';
+    engSpeak(word.word);
+  }
+  if (engQuizLives <= 0) { setTimeout(engShowQuizResult, 1200); return; }
+  engQuizIndex++;
+  setTimeout(engNextQuestion, 1400);
+}
+
+function engTimeUp() {
+  engAnswered = true;
+  engQuizLives--;
+  engRenderLives();
+  document.getElementById('eng-quiz-feedback').textContent = '⏰ 시간 초과!';
+  document.getElementById('eng-quiz-feedback').className = 'eng-quiz-feedback eng-feedback-wrong';
+  document.querySelectorAll('.eng-quiz-opt').forEach(b => b.disabled = true);
+  if (engQuizLives <= 0) { setTimeout(engShowQuizResult, 1200); return; }
+  engQuizIndex++;
+  setTimeout(engNextQuestion, 1400);
+}
+
+function engSpeak(word) {
+  if (engCurrentCat === '알파벳' && word.length === 2) word = word[0];
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-US'; u.rate = 0.85;
+  speechSynthesis.speak(u);
+}
+
+function engShowQuizResult() {
+  clearInterval(engTimerInterval);
+  document.getElementById('eng-quiz-screen').style.display = 'none';
+  document.getElementById('eng-result-screen').style.display = 'block';
+  const pct = Math.round(engQuizScore / engQuizWords.length * 100);
+  document.getElementById('eng-result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🌟' : pct >= 40 ? '😊' : '💪';
+  document.getElementById('eng-result-title').textContent = '골든벨 결과!';
+  document.getElementById('eng-result-score').textContent = `${engQuizScore}점`;
+  const g = document.getElementById('eng-result-grade');
+  if (pct >= 90) { g.textContent = '🥇 영단어 왕!'; g.className = 'eng-result-grade eng-grade-s'; }
+  else if (pct >= 70) { g.textContent = '🥈 훌륭해요!'; g.className = 'eng-result-grade eng-grade-a'; }
+  else if (pct >= 50) { g.textContent = '🥉 잘했어요!'; g.className = 'eng-result-grade eng-grade-b'; }
+  else { g.textContent = '💪 더 연습해요!'; g.className = 'eng-result-grade eng-grade-c'; }
+}
 
 </script>
 
