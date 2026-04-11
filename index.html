@@ -287,6 +287,7 @@
     .eng-flash-face.back { transform: rotateY(180deg); background: #fff9f0; }
     .eng-flash-word { font-family: 'Baloo 2', cursive; font-size: 4rem; font-weight: 800; color: #ff8e72; }
     .eng-flash-hint { font-size: 1.3rem; color: #999; margin-top: 10px; }
+    .eng-flash-phonetic { display: block; font-size: 1.25rem; color: #a78bfa; font-weight: 700; margin-top: 8px; min-height: 1.6rem; letter-spacing: 0.05em; }
     .eng-flash-meaning { font-size: 2.4rem; font-weight: 700; color: #4a4a4a; text-align: center; }
     .eng-flash-example {
       font-size: 1.5rem; color: #888; margin-top: 10px; text-align: center; font-style: italic;
@@ -669,6 +670,7 @@
                 <span class="eng-flash-word" id="eng-flash-word"></span>
                 <span class="eng-flash-hint">카드를 탭하면 뜻이 나와요</span>
                 <button class="eng-sound-btn" onclick="event.stopPropagation(); engSpeakWord()">🔊 발음 듣기</button>
+                <span class="eng-flash-phonetic" id="eng-flash-phonetic"></span>
               </div>
               <div class="eng-flash-face back" id="eng-flash-back">
                 <span class="eng-flash-emoji" id="eng-flash-emoji"></span>
@@ -816,7 +818,8 @@
 
         <div id="teacherEngWordCard" class="card" style="border-color:#7c4dff;">
             <h4 style="margin:0 0 6px 0; color:#5e35b1; font-size:18px;">📝 영단어 커스텀 단어장</h4>
-            <p style="font-size:13px; color:#888; margin:0 0 14px 0;">교사가 직접 단어장을 만들면 학생 영단어 드릴에 바로 반영됩니다.</p>
+            <p style="font-size:13px; color:#888; margin:0 0 8px 0;">교사가 직접 단어장을 만들면 학생 영단어 드릴에 바로 반영됩니다.</p>
+            <button onclick="engUpdateAllPhonetics()" style="background:#ede7f6; color:#5e35b1; border:2px solid #b39ddb; border-radius:10px; padding:7px 14px; font-size:13px; font-weight:bold; cursor:pointer; margin-bottom:14px; width:100%;">🔄 기존 단어 발음 표기 일괄 업데이트</button>
 
             <!-- 카테고리 목록 -->
             <div id="engWordCatList" style="margin-bottom:14px;"></div>
@@ -5150,7 +5153,8 @@ function engMergeWordSets() {
     if (!catData || !catData.name) return;
     const words = catData.words ? Object.entries(catData.words).map(([wk, w]) => ({
       _key: wk, word: w.word || '', meaning: w.meaning || '',
-      emoji: w.emoji || '📝', example: w.example || '', exampleTrans: w.exampleTrans || ''
+      emoji: w.emoji || '📝', example: w.example || '', exampleTrans: w.exampleTrans || '',
+      phonetic: w.phonetic || ''
     })) : [];
     if (words.length > 0) {
       engWordSets[catData.name] = words;
@@ -5238,16 +5242,139 @@ function renderEngWordItemList(catKey) {
     return;
   }
   const entries = Object.entries(cat.words);
-  el.innerHTML = entries.map(([wk, w]) =>
-    `<div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:white; border-radius:12px; margin-bottom:7px; border:2px solid #e8d5fb;">
-      <span style="font-size:20px; flex-shrink:0;">${esc(w.emoji || '📝')}</span>
-      <div style="flex:1; min-width:0;">
-        <div style="font-size:14px; font-weight:bold; color:#5e35b1;">${esc(w.word)} <span style="color:#888; font-weight:normal; font-size:13px;">= ${esc(w.meaning)}</span></div>
-        ${w.example ? `<div style="font-size:12px; color:#aaa; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(w.example)}</div>` : ''}
+  el.innerHTML = entries.map(([wk, w]) => {
+    const phonetic = w.phonetic || engPhoneticDict[w.word] || engPhoneticDict[(w.word||'').toLowerCase()] || '';
+    const phoneticHTML = phonetic ? `[${esc(phonetic)}]` : '<span style="color:#ccc;">발음 표기 없음</span>';
+    return `<div id="word-item-${wk}" style="background:white; border-radius:12px; margin-bottom:7px; border:2px solid #e8d5fb; overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:10px 12px;">
+        <span style="font-size:20px; flex-shrink:0;">${esc(w.emoji || '📝')}</span>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:14px; font-weight:bold; color:#5e35b1;">${esc(w.word)} <span style="color:#888; font-weight:normal; font-size:13px;">= ${esc(w.meaning)}</span></div>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
+            <span style="font-size:12px; color:#a78bfa; font-weight:bold;">${phoneticHTML}</span>
+            <button onclick="engToggleEditForm('${wk}')" style="background:#f3e8ff; color:#7c3aed; border:1px solid #c4b5fd; border-radius:7px; padding:2px 8px; font-size:11px; cursor:pointer;">✏️ 수정</button>
+          </div>
+          ${w.example ? `<div style="font-size:12px; color:#aaa; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(w.example)}</div>` : ''}
+        </div>
+        <button class="btn-del" style="flex-shrink:0; font-size:12px;" onclick="engDeleteWord('${catKey}','${wk}')">🗑️</button>
       </div>
-      <button class="btn-del" style="flex-shrink:0; font-size:12px;" onclick="engDeleteWord('${catKey}','${wk}')">🗑️</button>
-    </div>`
-  ).join('');
+      <div id="edit-form-${wk}" style="display:none; background:#faf5ff; border-top:2px dashed #e8d5fb; padding:12px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+          <div>
+            <div style="font-size:11px; color:#9c7cd4; font-weight:bold; margin-bottom:3px;">영어 단어</div>
+            <input id="ef-word-${wk}" value="${esc(w.word)}" style="width:100%; box-sizing:border-box; border:2px solid #d8b4fe; border-radius:8px; padding:6px 8px; font-size:13px; font-weight:bold; color:#5e35b1;">
+          </div>
+          <div>
+            <div style="font-size:11px; color:#9c7cd4; font-weight:bold; margin-bottom:3px;">뜻</div>
+            <input id="ef-meaning-${wk}" value="${esc(w.meaning)}" style="width:100%; box-sizing:border-box; border:2px solid #d8b4fe; border-radius:8px; padding:6px 8px; font-size:13px;">
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+          <div>
+            <div style="font-size:11px; color:#9c7cd4; font-weight:bold; margin-bottom:3px;">발음 표기</div>
+            <input id="ef-phonetic-${wk}" value="${esc(phonetic)}" placeholder="예: 굿바이" style="width:100%; box-sizing:border-box; border:2px solid #d8b4fe; border-radius:8px; padding:6px 8px; font-size:13px; color:#a78bfa;">
+          </div>
+          <div>
+            <div style="font-size:11px; color:#9c7cd4; font-weight:bold; margin-bottom:3px;">이모지</div>
+            <input id="ef-emoji-${wk}" value="${esc(w.emoji || '📝')}" style="width:100%; box-sizing:border-box; border:2px solid #d8b4fe; border-radius:8px; padding:6px 8px; font-size:13px; text-align:center;">
+          </div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="font-size:11px; color:#9c7cd4; font-weight:bold; margin-bottom:3px;">예문 (영어)</div>
+          <input id="ef-example-${wk}" value="${esc(w.example || '')}" placeholder="예: Open the door." style="width:100%; box-sizing:border-box; border:2px solid #d8b4fe; border-radius:8px; padding:6px 8px; font-size:13px;">
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:11px; color:#9c7cd4; font-weight:bold; margin-bottom:3px;">예문 해석 (한국어)</div>
+          <input id="ef-exampleTrans-${wk}" value="${esc(w.exampleTrans || '')}" placeholder="예: 문을 여세요." style="width:100%; box-sizing:border-box; border:2px solid #d8b4fe; border-radius:8px; padding:6px 8px; font-size:13px;">
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button onclick="engSaveWord('${catKey}','${wk}')" style="flex:1; background:#7c3aed; color:white; border:none; border-radius:10px; padding:9px; font-size:14px; font-weight:bold; cursor:pointer;">💾 저장</button>
+          <button onclick="engToggleEditForm('${wk}')" style="background:#eee; color:#888; border:none; border-radius:10px; padding:9px 14px; font-size:14px; cursor:pointer;">취소</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function engToggleEditForm(wordKey) {
+  const form = document.getElementById('edit-form-' + wordKey);
+  if (!form) return;
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+async function engSaveWord(catKey, wordKey) {
+  const word         = (document.getElementById('ef-word-'         + wordKey)?.value || '').trim();
+  const meaning      = (document.getElementById('ef-meaning-'      + wordKey)?.value || '').trim();
+  const phonetic     = (document.getElementById('ef-phonetic-'     + wordKey)?.value || '').trim();
+  const emoji        = (document.getElementById('ef-emoji-'        + wordKey)?.value || '').trim() || '📝';
+  const example      = (document.getElementById('ef-example-'      + wordKey)?.value || '').trim();
+  const exampleTrans = (document.getElementById('ef-exampleTrans-' + wordKey)?.value || '').trim();
+  if (!word || !meaning) return alert('영어 단어와 뜻은 필수로 입력해주세요.');
+  const saveBtn = document.querySelector('#edit-form-' + wordKey + ' button');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '저장 중...'; }
+  await schoolRef('engCustomSets/' + catKey + '/words/' + wordKey).update({ word, meaning, phonetic, emoji, example, exampleTrans });
+  if (engCustomSets[catKey]?.words?.[wordKey]) {
+    Object.assign(engCustomSets[catKey].words[wordKey], { word, meaning, phonetic, emoji, example, exampleTrans });
+  }
+  [engFlashDeck, ...Object.values(engWordSets).filter(v => Array.isArray(v))].forEach(arr => {
+    arr.forEach(card => { if (card._key === wordKey) Object.assign(card, { word, meaning, phonetic, emoji, example, exampleTrans }); });
+  });
+  renderEngWordItemList(catKey);
+}
+// ✅ 기존 저장 단어 발음 표기 일괄 업데이트
+async function engUpdateAllPhonetics() {
+  if (!currentTeacher || currentTeacher === 'super') return alert('교사로 로그인한 후 사용할 수 있어요.');
+  if (!confirm('발음 표기가 없는 단어에 자동으로 발음을 생성합니다.\n단어 수에 따라 시간이 걸릴 수 있어요. 진행할까요?')) return;
+
+  let total = 0, done = 0;
+  // phonetic 없는 단어 목록 수집
+  const tasks = [];
+  for (const [catKey, catData] of Object.entries(engCustomSets)) {
+    if (!catData.words) continue;
+    for (const [wordKey, wordData] of Object.entries(catData.words)) {
+      if (!wordData.phonetic) {
+        tasks.push({ catKey, wordKey, word: wordData.word });
+        total++;
+      }
+    }
+  }
+  if (total === 0) return alert('모든 단어에 이미 발음 표기가 있어요! ✅');
+
+  const btn = document.querySelector('button[onclick="engUpdateAllPhonetics()"]');
+  for (const task of tasks) {
+    if (btn) btn.textContent = `🔄 생성 중... (${done}/${total})`;
+    const phonetic = await getPhoneticFromClaude(task.word);
+    if (phonetic) {
+      await schoolRef(`engCustomSets/${task.catKey}/words/${task.wordKey}/phonetic`).set(phonetic);
+    }
+    done++;
+  }
+  if (btn) btn.textContent = '🔄 기존 단어 발음 표기 일괄 업데이트';
+  alert(`✅ 완료! ${done}개 단어의 발음 표기를 업데이트했어요.`);
+}
+
+// ✅ Claude API로 발음 표기 생성
+async function getPhoneticFromClaude(word) {
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 100,
+        system: '영어 단어의 한국어 발음 표기만 답하세요. 예: apple → 애플, goodbye → 굿바이, beautiful → 뷰티풀. 반드시 JSON만 반환: {"phonetic":"발음표기"}',
+        messages: [{ role: 'user', content: `"${word}"의 한국어 발음 표기를 알려주세요.` }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    return parsed.phonetic || '';
+  } catch (e) {
+    console.warn('발음 표기 생성 실패:', e);
+    return '';
+  }
 }
 
 // ✅ 단어 추가
@@ -5264,8 +5391,19 @@ async function engAddWord() {
   if (meaning.length > 100) return alert('뜻은 100자 이내로 입력해주세요.');
   if (example.length > 200) return alert('예문은 200자 이내로 입력해주세요.');
   if (exampleTrans.length > 200) return alert('예문 해석은 200자 이내로 입력해주세요.');
+
+  // 발음 표기 생성 (저장 전)
+  const addBtn = document.querySelector('#teacherEngWordCard button[onclick="engAddWord()"]') ||
+                 document.querySelector('button[onclick="engAddWord()"]');
+  const origText = addBtn ? addBtn.textContent : '';
+  if (addBtn) { addBtn.disabled = true; addBtn.textContent = '발음 생성 중...'; }
+
+  const phonetic = await getPhoneticFromClaude(word);
+
+  if (addBtn) { addBtn.disabled = false; addBtn.textContent = origText; }
+
   const newRef = schoolRef(`engCustomSets/${_engCurrentCat}/words`).push();
-  await newRef.set({ word, meaning, emoji, example, exampleTrans });
+  await newRef.set({ word, meaning, emoji, example, exampleTrans, phonetic });
   ['newEngWord','newEngMeaning','newEngExample','newEngExampleTrans','newEngEmoji'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
@@ -5308,6 +5446,10 @@ function engShowFlashCard() {
   card.classList.remove('flipped');
   engIsFlipped = false;
   document.getElementById('eng-flash-btns').classList.add('disabled');
+  // 한글 발음 초기화 후 미리 로드
+  const phoneticEl = document.getElementById('eng-flash-phonetic');
+  if (phoneticEl) phoneticEl.textContent = '';
+  engShowPhonetic(w.word);
 }
 
 function engFlipCard(e) {
@@ -5359,9 +5501,173 @@ function engShowFlashComplete() {
   else { g.textContent = '💪 다시 도전!'; g.className = 'eng-result-grade eng-grade-c'; }
 }
 
+// ── 한글 발음 표기 사전 ──────────────────────────────────────────
+const engPhoneticDict = {
+  // 동물
+  "cat":"캣","dog":"독","bird":"버드","fish":"피쉬","rabbit":"래빗","bear":"베어","tiger":"타이거","horse":"호스","frog":"프로그","duck":"덕",
+  // 음식
+  "soup":"수프","sandwich":"샌드위치","bread":"브레드","cake":"케이크","milk":"밀크","pizza":"피자","rice":"라이스","egg":"에그","candy":"캔디","juice":"주스",
+  // 색깔
+  "red":"레드","blue":"블루","yellow":"옐로우","green":"그린","white":"와이트","black":"블랙","pink":"핑크","purple":"퍼플","orange":"오렌지","brown":"브라운",
+  // 숫자
+  "one":"원","two":"투","three":"쓰리","four":"포","five":"파이브","six":"식스","seven":"세븐","eight":"에잇","nine":"나인","ten":"텐",
+  // 학교
+  "book":"북","pen":"펜","desk":"데스크","class":"클래스","friend":"프렌드","teacher":"티처","school":"스쿨","bag":"백","ruler":"룰러","eraser":"이레이저",
+  // 신체
+  "head":"헤드","eye":"아이","nose":"노즈","mouth":"마우스","ear":"이어","hand":"핸드","foot":"풋","arm":"암","leg":"레그","back":"백",
+  // 감정
+  "happy":"해피","sad":"새드","angry":"앵그리","scared":"스케어드","tired":"타이어드","excited":"익사이티드","surprised":"서프라이즈드","bored":"보어드","proud":"프라우드","shy":"샤이",
+  // 날씨
+  "sunny":"써니","cloudy":"클라우디","rainy":"레이니","windy":"윈디","snowy":"스노이","hot":"핫","cold":"콜드","warm":"웜","foggy":"포기","stormy":"스토미",
+  // 집안
+  "door":"도어","window":"윈도우","bed":"베드","chair":"체어","table":"테이블","sofa":"소파","lamp":"램프","clock":"클락","mirror":"미러","stairs":"스테어즈",
+  // 계절·자연
+  "spring":"스프링","summer":"써머","autumn":"오텀","winter":"윈터","tree":"트리","flower":"플라워","river":"리버","mountain":"마운틴","sea":"씨","sky":"스카이",
+  // 운동
+  "soccer":"사커","baseball":"베이스볼","basketball":"바스켓볼","swimming":"스위밍","running":"러닝","tennis":"테니스","skiing":"스키잉","cycling":"사이클링","jumping":"점핑","taekwondo":"태권도",
+  // 취미
+  "music":"뮤직","drawing":"드로잉","reading":"리딩","cooking":"쿠킹","dancing":"댄싱","singing":"싱잉","gaming":"게이밍","gardening":"가드닝","camping":"캠핑","crafting":"크래프팅",
+  // 옷
+  "shirt":"셔츠","pants":"팬츠","dress":"드레스","shoes":"슈즈","hat":"햇","jacket":"재킷","socks":"삭스","gloves":"글러브즈","scarf":"스카프","boots":"부츠",
+  // 교통
+  "car":"카","bus":"버스","train":"트레인","plane":"플레인","bike":"바이크","ship":"쉽","taxi":"택시","subway":"서브웨이","helicopter":"헬리콥터","rocket":"로켓",
+  // 과일·채소
+  "apple":"애플","banana":"바나나","grape":"그레이프","strawberry":"스트로베리","watermelon":"워터멜론","carrot":"캐럿","tomato":"토마토","potato":"포테이토","onion":"어니언","corn":"콘",
+  // 요일
+  "Monday":"먼데이","Tuesday":"튜즈데이","Wednesday":"웬즈데이","Thursday":"써즈데이","Friday":"프라이데이","Saturday":"새터데이","Sunday":"선데이","today":"투데이","tomorrow":"투모로우","yesterday":"예스터데이",
+  // 월
+  "January":"재뉴어리","February":"페브루어리","March":"마치","April":"에이프릴","May":"메이","June":"준","July":"줄라이","August":"오거스트","September":"셉템버","October":"옥토버","November":"노벰버","December":"디셈버",
+  // 직업
+  "doctor":"닥터","police":"폴리스","chef":"쉐프","farmer":"파머","firefighter":"파이어파이터","pilot":"파일럿","nurse":"너스","artist":"아티스트","scientist":"사이언티스트",
+  // 가족
+  "mom":"맘","dad":"대드","sister":"시스터","brother":"브라더","grandma":"그랜마","grandpa":"그랜파","baby":"베이비","family":"패밀리","uncle":"엉클","aunt":"앤트",
+  // 장소
+  "gym":"짐","hospital":"하스피털","park":"파크","library":"라이브러리","store":"스토어","restaurant":"레스토랑","airport":"에어포트","beach":"비치","museum":"뮤지엄","zoo":"주",
+  // 형용사
+  "soft":"소프트","hard":"하드","sweet":"스위트","bright":"브라이트","dark":"다크","round":"라운드","flat":"플랫","sticky":"스티키","slow":"슬로우","small":"스몰","sharp":"샤프","wet":"웻","dry":"드라이","full":"풀","empty":"엠프티","thin":"씬","light":"라이트","shiny":"샤이니","bumpy":"범피","quiet":"콰이엇",
+  // 동작
+  "wake up":"웨이크 업","wash":"워시","brush":"브러시","eat":"잇","drink":"드링크","walk":"워크","run":"런","study":"스터디","write":"라이트","read":"리드","listen":"리슨","speak":"스피크","play":"플레이","sleep":"슬립","cook":"쿡","smile":"스마일","shower":"샤워","wave":"웨이브","go":"고","come":"컴",
+  // 시간
+  "morning":"모닝","afternoon":"애프터눈","evening":"이브닝","night":"나이트","noon":"눈","now":"나우","soon":"순","early":"얼리","late":"레이트","always":"올웨이즈","usually":"유주얼리","sometimes":"썸타임즈","never":"네버","before":"비포","after":"애프터","again":"어게인","first":"퍼스트","last":"라스트","every day":"에브리 데이","week":"위크",
+  // 반의어
+  "big":"빅","fast":"패스트","long":"롱","high":"하이","heavy":"헤비","clean":"클린","new":"뉴","easy":"이지","loud":"라우드","open":"오픈",
+  // 교사 추가 빈출 단어 확장
+  "meet":"밋","greet":"그릿","love":"러브","name":"네임","home":"홈","time":"타임","life":"라이프","jump":"점프","fire":"파이어","water":"워터",
+  "kind":"카인드","brave":"브레이브","hope":"호프","free":"프리","dream":"드림","heart":"하트","star":"스타","moon":"문","sun":"선","rain":"레인",
+  "snow":"스노우","wind":"윈드","ice":"아이스","cloud":"클라우드","storm":"스톰","land":"랜드","sand":"샌드","rock":"락","hill":"힐","lake":"레이크",
+  "wolf":"울프","lion":"라이언","deer":"디어","swan":"스완","crow":"크로우","bee":"비","ant":"앤트","fly":"플라이","bug":"버그","worm":"웜",
+  "lemon":"레몬","melon":"멜론","peach":"피치","pear":"페어","plum":"플럼","mango":"망고","cherry":"체리","pineapple":"파인애플","kiwi":"키위","fig":"피그",
+  "salt":"솔트","sugar":"슈거","pepper":"페퍼","butter":"버터","cheese":"치즈","cream":"크림","flour":"플라워","oil":"오일","honey":"허니","sauce":"소스",
+  "cup":"컵","bowl":"보울","fork":"포크","knife":"나이프","spoon":"스푼","plate":"플레이트","pot":"팟","pan":"팬","jar":"자","bottle":"바틀",
+  "game":"게임","ball":"볼","toy":"토이","doll":"돌","kite":"카이트","puzzle":"퍼즐","card":"카드","team":"팀","race":"레이스","win":"윈",
+  "map":"맵","flag":"플래그","city":"시티","town":"타운","road":"로드","bridge":"브리지","farm":"팜","field":"필드","forest":"포레스트","jungle":"정글",
+  "color":"컬러","shape":"쉐이프","line":"라인","dot":"닷","box":"박스","circle":"서클","square":"스퀘어","triangle":"트라이앵글",
+  "letter":"레터","word":"워드","sentence":"센텐스","page":"페이지","story":"스토리","poem":"포엠","song":"송","dance":"댄스","craft":"크래프트",
+  "zero":"지로","hundred":"헌드레드","thousand":"싸우전드","half":"해프","double":"더블","pair":"페어","both":"보쓰","all":"올","each":"이치",
+  "good":"굿","bad":"배드","great":"그레이트","nice":"나이스","fine":"파인","cool":"쿨","fun":"펀","cute":"큐트","smart":"스마트","strong":"스트롱",
+  "tall":"톨","short":"쇼트","wide":"와이드","deep":"딥","near":"니어","far":"파","up":"업","down":"다운","left":"레프트","right":"라이트",
+  "hello":"헬로","hi":"하이","bye":"바이","yes":"예스","no":"노","please":"플리즈","thank":"쌩크","sorry":"쏘리","help":"헬프","stop":"스탑",
+  "want":"원트","need":"니드","like":"라이크","know":"노우","think":"씽크","see":"씨","look":"룩","feel":"필","make":"메이크","give":"기브",
+  "take":"테이크","bring":"브링","find":"파인드","put":"풋","keep":"킵","turn":"턴","start":"스타트","finish":"피니쉬","try":"트라이","call":"콜",
+  "pet":"펫","hen":"헨","fox":"폭스","cow":"카우","goat":"고트","lamb":"램","crab":"크랩","snail":"스네일","whale":"웨일","shark":"샤크",
+  "king":"킹","queen":"퀸","prince":"프린스","princess":"프린세스","castle":"캐슬","sword":"소드","shield":"쉴드","magic":"매직","dragon":"드래곤","knight":"나이트",
+  "phone":"폰","camera":"카메라","computer":"컴퓨터","keyboard":"키보드","screen":"스크린","internet":"인터넷","robot":"로봇","battery":"배터리","cable":"케이블","app":"앱",
+  "coat":"코트","skirt":"스커트","sneaker":"스니커","uniform":"유니폼","pajamas":"파자마","swimsuit":"수영복","tie":"타이","belt":"벨트","pocket":"포켓",
+  "math":"매쓰","science":"사이언스","history":"히스토리","english":"잉글리쉬","subject":"서브젝트","test":"테스트","quiz":"퀴즈","homework":"홈워크","grade":"그레이드",
+  "medicine":"메디신","sick":"씩","fever":"피버","cough":"코프","vitamin":"비타민","exercise":"엑서사이즈","rest":"레스트","healthy":"헬씨",
+  "circle":"서클","together":"투게더","because":"비커즈","about":"어바웃","people":"피플","world":"월드","country":"컨트리","language":"랭귀지",
+  "beautiful":"뷰티풀","wonderful":"원더풀","amazing":"어메이징","special":"스페셜","important":"임포턴트","different":"디퍼런트","together":"투게더",
+  "question":"퀘스천","answer":"앤서","problem":"프라블럼","example":"이그잼플","practice":"프랙티스","lesson":"레슨","class":"클래스","group":"그룹",
+  "picture":"픽처","video":"비디오","movie":"무비","show":"쇼","watch":"워치","listen":"리슨","enjoy":"엔조이","share":"쉐어","create":"크리에이트",
+  "understand":"언더스탠드","remember":"리멤버","forget":"포겟","learn":"런","teach":"티치","explain":"익스플레인","repeat":"리핏","practice":"프랙티스",
+  "outside":"아웃사이드","inside":"인사이드","between":"비트윈","behind":"비하인드","above":"어보브","below":"빌로우","next to":"넥스트 투",
+  "slowly":"슬로울리","quickly":"퀴클리","quietly":"콰이엇리","loudly":"라우들리","carefully":"케어풀리","kindly":"카인들리",
+  "catch":"캐치","throw":"쓰로우","kick":"킥","hit":"힛","push":"푸쉬","pull":"풀","lift":"리프트","drop":"드랍","pick":"픽","carry":"캐리",
+  "swim":"스윔","climb":"클라임","fly":"플라이","dive":"다이브","skate":"스케이트","ski":"스키","stretch":"스트레치","balance":"밸런스",
+  "pencil":"펜슬","crayon":"크레용","scissors":"시저스","glue":"글루","paper":"페이퍼","notebook":"노트북","backpack":"백팩","lunchbox":"런치박스",
+  "present":"프레전트","gift":"기프트","party":"파티","celebrate":"셀레브레이트","invite":"인바이트","balloon":"발룬","candle":"캔들","wish":"위시",
+  "travel":"트래블","vacation":"베이케이션","hotel":"호텔","ticket":"티켓","passport":"패스포트","luggage":"러기지","souvenir":"수버니어",
+  "weather":"웨더","temperature":"템퍼러처","forecast":"포캐스트","season":"시즌","sunshine":"선샤인","rainbow":"레인보우","thunder":"썬더","lightning":"라이트닝",
+  "vegetable":"베지터블","fruit":"프루트","grain":"그레인","protein":"프로틴","dairy":"데어리","snack":"스낵","dessert":"디저트","recipe":"레시피",
+  "angry":"앵그리","surprised":"서프라이즈드","nervous":"너버스","worried":"워리드","relaxed":"릴랙스트","lonely":"론리","jealous":"젤러스","grateful":"그레이트풀",
+  "afternoon":"애프터눈","evening":"이브닝","midnight":"미드나이트","sunrise":"선라이즈","sunset":"선셋","daytime":"데이타임","nighttime":"나이트타임",
+  "grade":"그레이드","elementary":"엘리멘터리","middle":"미들","high school":"하이 스쿨","college":"칼리지","university":"유니버시티","classroom":"클래스룸",
+  "cousin":"커즌","neighbor":"네이버","stranger":"스트레인저","classmate":"클래스메이트","teammate":"팀메이트",
+  "diet":"다이어트","nutrition":"뉴트리션","habit":"해빗","routine":"루틴","hygiene":"하이진",
+  "money":"머니","buy":"바이","sell":"셀","price":"프라이스","cheap":"칩","expensive":"익스펜시브","discount":"디스카운트","receipt":"리싯",
+};
+
+function engShowPhonetic(word) {
+  const el = document.getElementById('eng-flash-phonetic');
+  if (!el) return;
+  if (engCurrentCat === '알파벳') {
+    const w = engFlashDeck[engFlashIndex];
+    el.textContent = w ? '[' + w.meaning + ']' : '';
+    return;
+  }
+  // ✅ 1순위: 현재 카드에 저장된 phonetic 필드 (교사 추가 단어 or 기존 단어장 포함)
+  const currentCard = engFlashDeck[engFlashIndex];
+  if (currentCard?.phonetic) {
+    el.textContent = '[' + currentCard.phonetic + ']';
+    return;
+  }
+  // ✅ 2순위: 내장 발음 사전
+  const fromDict = engPhoneticDict[word] || engPhoneticDict[(word||'').toLowerCase()];
+  if (fromDict) { el.textContent = '[' + fromDict + ']'; return; }
+  // ✅ 3순위: 규칙 기반 변환 (폴백)
+  const phonetic = engToKorean(word || '');
+  el.textContent = phonetic ? '[' + phonetic + ']' : '';
+}
+
+// ── 영어→한글 발음 간이 변환 (사전 미등재 단어용) ────────────────
+// 영어 발음 예외가 많아 규칙 변환은 한계가 있으므로,
+// 미등재 단어는 "~" 표시로 안내하되 최대한 사전을 넓혀 커버
+function engToKorean(word) {
+  if (!word) return '';
+  const w = word.trim();
+  // 공백 구문은 단어별 분리 후 재조합
+  if (w.includes(' ')) {
+    const parts = w.split(' ').map(p => engPhoneticDict[p] || engPhoneticDict[p.toLowerCase()] || _engSyllable(p));
+    return parts.join(' ');
+  }
+  return _engSyllable(w);
+}
+
+function _engSyllable(w) {
+  let s = w.toLowerCase();
+  // 패턴 (긴 것 우선)
+  s = s.replace(/tch/g,'치').replace(/sch/g,'스크').replace(/shr/g,'쉬').replace(/thr/g,'쓰');
+  s = s.replace(/tion/g,'션').replace(/sion/g,'션').replace(/ture/g,'처').replace(/dge/g,'지');
+  s = s.replace(/ight/g,'아이트').replace(/igh/g,'아이').replace(/eigh/g,'에이');
+  s = s.replace(/ough/g,'오').replace(/augh/g,'아').replace(/ould/g,'우드');
+  s = s.replace(/oo/g,'우').replace(/ee/g,'이').replace(/ea/g,'이');
+  s = s.replace(/ai/g,'에이').replace(/ay/g,'에이').replace(/au/g,'오').replace(/aw/g,'오');
+  s = s.replace(/oi/g,'오이').replace(/oy/g,'오이');
+  s = s.replace(/ew/g,'유').replace(/ue/g,'유').replace(/ui/g,'위');
+  s = s.replace(/ou/g,'아우').replace(/ow/g,'오우');
+  s = s.replace(/oa/g,'오우').replace(/oe/g,'오');
+  s = s.replace(/ie/g,'아이').replace(/ei/g,'에이').replace(/ey/g,'에이').replace(/eu/g,'유');
+  s = s.replace(/ph/g,'프').replace(/ck/g,'크').replace(/kn/g,'').replace(/wr/g,'r').replace(/mb/g,'m').replace(/gh/g,'');
+  s = s.replace(/ch/g,'치').replace(/sh/g,'시').replace(/th/g,'쓰').replace(/wh/g,'워');
+  s = s.replace(/nk/g,'응크').replace(/ng/g,'응').replace(/qu/g,'크워');
+  s = s.replace(/ss/g,'스').replace(/ll/g,'르').replace(/rr/g,'르').replace(/tt/g,'트').replace(/pp/g,'프').replace(/ff/g,'프').replace(/dd/g,'드').replace(/nn/g,'느').replace(/mm/g,'므');
+  s = s.replace(/b/g,'브').replace(/c(?=[eiy])/g,'스').replace(/c/g,'크');
+  s = s.replace(/d/g,'드').replace(/f/g,'프').replace(/g(?=[eiy])/g,'지').replace(/g/g,'그');
+  s = s.replace(/h/g,'흐').replace(/j/g,'지').replace(/k/g,'크').replace(/l/g,'르');
+  s = s.replace(/m/g,'므').replace(/n/g,'느').replace(/p/g,'프').replace(/r/g,'르');
+  s = s.replace(/s/g,'스').replace(/t/g,'트').replace(/v/g,'브');
+  s = s.replace(/w/g,'우').replace(/x/g,'크스').replace(/y/g,'이').replace(/z/g,'즈');
+  s = s.replace(/a/g,'애').replace(/e/g,'에').replace(/i/g,'이').replace(/o/g,'오').replace(/u/g,'어');
+  s = s.replace(/흐$/,'').replace(/([가-힣])\1+/g,'$1').replace(/[a-z]/g,'');
+  return s.trim() || w;
+}
+// ─────────────────────────────────────────────────────────────────
+
 function engSpeakWord() {
-  let word = engFlashDeck[engFlashIndex]?.word;
-  if (!word) return;
+  const rawWord = engFlashDeck[engFlashIndex]?.word;
+  if (!rawWord) return;
+  engShowPhonetic(rawWord);
+  let word = rawWord;
   if (engCurrentCat === '알파벳' && word.length === 2) word = word[0];
   const u = new SpeechSynthesisUtterance(word);
   u.lang = 'en-US'; u.rate = 0.85;
