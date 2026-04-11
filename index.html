@@ -345,19 +345,19 @@
     .eng-feedback-correct { color: #16a34a; }
     .eng-feedback-wrong { color: #dc2626; }
     /* 결과 */
-    .eng-result-screen { display: none; text-align: center; padding: 20px 0; }
-    .eng-result-emoji { font-size: 8rem; margin-bottom: 10px; display: block; }
-    .eng-result-title { font-family: 'Baloo 2', cursive; font-size: 3.2rem; font-weight: 800; color: #ff8e72; margin-bottom: 6px; }
-    .eng-result-score { font-family: 'Baloo 2', cursive; font-size: 5rem; font-weight: 800; color: #ff6b4a; margin-bottom: 14px; }
-    .eng-result-grade { display: inline-block; padding: 6px 20px; border-radius: 30px; font-size: 1.7rem; font-weight: 700; margin-bottom: 18px; }
+    .eng-result-screen { display: none; text-align: center; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .eng-result-emoji { font-size: 7rem; margin-bottom: 0; display: block; }
+    .eng-result-title { font-family: 'Baloo 2', cursive; font-size: 2.8rem; font-weight: 800; color: #ff8e72; margin-bottom: 0; }
+    .eng-result-score { font-family: 'Baloo 2', cursive; font-size: 4.4rem; font-weight: 800; color: #ff6b4a; margin-bottom: 0; }
+    .eng-result-grade { display: inline-block; padding: 6px 20px; border-radius: 30px; font-size: 1.6rem; font-weight: 700; margin-bottom: 0; }
     .eng-grade-s { background: #fff9c4; color: #f57f17; border: 2px solid #ffd54f; }
     .eng-grade-a { background: #dcfce7; color: #16a34a; border: 2px solid #86efac; }
     .eng-grade-b { background: #dbeafe; color: #1d4ed8; border: 2px solid #93c5fd; }
     .eng-grade-c { background: #fee2e2; color: #dc2626; border: 2px solid #fca5a5; }
     .eng-retry-btn {
-      padding: 14px 36px; border-radius: 50px; border: none;
+      padding: 13px 24px; border-radius: 50px; border: none; width: 100%;
       background: #ff8e72; color: white; font-family: 'Baloo 2', cursive;
-      font-size: 1.9rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0px #ff6b4a;
+      font-size: 1.7rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0px #ff6b4a;
     }
     @keyframes eng-pop { 0%{transform:scale(1)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
     .eng-pop { animation: eng-pop 0.3s ease; }
@@ -422,6 +422,13 @@
             <span style="font-size:14px; font-weight:bold; color:#0077b6; min-width:72px; text-align:right;" id="mathRangeVal">1 ~ 10</span>
           </div>
 
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:22px;">
+            <span style="font-size:13px; color:#888; min-width:52px;">제한시간</span>
+            <input type="range" min="0" max="4" step="1" value="1" id="mathTimerSlider"
+              oninput="mathUpdateTimerLabel()"
+              style="flex:1;">
+            <span style="font-size:14px; font-weight:bold; color:#0077b6; min-width:52px; text-align:right;" id="mathTimerVal">5초</span>
+          </div>
           <button class="btn-main" style="background:#4cc9f0; box-shadow:0 4px 0px #0096c7;" onclick="mathStartDrill()">시작하기 →</button>
         </div>
 
@@ -431,8 +438,17 @@
             <span style="font-size:14px; font-weight:bold; color:#0077b6;" id="mathProblemNum">문제 1 / 10</span>
             <span style="font-size:13px; color:#888; background:#e3f2fd; border-radius:20px; padding:3px 12px;" id="mathScoreLabel">0 / 0</span>
           </div>
-          <div style="background:#e3f2fd; border-radius:99px; height:6px; margin-bottom:18px; overflow:hidden;">
+          <div style="background:#e3f2fd; border-radius:99px; height:6px; margin-bottom:6px; overflow:hidden;">
             <div id="mathProgressBar" style="height:6px; border-radius:99px; background:#0096c7; transition:width 0.3s; width:0%;"></div>
+          </div>
+          <div id="mathTimerWrap" style="display:none; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:12px; color:#aaa;">⏱ 남은 시간</span>
+              <span id="mathTimerLabel" style="font-size:13px; font-weight:bold; color:#0077b6;"></span>
+            </div>
+            <div style="background:#e3f2fd; border-radius:99px; height:8px; overflow:hidden;">
+              <div id="mathTimerBar" style="height:8px; border-radius:99px; background:#4cc9f0; transition:width 0.1s linear; width:100%;"></div>
+            </div>
           </div>
 
           <div style="background:#f0f9ff; border:2px solid #b3e5fc; border-radius:20px; padding:24px 16px; text-align:center; margin-bottom:12px;">
@@ -466,6 +482,7 @@
           <div style="background:linear-gradient(135deg,#e3f2fd,#b3e5fc); border-radius:20px; padding:20px; text-align:center; margin-bottom:16px;">
             <div style="font-size:52px; font-weight:bold; color:#01579b; line-height:1;" id="mathResultPct">0%</div>
             <div style="font-size:14px; color:#0288d1; margin-top:6px;" id="mathResultMsg"></div>
+              <div id="mathTimeRow" style="display:none; margin-top:10px; font-size:13px; color:#0077b6;">⏱ 소요 시간: <strong id="mathTimeDisplay"></strong></div>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px;">
               <div style="background:white; border-radius:12px; padding:10px;">
                 <div style="font-size:20px; font-weight:bold; color:#01579b;" id="mathRTotal">0</div>
@@ -574,6 +591,7 @@
           <div style="background:linear-gradient(135deg,#fff9e6,#ffe082); border-radius:20px; padding:20px; text-align:center; margin-bottom:16px;">
             <div style="font-size:52px; font-weight:bold; color:#e65100; line-height:1;" id="wjResultPct">0%</div>
             <div style="font-size:14px; color:#795548; margin-top:6px;" id="wjResultMsg"></div>
+              <div id="wjTimeRow" style="display:none; margin-top:10px; font-size:13px; color:#e65100;">⏱ 소요 시간: <strong id="wjTimeDisplay"></strong></div>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px;">
               <div style="background:white; border-radius:12px; padding:10px;">
                 <div style="font-size:20px; font-weight:bold; color:#e65100;" id="wjRTotal">0</div>
@@ -696,10 +714,13 @@
           <div class="eng-result-title" id="eng-result-title"></div>
           <div class="eng-result-score" id="eng-result-score"></div>
           <div class="eng-result-grade" id="eng-result-grade"></div>
-          <br><br>
-          <button class="eng-retry-btn" onclick="engStartQuiz()">🔄 다시 도전!</button>
-          <br><br>
-          <button class="eng-retry-btn" style="background:white; color:#4a4a4a; border:1.5px solid #ddd;" onclick="engShowHome()">🏠 홈으로</button>
+          <div id="eng-quiz-wrong-list" style="display:none; margin:14px 0; text-align:left;"></div>
+          <div style="display:flex; flex-direction:column; gap:10px; width:100%; margin-top:6px;">
+            <button class="eng-retry-btn" onclick="engRetryWrongWords()" id="eng-retry-wrong-btn" style="display:none; background:#f87171; box-shadow:0 4px 0px #dc2626;">😅 모르는 단어만 다시!</button>
+            <span id="eng-retry-wrong-br" style="display:none"></span>
+            <button class="eng-retry-btn" onclick="engStartQuiz()">🔄 다시 도전!</button>
+            <button class="eng-retry-btn" style="background:white; color:#4a4a4a; border:1.5px solid #ddd;" onclick="engShowHome()">🏠 홈으로</button>
+          </div>
         </div>
       </div>
     </div>
@@ -790,6 +811,51 @@
             <div style="display:flex; justify-content:space-around; text-align:center; font-weight:bold;">
                 <div><div style="opacity:0.9; font-size:13px;">등록 학생</div><div id="statTotalStudents" style="font-size:24px;">0명</div></div>
                 <div><div style="opacity:0.9; font-size:13px;">전체 독서량</div><div id="statTotalBooks" style="font-size:24px;">0권</div></div>
+            </div>
+        </div>
+
+        <div id="teacherEngWordCard" class="card" style="border-color:#7c4dff;">
+            <h4 style="margin:0 0 6px 0; color:#5e35b1; font-size:18px;">📝 영단어 커스텀 단어장</h4>
+            <p style="font-size:13px; color:#888; margin:0 0 14px 0;">교사가 직접 단어장을 만들면 학생 영단어 드릴에 바로 반영됩니다.</p>
+
+            <!-- 카테고리 목록 -->
+            <div id="engWordCatList" style="margin-bottom:14px;"></div>
+
+            <!-- 새 카테고리 추가 -->
+            <div style="background:#f3e5f5; border-radius:15px; padding:14px; border:2px solid #ce93d8;">
+                <div style="font-size:13px; font-weight:bold; color:#6a1b9a; margin-bottom:8px;">➕ 새 카테고리 만들기</div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="newEngCatInput" placeholder="예: 3학년 1단원, 교과서 파트1" style="margin-bottom:0; font-size:14px;">
+                    <button class="btn-main" style="width:80px; background:#7c4dff; box-shadow:0 4px 0px #4527a0; font-size:14px; white-space:nowrap;" onclick="engAddCategory()">추가</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 단어 편집 패널 (카테고리 선택 시 표시) -->
+        <div id="engWordEditPanel" class="card hidden" style="border-color:#b39ddb;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <h4 id="engWordEditTitle" style="margin:0; color:#5e35b1; font-size:17px;"></h4>
+                <button onclick="engCloseEditPanel()" style="background:#f3e5f5; border:none; border-radius:10px; padding:6px 12px; font-size:13px; cursor:pointer; color:#6a1b9a;">✕ 닫기</button>
+            </div>
+
+            <!-- 단어 목록 -->
+            <div id="engWordItemList" style="margin-bottom:14px;"></div>
+
+            <!-- 단어 추가 폼 -->
+            <div style="background:#f3e5f5; border-radius:15px; padding:14px; border:2px solid #ce93d8;">
+                <div style="font-size:13px; font-weight:bold; color:#6a1b9a; margin-bottom:10px;">➕ 단어 추가</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <input type="text" id="newEngWord" placeholder="영어 단어 (예: apple)" style="margin-bottom:0; font-size:14px;">
+                    <input type="text" id="newEngMeaning" placeholder="뜻 (예: 사과)" style="margin-bottom:0; font-size:14px;">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+                    <input type="text" id="newEngExample" placeholder="예문 (선택, 영어)" style="margin-bottom:0; font-size:14px;">
+                    <input type="text" id="newEngExampleTrans" placeholder="예문 해석 (선택)" style="margin-bottom:0; font-size:14px;">
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" id="newEngEmoji" placeholder="이모지 (선택, 예: 🍎)" style="margin-bottom:0; font-size:14px; max-width:120px;">
+                    <button class="btn-main" style="flex:1; background:#7c4dff; box-shadow:0 4px 0px #4527a0; font-size:14px;" onclick="engAddWord()">단어 추가</button>
+                </div>
             </div>
         </div>
 
@@ -1233,6 +1299,10 @@
                 "classNames_v2": {
                   ".read": true,
                   ".write": true
+                },
+                "engCustomSets": {
+                  ".read": true,
+                  ".write": true
                 }
               }
             }
@@ -1371,6 +1441,7 @@
     let selectedImagesBase64 = [];
     let editingBookId = null;
     let classNotices = {};
+    let engCustomSets = {}; // ✅ Firebase에서 로드되는 교사 커스텀 단어장
     // 🎙️ 녹음 상태 변수
     let mediaRecorder = null, recChunks = [], recTimer = null, recSeconds = 0;
     let recordedAudioBase64 = null;
@@ -1463,6 +1534,16 @@
         };
         const ncRef = schoolRef('classNotices_v2');
         ncRef.on('value', ncCb); _dbListeners.push({ ref: ncRef, cb: ncCb });
+
+        // ✅ 영단어 커스텀 단어장 리스너
+        const ecCb = snap => {
+            engCustomSets = snap.val() || {};
+            engMergeWordSets();
+            engRenderCatBtns();
+            renderEngWordEditor();
+        };
+        const ecRef = schoolRef('engCustomSets');
+        ecRef.on('value', ecCb); _dbListeners.push({ ref: ecRef, cb: ecCb });
     }
 
     function getReadingBadge(bookCount) {
@@ -1824,8 +1905,8 @@
             const stored = snap.val() || '0000';
             // ✅ [보안] 해시 비교 (평문 '0000' 초기값도 허용)
             const inputHash = await hashPassword(pw);
-            const match = (stored === inputHash) || (stored === '0000' && pw === '0000') || (stored === pw && stored === '0000');
-            if (match || stored === inputHash || (stored.length !== 64 && stored === pw)) {
+            const match = (stored === inputHash) || (stored.length !== 64 && stored === pw);
+            if (match) {
                 _recordLoginSuccess('admin');
                 currentSchoolCode = null;
                 currentTeacher = 'super';
@@ -2002,8 +2083,8 @@
         document.getElementById('teacherPwPanel').classList.toggle('hidden', isSuper);
         document.getElementById('adminPwSection').classList.toggle('hidden', !isSuper);
 
-        // 관리자는 학생/공지/학급/통계 패널 숨김
-        ['teacherNoticeCard', 'teacherClassNameCard', 'teacherStatCard', 'panelStudents', 'teacherPwPanel'].forEach(id => {
+        // 관리자는 학생/공지/학급/통계/단어장 패널 숨김
+        ['teacherNoticeCard', 'teacherClassNameCard', 'teacherStatCard', 'panelStudents', 'teacherPwPanel', 'teacherEngWordCard', 'engWordEditPanel'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.toggle('hidden', isSuper);
         });
@@ -3758,6 +3839,57 @@
     let mathSelectedOps = ['add'];
     let mathMaxNum = 10;
 
+
+    let mathTimerInterval = null;
+    let mathDrillStartTime = null;
+    let mathTimerLeft = 0;
+    let mathTimerTotal = 0;
+    let mathTimerSec = 0; // 선택된 타이머 초
+    const mathTimerOptions = [0, 5, 10, 20, 30]; // 0=없음
+    function mathUpdateTimerLabel() {
+      const v = mathTimerOptions[+document.getElementById('mathTimerSlider').value];
+      document.getElementById('mathTimerVal').textContent = v === 0 ? '없음' : v + '초';
+    }
+    function mathStartTimer() {
+      const v = mathTimerSec;
+      clearInterval(mathTimerInterval);
+      if (!v || v === 0) { document.getElementById('mathTimerWrap').style.display = 'none'; return; }
+      mathTimerTotal = v; mathTimerLeft = v;
+      document.getElementById('mathTimerWrap').style.display = 'block';
+      mathRenderTimer();
+      mathTimerInterval = setInterval(() => {
+        mathTimerLeft -= 0.1;
+        if (mathTimerLeft <= 0) {
+          mathTimerLeft = 0; mathRenderTimer();
+          clearInterval(mathTimerInterval);
+          mathTimeUp();
+        } else { mathRenderTimer(); }
+      }, 100);
+    }
+    function mathRenderTimer() {
+      const pct = Math.max(0, mathTimerLeft / mathTimerTotal * 100);
+      const bar = document.getElementById('mathTimerBar');
+      bar.style.width = pct + '%';
+      bar.style.background = pct > 50 ? '#4cc9f0' : pct > 25 ? '#ff9f43' : '#f87171';
+      document.getElementById('mathTimerLabel').textContent = Math.ceil(mathTimerLeft) + '초';
+    }
+    function mathTimeUp() {
+      if (mathAnswered) return;
+      mathAnswered = true;
+      engPlayWrongSound();
+      const inp = document.getElementById('mathAnswerInput');
+      inp.disabled = true;
+      document.getElementById('mathSubmitBtn').disabled = true;
+      const p = mathProblems[mathIdx];
+      const fb = document.getElementById('mathFeedback');
+      mathWrongItems.push({ ...p, userAns: undefined });
+      inp.style.borderColor = '#e57373'; inp.style.background = '#ffebee';
+      fb.textContent = '⏰ 시간 초과! 정답은 ' + p.ans + '이에요.'; fb.style.color = '#c62828';
+      document.getElementById('mathScoreLabel').textContent = mathCorrect + ' / ' + (mathIdx + 1);
+      const isLast = mathIdx === mathProblems.length - 1;
+      if (isLast) document.getElementById('mathFinishBtn').style.display = '';
+      else document.getElementById('mathNextBtn').style.display = '';
+    }
     function mathUpdateRangeLabel() {
         const v = +document.getElementById('mathRangeSlider').value;
         const labels  = ['1 ~ 10', '1 ~ 20', '1 ~ 99', '1 ~ 999', '1 ~ 9999'];
@@ -3816,8 +3948,10 @@
 
     function mathStartDrill(retryProblems) {
         const count = +document.getElementById('mathCountSlider').value;
+        mathTimerSec = mathTimerOptions[+document.getElementById('mathTimerSlider').value] || 0;
         mathProblems = retryProblems || Array.from({ length: count }, mathMakeProblem);
         mathIdx = 0; mathCorrect = 0; mathWrongItems = []; mathSkipItems = []; mathAnswered = false;
+        mathDrillStartTime = Date.now();
         mathShowPanel('drill');
         mathShowProblem();
     }
@@ -3840,12 +3974,14 @@
         document.getElementById('mathProgressBar').style.width = pct + '%';
         document.getElementById('mathScoreLabel').textContent = mathCorrect + ' / ' + mathIdx;
         mathAnswered = false;
+        mathStartTimer();
     }
 
     function mathCheckAnswer() {
         if (mathAnswered) return;
         const inp = document.getElementById('mathAnswerInput');
         if (inp.value.trim() === '') return;
+        clearInterval(mathTimerInterval);
         const p = mathProblems[mathIdx];
         const userAns = parseInt(inp.value);
         mathAnswered = true;
@@ -3861,6 +3997,7 @@
         } else {
             mathWrongItems.push({ ...p, userAns });
             inp.style.borderColor = '#e57373'; inp.style.background = '#ffebee'; inp.style.color = '#b71c1c';
+            engPlayWrongSound();
             fb.textContent = '아쉬워요! 정답은 ' + p.ans + '이에요.'; fb.style.color = '#c62828';
         }
         document.getElementById('mathScoreLabel').textContent = mathCorrect + ' / ' + (mathIdx + 1);
@@ -3871,6 +4008,7 @@
     function mathNextProblem() { mathIdx++; mathShowProblem(); }
 
     function mathSkipProblem() {
+        clearInterval(mathTimerInterval);
         if (mathAnswered) return;
         mathSkipItems.push(mathProblems[mathIdx]);
         mathIdx++;
@@ -3880,11 +4018,20 @@
 
     function mathShowResult() {
         mathShowPanel('result');
+        clearInterval(mathTimerInterval);
         const total = mathProblems.length;
         const pct = Math.round(mathCorrect / total * 100);
+        if (mathDrillStartTime) {
+          const sec = Math.round((Date.now() - mathDrillStartTime) / 1000);
+          const m = Math.floor(sec / 60), s = sec % 60;
+          document.getElementById('mathTimeDisplay').textContent = m > 0 ? m + '분 ' + s + '초' : s + '초';
+          document.getElementById('mathTimeRow').style.display = '';
+        }
         document.getElementById('mathResultPct').textContent = pct + '%';
         const msgs = ['한 번 더 도전해 봐요! 💪', '조금만 더 연습해요!', '잘 하고 있어요! 👍', '훌륭해요! 🌟', '완벽해요! 🏆'];
-        document.getElementById('mathResultMsg').textContent = msgs[Math.min(Math.floor(pct / 20), 4)];
+        document.getElementById('mathResultMsg').textContent = pct === 100 ? '🎊 완벽! 모두 다 맞혔어요!' : msgs[Math.min(Math.floor(pct / 20), 4)];
+        document.getElementById('mathResultPct').style.color = pct === 100 ? '#ff8e72' : '#01579b';
+        if (pct === 100) { engPlayFanfareSound(); document.getElementById('mathResultPct').textContent = '🏆 100%'; }
         document.getElementById('mathRTotal').textContent = total;
         document.getElementById('mathRCorrect').textContent = mathCorrect;
         document.getElementById('mathRWrong').textContent = mathWrongItems.length;
@@ -4466,6 +4613,7 @@
     return result;
   }
 
+  let wjDrillStartTime = null;
   function wjStartDrill(retryProblems) {
     const count = +document.getElementById('wjCountSlider').value;
     wjProblems = retryProblems || wjMakeProblems(count);
@@ -4525,6 +4673,7 @@
       wjWrongItems.push({ ...p, userAns });
       inp.className = 'wj-input wrong';
       const noFinalConsonant = ['개','m','g','번째','분 후',''].includes(p.unit || '');
+      engPlayWrongSound();
       fb.textContent = '아쉬워요! 정답은 ' + p.ans + (p.unit ? ' '+p.unit : '') + (noFinalConsonant ? '예요.' : '이에요.');
       fb.className = 'wj-feedback ng';
       fe.textContent = '📝 풀이: ' + p.explain;
@@ -4556,9 +4705,17 @@
     wjShow('wjViewResult');
     const total = wjProblems.length;
     const pct = Math.round(wjCorrect / total * 100);
+    if (wjDrillStartTime) {
+      const sec = Math.round((Date.now() - wjDrillStartTime) / 1000);
+      const m = Math.floor(sec / 60), s = sec % 60;
+      document.getElementById('wjTimeDisplay').textContent = m > 0 ? m + '분 ' + s + '초' : s + '초';
+      document.getElementById('wjTimeRow').style.display = '';
+    }
     document.getElementById('wjResultPct').textContent = pct + '%';
     const msgs = ['한 번 더 도전해 봐요!', '조금만 더 연습해요!', '잘 하고 있어요!', '훌륭해요!', '완벽해요!'];
-    document.getElementById('wjResultMsg').textContent = msgs[Math.min(Math.floor(pct / 20), 4)];
+    document.getElementById('wjResultMsg').textContent = pct === 100 ? '🎊 완벽! 모두 다 맞혔어요!' : msgs[Math.min(Math.floor(pct / 20), 4)];
+    document.getElementById('wjResultPct').style.color = pct === 100 ? '#ff8e72' : '#e65100';
+    if (pct === 100) { engPlayFanfareSound(); document.getElementById('wjResultPct').textContent = '🏆 100%'; }
     document.getElementById('wjRTotal').textContent = total;
     document.getElementById('wjRCorrect').textContent = wjCorrect;
     document.getElementById('wjRWrong').textContent = wjWrongItems.length;
@@ -4958,7 +5115,7 @@ const engWordSets = {
 
 let engCurrentCat = "알파벳";
 let engFlashDeck = [], engFlashIndex = 0, engFlashKnow = 0, engFlashAgain = 0, engIsFlipped = false;
-let engQuizWords = [], engQuizIndex = 0, engQuizScore = 0, engQuizLives = 3;
+let engQuizWords = [], engQuizIndex = 0, engQuizScore = 0, engQuizLives = 3, engQuizWrong = [];
 let engTimerInterval, engTimeLeft = 10, engTotalTime = 10, engAnswered = false;
 
 function engRenderCatBtns() {
@@ -4966,8 +5123,9 @@ function engRenderCatBtns() {
   el.innerHTML = '';
   Object.keys(engWordSets).forEach(cat => {
     const btn = document.createElement('button');
+    const isCustom = Array.isArray(engWordSets[cat]) && engWordSets[cat]._custom;
     btn.className = 'eng-cat-btn' + (cat === engCurrentCat ? ' active' : '');
-    btn.textContent = cat;
+    btn.innerHTML = isCustom ? `${esc(cat)} <span style="font-size:0.75rem; background:#ede7f6; color:#7c4dff; border-radius:6px; padding:1px 5px; margin-left:3px;">★</span>` : esc(cat);
     btn.addEventListener('click', () => { engCurrentCat = cat; engRenderCatBtns(); });
     el.appendChild(btn);
   });
@@ -4982,8 +5140,150 @@ function engShowHome() {
   engRenderCatBtns();
 }
 
+// ✅ 커스텀 단어장을 기본 단어장에 병합
+let _engCurrentCat = null; // 편집 중인 카테고리
+function engMergeWordSets() {
+  // 커스텀 카테고리를 engWordSets에 반영 (기본 세트는 유지)
+  // 기존에 추가된 커스텀 카테고리는 일단 제거 후 재삽입
+  Object.keys(engWordSets).forEach(k => { if (engWordSets[k]._custom) delete engWordSets[k]; });
+  Object.entries(engCustomSets).forEach(([catKey, catData]) => {
+    if (!catData || !catData.name) return;
+    const words = catData.words ? Object.entries(catData.words).map(([wk, w]) => ({
+      _key: wk, word: w.word || '', meaning: w.meaning || '',
+      emoji: w.emoji || '📝', example: w.example || '', exampleTrans: w.exampleTrans || ''
+    })) : [];
+    if (words.length > 0) {
+      engWordSets[catData.name] = words;
+      engWordSets[catData.name]._custom = true;
+      engWordSets[catData.name]._catKey = catKey;
+    }
+  });
+}
+
+// ✅ 교사 패널: 카테고리 목록 렌더링
+function renderEngWordEditor() {
+  const listEl = document.getElementById('engWordCatList');
+  if (!listEl) return;
+  const keys = Object.keys(engCustomSets);
+  if (keys.length === 0) {
+    listEl.innerHTML = '<p style="font-size:13px; color:#bbb; text-align:center; padding:8px 0;">아직 만든 단어장이 없어요.</p>';
+    return;
+  }
+  listEl.innerHTML = keys.map(catKey => {
+    const cat = engCustomSets[catKey];
+    if (!cat) return '';
+    const wordCount = cat.words ? Object.keys(cat.words).length : 0;
+    return `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#f3e5f5; border-radius:12px; margin-bottom:8px; border:2px solid #ce93d8;">
+      <div>
+        <span style="font-size:14px; font-weight:bold; color:#5e35b1;">${esc(cat.name)}</span>
+        <span style="font-size:12px; color:#aaa; margin-left:8px;">${wordCount}개 단어</span>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-edit" style="font-size:12px; padding:5px 10px; border-radius:8px; background:#ede7f6; color:#5e35b1;" onclick="engOpenEditPanel('${catKey}')">✏️ 편집</button>
+        <button class="btn-del" onclick="engDeleteCategory('${catKey}', '${esc(cat.name)}')">🗑️ 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ✅ 새 카테고리 추가
+async function engAddCategory() {
+  if (!currentTeacher || currentTeacher === 'super') return alert('교사로 로그인한 후 사용할 수 있어요.');
+  const name = document.getElementById('newEngCatInput').value.trim();
+  if (!name) return alert('카테고리 이름을 입력하세요.');
+  if (name.length > 30) return alert('카테고리 이름은 30자 이내로 입력해주세요.');
+  // 중복 체크
+  const exists = Object.values(engCustomSets).some(c => c.name === name) || engWordSets[name];
+  if (exists) return alert('이미 같은 이름의 단어장이 있어요.');
+  const newRef = schoolRef('engCustomSets').push();
+  await newRef.set({ name });
+  document.getElementById('newEngCatInput').value = '';
+  alert(`"${name}" 단어장이 만들어졌어요! 이제 단어를 추가해보세요.`);
+}
+
+// ✅ 카테고리 삭제
+async function engDeleteCategory(catKey, catName) {
+  if (!currentTeacher || currentTeacher === 'super') return alert('교사로 로그인한 후 사용할 수 있어요.');
+  if (!confirm(`"${catName}" 단어장을 삭제하면 단어가 모두 사라져요.\n정말 삭제할까요?`)) return;
+  await schoolRef(`engCustomSets/${catKey}`).remove();
+  if (_engCurrentCat === catKey) engCloseEditPanel();
+}
+
+// ✅ 단어 편집 패널 열기
+function engOpenEditPanel(catKey) {
+  _engCurrentCat = catKey;
+  const cat = engCustomSets[catKey];
+  if (!cat) return;
+  document.getElementById('engWordEditTitle').textContent = `✏️ "${cat.name}" 단어 편집`;
+  document.getElementById('engWordEditPanel').classList.remove('hidden');
+  renderEngWordItemList(catKey);
+  document.getElementById('engWordEditPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function engCloseEditPanel() {
+  _engCurrentCat = null;
+  document.getElementById('engWordEditPanel').classList.add('hidden');
+  ['newEngWord','newEngMeaning','newEngExample','newEngExampleTrans','newEngEmoji'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+// ✅ 단어 목록 렌더링 (편집 패널 내)
+function renderEngWordItemList(catKey) {
+  const el = document.getElementById('engWordItemList');
+  if (!el) return;
+  const cat = engCustomSets[catKey];
+  if (!cat || !cat.words) {
+    el.innerHTML = '<p style="font-size:13px; color:#bbb; text-align:center; padding:8px 0;">아직 단어가 없어요. 아래에서 추가해보세요!</p>';
+    return;
+  }
+  const entries = Object.entries(cat.words);
+  el.innerHTML = entries.map(([wk, w]) =>
+    `<div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:white; border-radius:12px; margin-bottom:7px; border:2px solid #e8d5fb;">
+      <span style="font-size:20px; flex-shrink:0;">${esc(w.emoji || '📝')}</span>
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:14px; font-weight:bold; color:#5e35b1;">${esc(w.word)} <span style="color:#888; font-weight:normal; font-size:13px;">= ${esc(w.meaning)}</span></div>
+        ${w.example ? `<div style="font-size:12px; color:#aaa; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(w.example)}</div>` : ''}
+      </div>
+      <button class="btn-del" style="flex-shrink:0; font-size:12px;" onclick="engDeleteWord('${catKey}','${wk}')">🗑️</button>
+    </div>`
+  ).join('');
+}
+
+// ✅ 단어 추가
+async function engAddWord() {
+  if (!currentTeacher || currentTeacher === 'super') return alert('교사로 로그인한 후 사용할 수 있어요.');
+  if (!_engCurrentCat) return;
+  const word = document.getElementById('newEngWord').value.trim();
+  const meaning = document.getElementById('newEngMeaning').value.trim();
+  const example = document.getElementById('newEngExample').value.trim();
+  const exampleTrans = document.getElementById('newEngExampleTrans').value.trim();
+  const emoji = document.getElementById('newEngEmoji').value.trim() || '📝';
+  if (!word || !meaning) return alert('영어 단어와 뜻은 필수로 입력해주세요.');
+  if (word.length > 100) return alert('단어는 100자 이내로 입력해주세요.');
+  if (meaning.length > 100) return alert('뜻은 100자 이내로 입력해주세요.');
+  if (example.length > 200) return alert('예문은 200자 이내로 입력해주세요.');
+  if (exampleTrans.length > 200) return alert('예문 해석은 200자 이내로 입력해주세요.');
+  const newRef = schoolRef(`engCustomSets/${_engCurrentCat}/words`).push();
+  await newRef.set({ word, meaning, emoji, example, exampleTrans });
+  ['newEngWord','newEngMeaning','newEngExample','newEngExampleTrans','newEngEmoji'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  renderEngWordItemList(_engCurrentCat);
+}
+
+// ✅ 단어 삭제
+async function engDeleteWord(catKey, wordKey) {
+  if (!currentTeacher || currentTeacher === 'super') return alert('교사로 로그인한 후 사용할 수 있어요.');
+  if (!confirm('이 단어를 삭제할까요?')) return;
+  await schoolRef(`engCustomSets/${catKey}/words/${wordKey}`).remove();
+  renderEngWordItemList(catKey);
+}
+
 function engStartFlash() {
-  engFlashDeck = [...engWordSets[engCurrentCat]].sort(() => Math.random()-0.5);
+  const words = engWordSets[engCurrentCat];
+  if (!words || words.length === 0) return alert('이 단어장에는 아직 단어가 없어요. 선생님께 단어 추가를 부탁해보세요!');
+  engFlashDeck = [...words].sort(() => Math.random()-0.5);
   engFlashIndex = 0; engFlashKnow = 0; engFlashAgain = 0;
   document.getElementById('eng-home-screen').style.display = 'none';
   document.getElementById('eng-flash-screen').style.display = 'block';
@@ -5020,13 +5320,32 @@ function engFlipCard(e) {
 }
 
 function engMarkCard(know) {
-  if (know) engFlashKnow++; else engFlashAgain++;
+  if (know) { engFlashKnow++; engFlashDeck[engFlashIndex]._again = false; }
+  else { engFlashAgain++; engFlashDeck[engFlashIndex]._again = true; }
   engFlashIndex++;
   engShowFlashCard();
 }
+function engRetryWrongWords() {
+  // 'again' 표시된 단어들만 추려서 복습
+  engFlashDeck = engFlashDeck.filter(w => w._again);
+  if (engFlashDeck.length === 0) { engStartFlash(); return; }
+  engFlashIndex = 0; engFlashKnow = 0; engFlashAgain = 0;
+  engFlashDeck.forEach(w => delete w._again);
+  document.getElementById('eng-result-screen').style.display = 'none';
+  document.getElementById('eng-flash-screen').style.display = 'block';
+  engIsFlipped = false;
+  engShowFlashCard();
+}
+
 
 function engShowFlashComplete() {
+  engPlayFanfareSound();
   document.getElementById('eng-flash-screen').style.display = 'none';
+  document.getElementById('eng-quiz-wrong-list').style.display = 'none';
+  // 모르는 단어 복습 버튼: again이 있을 때만 표시
+  const hasWrong = engFlashDeck.filter((_, i) => i < engFlashIndex).some((_, idx) => false) || engFlashAgain > 0;
+  document.getElementById('eng-retry-wrong-btn').style.display = engFlashAgain > 0 ? '' : 'none';
+  document.getElementById('eng-retry-wrong-br').style.display = engFlashAgain > 0 ? '' : 'none';
   const rs = document.getElementById('eng-result-screen');
   rs.style.display = 'block';
   const pct = Math.round(engFlashKnow / (engFlashKnow + engFlashAgain) * 100);
@@ -5059,8 +5378,10 @@ function engSpeakExample() {
 }
 
 function engStartQuiz() {
-  engQuizWords = [...engWordSets[engCurrentCat]].sort(() => Math.random()-0.5);
-  engQuizIndex = 0; engQuizScore = 0; engQuizLives = 3;
+  const words = engWordSets[engCurrentCat];
+  if (!words || words.length < 4) return alert('골든벨 퀴즈는 단어가 4개 이상 있어야 해요!');
+  engQuizWords = [...words].sort(() => Math.random()-0.5);
+  engQuizIndex = 0; engQuizScore = 0; engQuizLives = 3; engQuizWrong = [];
   document.getElementById('eng-home-screen').style.display = 'none';
   document.getElementById('eng-result-screen').style.display = 'none';
   document.getElementById('eng-quiz-screen').style.display = 'block';
@@ -5130,6 +5451,44 @@ function engUpdateTimerBar() {
 }
 
 
+
+
+function engPlayFanfareSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const start = ctx.currentTime + i * 0.13;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.28, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+      osc.start(start); osc.stop(start + 0.35);
+    });
+  } catch(e) {}
+}
+function engPlayWrongSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [349.23, 293.66]; // F4, D4 하강
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const start = ctx.currentTime + i * 0.15;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+      osc.start(start); osc.stop(start + 0.28);
+    });
+  } catch(e) {}
+}
 function engPlayCorrectSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -5163,6 +5522,8 @@ function engSelectAnswer(btn, correct, word, isWordToMeaning) {
     fb.className = 'eng-quiz-feedback eng-feedback-correct';
   } else {
     btn.classList.add('wrong', 'eng-shake');
+    engPlayWrongSound();
+    engQuizWrong.push(word);
     engQuizLives--;
     engRenderLives();
     opts.forEach(b => {
@@ -5201,6 +5562,21 @@ function engShowQuizResult() {
   clearInterval(engTimerInterval);
   document.getElementById('eng-quiz-screen').style.display = 'none';
   document.getElementById('eng-result-screen').style.display = 'block';
+  document.getElementById('eng-retry-wrong-btn').style.display = 'none';
+  document.getElementById('eng-retry-wrong-br').style.display = 'none';
+  // 오답 노트 렌더링
+  const wl = document.getElementById('eng-quiz-wrong-list');
+  if (engQuizWrong.length > 0) {
+    wl.style.display = 'block';
+    wl.innerHTML = '<div style="font-size:1.2rem; font-weight:bold; color:#f87171; margin-bottom:8px;">😅 틀린 단어 (' + engQuizWrong.length + '개)</div>' +
+      engQuizWrong.map(w => '<div style="background:#fff3f3; border:1.5px solid #fecaca; border-radius:12px; padding:8px 12px; margin-bottom:6px; font-size:1.2rem;">' +
+        '<span style="font-weight:bold; color:#dc2626;">' + w.word + '</span>' +
+        ' <span style="color:#aaa; font-size:1rem;">→</span> ' +
+        '<span style="color:#4a4a4a;">' + w.meaning + '</span>' +
+        ' <span style="font-size:1.4rem;">' + (w.emoji||'') + '</span></div>').join('');
+  } else {
+    wl.style.display = 'none';
+  }
   const pct = Math.round(engQuizScore / engQuizWords.length * 100);
   document.getElementById('eng-result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🌟' : pct >= 40 ? '😊' : '💪';
   document.getElementById('eng-result-title').textContent = '골든벨 결과!';
