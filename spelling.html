@@ -446,95 +446,23 @@
     </div>
 </div>
 
-<script>
-// ── localStorage 기반 DB 레이어 (Firebase 대체) ──────────────────
-const DB = {
-    _store: {},
-    _load(){
-        try{ const s=localStorage.getItem('맞춤법앱'); if(s) this._store=JSON.parse(s); }catch(e){}
-    },
-    _save(){
-        try{ localStorage.setItem('맞춤법앱', JSON.stringify(this._store)); }catch(e){}
-    },
-    get(path){
-        this._load();
-        const keys=path.split('/').filter(Boolean);
-        let cur=this._store;
-        for(const k of keys){ if(cur==null||typeof cur!=='object') return null; cur=cur[k]; }
-        return cur===undefined ? null : cur;
-    },
-    set(path, val){
-        this._load();
-        const keys=path.split('/').filter(Boolean);
-        let cur=this._store;
-        for(let i=0;i<keys.length-1;i++){
-            if(cur[keys[i]]==null||typeof cur[keys[i]]!=='object') cur[keys[i]]={};
-            cur=cur[keys[i]];
-        }
-        cur[keys[keys.length-1]]=val;
-        this._save();
-    },
-    push(path, val){
-        this._load();
-        const keys=path.split('/').filter(Boolean);
-        let cur=this._store;
-        for(let i=0;i<keys.length-1;i++){
-            if(cur[keys[i]]==null||typeof cur[keys[i]]!=='object') cur[keys[i]]={};
-            cur=cur[keys[i]];
-        }
-        const lastKey=keys[keys.length-1];
-        if(!cur[lastKey]||typeof cur[lastKey]!=='object') cur[lastKey]={};
-        const newKey='id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-        if(val!==undefined) cur[lastKey][newKey]=val;
-        this._save();
-        return newKey;
-    },
-    remove(path){
-        this._load();
-        const keys=path.split('/').filter(Boolean);
-        let cur=this._store;
-        for(let i=0;i<keys.length-1;i++){
-            if(cur==null||typeof cur!=='object') return;
-            cur=cur[keys[i]];
-        }
-        if(cur&&typeof cur==='object') delete cur[keys[keys.length-1]];
-        this._save();
-    },
-    keys(path){
-        const val=this.get(path);
-        if(!val||typeof val!=='object') return [];
-        return Object.keys(val);
-    }
-};
-DB._load();
+<script type="module">
+// ── Firebase 진짜 연동 ──────────────────────────────────────────
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Firebase API 호환 래퍼
-const db = { _path:'' };
-function ref(database, path){ return {path}; }
-function get(refObj){
-    const val = DB.get(refObj.path);
-    return Promise.resolve({ val(){ return val; } });
-}
-function set(refObj, val){
-    DB.set(refObj.path, val);
-    return Promise.resolve();
-}
-function push(refObj, val){
-    if(val !== undefined){
-        // 값과 함께 push — key 생성 후 저장
-        const key = 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-        DB.set(refObj.path+'/'+key, val);
-        return Promise.resolve({key, path: refObj.path+'/'+key});
-    } else {
-        // 빈 push — key만 생성, 이후 set으로 값 저장
-        const key = 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-        return Promise.resolve({key, path: refObj.path+'/'+key});
-    }
-}
-function remove(refObj){
-    DB.remove(refObj.path);
-    return Promise.resolve();
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyD6TSBChqkOAqVPDhBHJe9SCnfVWPVTBB8",
+  authDomain: "spelling-quiz-47b78.firebaseapp.com",
+  databaseURL: "https://spelling-quiz-47b78-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "spelling-quiz-47b78",
+  storageBucket: "spelling-quiz-47b78.firebasestorage.app",
+  messagingSenderId: "605492122350",
+  appId: "1:605492122350:web:0b8154a1e818b23fe019ff"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 // ── 문제 데이터 ──────────────────────────────────
 const quizData = {
@@ -1883,6 +1811,7 @@ window.deleteQuiz=async(catKey,idx)=>{
     document.getElementById('quiz-edit-sub').innerText=`문제 ${items.length}개`;
     renderQuizItems(catKey,items);
 };
+
 
 </script>
 </body>
