@@ -252,6 +252,10 @@
                 <span class="ci">🔁</span>복습<br>하기
                 <span id="review-count-badge" style="display:none;position:absolute;top:6px;right:6px;background:var(--red);color:#fff;font-size:.62rem;font-weight:800;border-radius:10px;padding:2px 6px;"></span>
             </button>
+            <!-- 스피드 게임 버튼 -->
+            <button class="category-btn" onclick="playClick();enterSpeed()" style="border-color:#ef4444;">
+                <span class="ci">⏱️</span>스피드<br>게임
+            </button>
         </div>
         <hr class="divider" style="margin-top:16px;">
     </div>
@@ -499,6 +503,79 @@
 </div>
 
 
+<!-- ⑫ 스피드 게임 화면 -->
+<div id="speed-screen" class="screen">
+    <button class="back-btn" onclick="exitSpeed()">← 돌아가기</button>
+    <h2 style="text-align:center;">⏱️ 스피드 게임</h2>
+
+    <!-- 카테고리 선택 -->
+    <div id="speed-setup" style="text-align:center;">
+        <p style="color:#64748b;margin-bottom:18px;">주제를 고르고 제한 시간 안에 최대한 많이 맞혀봐요!</p>
+        <div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-weight:800;cursor:pointer;">
+                <input type="radio" name="speed-time" value="30" style="accent-color:var(--red);"> 30초
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:800;cursor:pointer;">
+                <input type="radio" name="speed-time" value="60" checked style="accent-color:var(--red);"> 1분
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:800;cursor:pointer;">
+                <input type="radio" name="speed-time" value="90" style="accent-color:var(--red);"> 1분 30초
+            </label>
+        </div>
+        <p style="font-weight:800;color:var(--text);margin-bottom:12px;">🗂️ 주제 선택</p>
+        <div id="speed-cat-list" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:20px;"></div>
+        <button class="btn btn-red" id="speed-start-btn" onclick="startSpeed()" style="font-size:1.1rem;padding:14px 40px;" disabled>게임 시작! ⚡</button>
+    </div>
+
+    <!-- 게임 중 -->
+    <div id="speed-game" style="display:none;">
+        <!-- 타이머 바 -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-weight:800;color:var(--text);font-size:.9rem;">⚡ 스피드 게임</span>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <span style="font-weight:800;color:var(--red);font-size:1.1rem;" id="speed-timer-display">60</span>
+                <span class="badge" style="background:var(--blue);" id="speed-score-badge">0점</span>
+                <span style="font-size:.82rem;color:#64748b;" id="speed-combo-badge"></span>
+            </div>
+        </div>
+        <div style="background:#e0f2fe;border-radius:10px;height:12px;margin-bottom:18px;overflow:hidden;">
+            <div id="speed-timer-bar" style="height:100%;border-radius:10px;background:linear-gradient(90deg,var(--red),var(--orange));transition:width .1s linear;width:100%;"></div>
+        </div>
+
+        <!-- 문제 -->
+        <div style="background:#f0f9ff;border:2.5px solid #bfdbfe;border-radius:20px;padding:20px;text-align:center;margin-bottom:14px;">
+            <p style="font-size:.82rem;color:#94a3b8;margin-bottom:8px;">올바른 순서로 카드를 놓아요!</p>
+            <div id="speed-drop-zone" style="background:#fff;border:3px dashed #93c5fd;border-radius:16px;min-height:70px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:12px;margin-bottom:12px;transition:background .15s;">
+                <span style="color:#94a3b8;font-size:.88rem;">여기에 카드를 놓아요</span>
+            </div>
+            <div id="speed-word-bank" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:44px;"></div>
+        </div>
+
+        <div id="speed-result-flash" style="text-align:center;font-weight:800;font-size:1.2rem;min-height:28px;margin-bottom:10px;"></div>
+
+        <div style="display:flex;gap:10px;justify-content:center;">
+            <button class="btn btn-green" onclick="checkSpeed()">정답 확인 ✅</button>
+            <button class="btn btn-gray btn-sm" onclick="skipSpeed()">건너뛰기 ⏭</button>
+        </div>
+    </div>
+
+    <!-- 결과 -->
+    <div id="speed-result" style="display:none;text-align:center;">
+        <div style="font-size:3.5rem;margin-bottom:8px;" id="speed-result-emoji">🏆</div>
+        <h3 id="speed-result-title" style="margin-bottom:6px;"></h3>
+        <div style="background:var(--yellow-light);border:3px solid var(--yellow);border-radius:20px;padding:16px 24px;margin:14px auto;display:inline-block;">
+            <div style="font-size:2.2rem;font-weight:800;color:var(--blue-dark);" id="speed-result-score"></div>
+            <div style="font-size:.9rem;color:#64748b;margin-top:4px;" id="speed-result-detail"></div>
+        </div>
+        <div id="speed-best-wrap" style="margin:8px 0 16px;font-size:.9rem;font-weight:800;"></div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <button class="btn btn-red" onclick="replaySpeed()">다시 도전! ⚡</button>
+            <button class="btn btn-gray" onclick="exitSpeed()">돌아가기</button>
+        </div>
+    </div>
+</div>
+
+
 <script>
 // ── Firebase 연동 ──────────────────────────────────────────
 const firebaseConfig = {
@@ -737,28 +814,6 @@ const quizData = {
         {correct:["오늘도","좋은","하루였어요"],shuffled:["좋은","오늘도","하루였어요"]},
         {correct:["계획대로","실천했어요"],shuffled:["실천했어요","계획대로"]}
     ],
-    "✂️ 띄어쓰기":[
-        {correct:["나는","학교에","가요"],shuffled:["학교에","나는","가요"]},
-        {correct:["할 수","있어요"],shuffled:["있어요","할 수"]},
-        {correct:["밥을","먹을","때","손을","씻어요"],shuffled:["손을","밥을","먹을","씻어요","때"]},
-        {correct:["한","번만","더","해봐요"],shuffled:["더","한","번만","해봐요"]},
-        {correct:["이것은","내","것이에요"],shuffled:["내","이것은","것이에요"]},
-        {correct:["같이","놀 수","있을까요?"],shuffled:["있을까요?","같이","놀 수"]},
-        {correct:["안","돼요","뛰면"],shuffled:["뛰면","안","돼요"]},
-        {correct:["제","꿈은","선생님이에요"],shuffled:["선생님이에요","제","꿈은"]},
-        {correct:["더","이상","울지","마요"],shuffled:["마요","더","이상","울지"]},
-        {correct:["천천히","읽어야","잘","알 수","있어요"],shuffled:["알 수","천천히","잘","읽어야","있어요"]},
-        {correct:["오늘은","날씨가","좋네요"],shuffled:["날씨가","오늘은","좋네요"]},
-        {correct:["책상","위에","책이","있어요"],shuffled:["있어요","위에","책상","책이"]},
-        {correct:["같은","반","친구예요"],shuffled:["친구예요","반","같은"]},
-        {correct:["못","해도","괜찮아요"],shuffled:["괜찮아요","못","해도"]},
-        {correct:["아직","다","못","먹었어요"],shuffled:["못","아직","다","먹었어요"]},
-        {correct:["좀","더","크면","할게요"],shuffled:["크면","좀","더","할게요"]},
-        {correct:["어떻게","해야","할지","몰라요"],shuffled:["할지","어떻게","해야","몰라요"]},
-        {correct:["나도","같이","가고","싶어요"],shuffled:["가고","나도","싶어요","같이"]},
-        {correct:["열심히","하면","잘","될","거예요"],shuffled:["될","열심히","거예요","잘","하면"]},
-        {correct:["우리","함께라면","뭐든지","할 수","있어요"],shuffled:["할 수","우리","뭐든지","있어요","함께라면"]}
-    ],
     "🎨 미술 놀이":[
         {correct:["붓으로","그림을","그렸어요"],shuffled:["그렸어요","붓으로","그림을"]},
         {correct:["물감을","팔레트에","짰어요"],shuffled:["짰어요","물감을","팔레트에"]},
@@ -852,6 +907,14 @@ async function loadCustomQuizData(){
         }
     }
 
+
+    // Firebase에서 삭제된 기본 카테고리 제거
+    const DELETED_CATS = ["✂️ 띄어쓰기"];
+    for(const [key, val] of Object.entries(stored)){
+        if(val && DELETED_CATS.includes(val.name)){
+            await remove(ref(db,`quizData/${key}`));
+        }
+    }
     // 저장된 전체 데이터로 quizData 교체
     const snap2=await get(ref(db,'quizData'));
     const all=snap2.val()||{};
@@ -1123,16 +1186,12 @@ function renderCategories(){
     const spacingCats=Object.keys(quizData).filter(c=>c.includes(SPACING_KEYWORD));
     const normalCats =Object.keys(quizData).filter(c=>!c.includes(SPACING_KEYWORD));
 
-    // 띄어쓰기 섹션
+    // 특별 기능 섹션 항상 표시 (받아쓰기·오늘의도전·복습하기)
     const spacingSection=document.getElementById('spacing-section');
     const spacingList=document.getElementById('spacing-list');
     spacingList.innerHTML='';
-    if(spacingCats.length){
-        spacingSection.style.display='block';
-        spacingCats.forEach(cat=>spacingList.appendChild(makeCatBtn(cat)));
-    } else {
-        spacingSection.style.display='none';
-    }
+    spacingSection.style.display='block';
+    spacingCats.forEach(cat=>spacingList.appendChild(makeCatBtn(cat)));
 
     // 일반 주제 섹션
     const list=document.getElementById('category-list');list.innerHTML='';
@@ -2029,6 +2088,210 @@ window.nextReview=()=>{
     }
 };
 
+// ── ⏱️ 스피드 게임 ──────────────────────────────────────────
+let speedCat = '';
+let speedQueue = [];
+let speedIdx = 0;
+let speedScore = 0;
+let speedCombo = 0;
+let speedTimeLeft = 60;
+let speedTimerInterval = null;
+let speedTotalTime = 60;
+
+window.enterSpeed = () => {
+    showScreen('speed-screen');
+    document.getElementById('speed-setup').style.display = 'block';
+    document.getElementById('speed-game').style.display = 'none';
+    document.getElementById('speed-result').style.display = 'none';
+
+    // 카테고리 버튼 생성
+    const catList = document.getElementById('speed-cat-list');
+    catList.innerHTML = '';
+    speedCat = '';
+    document.getElementById('speed-start-btn').disabled = true;
+
+    const cats = Object.keys(quizData);
+    cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.style.cssText = 'padding:8px 16px;border-radius:20px;border:2px solid #bfdbfe;background:#fff;font-weight:800;font-family:inherit;cursor:pointer;font-size:.88rem;color:var(--text);transition:.15s;';
+        btn.innerText = cat;
+        btn.onclick = () => {
+            catList.querySelectorAll('button').forEach(b => {
+                b.style.background = '#fff'; b.style.color = 'var(--text)'; b.style.borderColor = '#bfdbfe';
+            });
+            btn.style.background = 'var(--red)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--red)';
+            speedCat = cat;
+            document.getElementById('speed-start-btn').disabled = false;
+        };
+        catList.appendChild(btn);
+    });
+};
+
+window.startSpeed = () => {
+    if (!speedCat) return;
+    const t = parseInt(document.querySelector('input[name="speed-time"]:checked').value);
+    speedTotalTime = t;
+    speedTimeLeft = t;
+    speedQueue = [...quizData[speedCat]].sort(() => Math.random() - .5);
+    speedIdx = 0; speedScore = 0; speedCombo = 0;
+
+    document.getElementById('speed-setup').style.display = 'none';
+    document.getElementById('speed-game').style.display = 'block';
+    document.getElementById('speed-result').style.display = 'none';
+
+    updateSpeedScoreUI();
+    loadSpeedQuestion();
+    startSpeedTimer();
+};
+
+function startSpeedTimer() {
+    clearInterval(speedTimerInterval);
+    updateSpeedTimerUI();
+    speedTimerInterval = setInterval(() => {
+        speedTimeLeft--;
+        updateSpeedTimerUI();
+        if (speedTimeLeft <= 0) {
+            clearInterval(speedTimerInterval);
+            endSpeed();
+        }
+    }, 1000);
+}
+
+function updateSpeedTimerUI() {
+    document.getElementById('speed-timer-display').innerText = speedTimeLeft;
+    const pct = (speedTimeLeft / speedTotalTime) * 100;
+    const bar = document.getElementById('speed-timer-bar');
+    bar.style.width = pct + '%';
+    bar.style.background = pct > 50 ? 'linear-gradient(90deg,var(--blue),var(--purple))'
+                         : pct > 25 ? 'linear-gradient(90deg,var(--orange),var(--yellow))'
+                         : 'linear-gradient(90deg,var(--red),var(--orange))';
+    document.getElementById('speed-timer-display').style.color = pct <= 25 ? 'var(--red)' : 'var(--text)';
+}
+
+function updateSpeedScoreUI() {
+    document.getElementById('speed-score-badge').innerText = speedScore + '점';
+    const combo = document.getElementById('speed-combo-badge');
+    combo.innerText = speedCombo >= 3 ? `🔥 ${speedCombo}연속!` : '';
+}
+
+function loadSpeedQuestion() {
+    if (speedIdx >= speedQueue.length) {
+        speedQueue = [...quizData[speedCat]].sort(() => Math.random() - .5);
+        speedIdx = 0;
+    }
+    const q = speedQueue[speedIdx];
+    const dz = document.getElementById('speed-drop-zone');
+    const wb = document.getElementById('speed-word-bank');
+    dz.innerHTML = '<span style="color:#94a3b8;font-size:.88rem;">여기에 카드를 놓아요</span>';
+    dz.style.background = '#fff';
+    wb.innerHTML = '';
+    document.getElementById('speed-result-flash').innerText = '';
+
+    const shuffled = [...q.shuffled].sort(() => Math.random() - .5);
+    shuffled.forEach(word => {
+        const card = document.createElement('div');
+        card.className = 'word-card';
+        card.innerText = word;
+        card.style.padding = '8px 14px'; card.style.fontSize = '1rem';
+        card.onclick = () => {
+            if (card.classList.contains('in-drop')) {
+                card.classList.remove('in-drop');
+                wb.appendChild(card);
+                if (!dz.querySelector('.word-card')) dz.innerHTML = '<span style="color:#94a3b8;font-size:.88rem;">여기에 카드를 놓아요</span>';
+            } else {
+                const ph = dz.querySelector('span'); if (ph) ph.remove();
+                card.classList.add('in-drop');
+                dz.appendChild(card);
+            }
+        };
+        wb.appendChild(card);
+    });
+}
+
+window.checkSpeed = () => {
+    const q = speedQueue[speedIdx];
+    const placed = [...document.getElementById('speed-drop-zone').querySelectorAll('.word-card')].map(c => c.innerText);
+    if (!placed.length) return;
+
+    const flash = document.getElementById('speed-result-flash');
+    const isCorrect = placed.join(' ') === q.correct.join(' ');
+
+    if (isCorrect) {
+        speedCombo++;
+        const bonus = speedCombo >= 3 ? 2 : 1;
+        speedScore += bonus;
+        flash.style.color = 'var(--green)';
+        flash.innerText = speedCombo >= 3 ? `🔥 +${bonus}점! ${speedCombo}연속 콤보!` : '🎉 정답! +1점';
+        document.getElementById('speed-drop-zone').style.background = '#dcfce7';
+        playOk();
+    } else {
+        speedCombo = 0;
+        flash.style.color = 'var(--red)';
+        flash.innerText = '❌ 틀렸어요! 다시 해봐요';
+        document.getElementById('speed-drop-zone').style.background = '#fee2e2';
+        playNo();
+        return; // 틀리면 넘어가지 않음
+    }
+
+    updateSpeedScoreUI();
+    speedIdx++;
+    setTimeout(() => loadSpeedQuestion(), 400);
+};
+
+window.skipSpeed = () => {
+    speedCombo = 0;
+    updateSpeedScoreUI();
+    speedIdx++;
+    const flash = document.getElementById('speed-result-flash');
+    flash.style.color = '#94a3b8';
+    flash.innerText = '⏭ 건너뜀';
+    setTimeout(() => loadSpeedQuestion(), 300);
+};
+
+async function endSpeed() {
+    clearInterval(speedTimerInterval);
+    document.getElementById('speed-game').style.display = 'none';
+    document.getElementById('speed-result').style.display = 'block';
+
+    // 이모지/타이틀
+    const emoji = speedScore >= 20 ? '🏆' : speedScore >= 10 ? '🌟' : speedScore >= 5 ? '👍' : '💪';
+    const title = speedScore >= 20 ? '완벽해요! 천재!' : speedScore >= 10 ? '정말 잘했어요!' : speedScore >= 5 ? '잘했어요!' : '조금 더 연습해봐요!';
+    document.getElementById('speed-result-emoji').innerText = emoji;
+    document.getElementById('speed-result-title').innerText = title;
+    document.getElementById('speed-result-score').innerText = speedScore + '점';
+    document.getElementById('speed-result-detail').innerText = `${speedTotalTime}초 동안 ${speedScore}문제 정답`;
+
+    // 최고 기록 저장/비교
+    if (currentUser && currentUser.role === 'student' && db) {
+        const bestRef = ref(db, `students/${currentUser.key}/speedBest/${speedCat.replace(/[.#$[\]/\s]/g,'_')}_${speedTotalTime}`);
+        const snap = await get(bestRef);
+        const prev = snap.val() || 0;
+        const bestWrap = document.getElementById('speed-best-wrap');
+        if (speedScore > prev) {
+            await set(bestRef, speedScore);
+            bestWrap.innerHTML = `<span style="color:var(--orange);">🎖️ 최고 기록 갱신! ${prev > 0 ? prev + '점 → ' : ''}${speedScore}점</span>`;
+        } else {
+            bestWrap.innerHTML = `<span style="color:#64748b;">🏅 최고 기록: ${prev}점</span>`;
+        }
+        // 학습 기록 저장
+        const today = new Date().toISOString().slice(0,10);
+        const hr = ref(db, `students/${currentUser.key}/history`);
+        const nr = push(hr);
+        await set(nr, {category:`⏱️ 스피드(${speedCat})`, score:speedScore, total:speedScore, date:today, ts:Date.now()});
+    }
+    playOk();
+}
+
+window.replaySpeed = () => {
+    document.getElementById('speed-result').style.display = 'none';
+    document.getElementById('speed-setup').style.display = 'block';
+};
+
+window.exitSpeed = () => {
+    clearInterval(speedTimerInterval);
+    showScreen('category-screen');
+};
+
 // ── module 스코프 함수를 window에 등록 (onclick 속성에서 호출 가능하도록) ──
 window.enterTeacherMode = enterTeacherMode;
 window.enterStudentMode = enterStudentMode;
@@ -2042,6 +2305,12 @@ window.finishGame = finishGame;
 window.checkReview = checkReview;
 window.nextReview = nextReview;
 window.loadReviewQuestion = loadReviewQuestion;
+window.enterSpeed = enterSpeed;
+window.startSpeed = startSpeed;
+window.checkSpeed = checkSpeed;
+window.skipSpeed = skipSpeed;
+window.replaySpeed = replaySpeed;
+window.exitSpeed = exitSpeed;
 
 </script>
 </body>
