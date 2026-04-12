@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>초등 맞춤법 대탐험</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- Firebase SDK (head에서 먼저 로드) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --blue:#3b82f6; --blue-dark:#1d4ed8; --yellow:#fbbf24; --yellow-light:#fef9c3;
@@ -244,6 +247,11 @@
                 <span class="ci">🏆</span>오늘의<br>도전
                 <span id="daily-done-badge" style="display:none;position:absolute;top:6px;right:6px;background:var(--green);color:#fff;font-size:.62rem;font-weight:800;border-radius:10px;padding:2px 6px;">완료!</span>
             </button>
+            <!-- 복습하기 버튼 -->
+            <button class="category-btn" onclick="playClick();enterReview()" style="border-color:#22c55e;position:relative;">
+                <span class="ci">🔁</span>복습<br>하기
+                <span id="review-count-badge" style="display:none;position:absolute;top:6px;right:6px;background:var(--red);color:#fff;font-size:.62rem;font-weight:800;border-radius:10px;padding:2px 6px;"></span>
+            </button>
         </div>
         <hr class="divider" style="margin-top:16px;">
     </div>
@@ -273,7 +281,7 @@
     <select class="input" id="question-count" style="max-width:200px;margin:0 auto;cursor:pointer;">
         <option value="5">5문제</option>
         <option value="10" selected>10문제</option>
-        <option value="20">20문제 (전부 다!)</option>
+        <option value="20">20문제 (랜덤)</option>
     </select>
 
     <!-- 게임 방식 선택 (모든 카테고리) -->
@@ -446,11 +454,53 @@
     </div>
 </div>
 
-<script type="module">
-// ── Firebase 진짜 연동 ──────────────────────────────────────────
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+<!-- ⑪ 복습하기 화면 -->
+<div id="review-screen" class="screen">
+    <button class="back-btn" onclick="showScreen('category-screen')">← 카테고리 선택</button>
+    <h2 style="text-align:center;">🔁 복습 하기</h2>
+    <p style="text-align:center;color:#64748b;font-size:.88rem;margin-bottom:16px;">틀렸던 문제를 다시 풀어보세요!</p>
 
+    <!-- 틀린 문제 없을 때 -->
+    <div id="review-empty" style="text-align:center;padding:32px 0;display:none;">
+        <div style="font-size:3rem;margin-bottom:10px;">🎉</div>
+        <h3 style="margin-bottom:8px;">틀린 문제가 없어요!</h3>
+        <p style="color:#64748b;margin-bottom:16px;">문제를 풀고 나면 틀린 것들이 여기 모여요.</p>
+        <button class="btn btn-blue" onclick="showScreen('category-screen')">돌아가기</button>
+    </div>
+
+    <!-- 복습 게임 -->
+    <div id="review-game" style="display:none;">
+        <div class="status-bar">
+            <span id="review-prog-badge" class="badge" style="background:#22c55e;">0/0</span>
+            <span id="review-score-badge" class="badge" style="background:var(--blue);">⭐ 0</span>
+            <button onclick="confirmGoHome()" style="margin-left:auto;background:none;border:1.5px solid #cbd5e1;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:800;color:#94a3b8;cursor:pointer;font-family:'Nanum Gothic',sans-serif;">🏠 처음으로</button>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" id="review-progress-bar" style="width:0%"></div></div>
+        <p style="color:#475569;font-size:.91rem;margin-bottom:10px;font-weight:700;">📌 낱말 카드를 눌러서 올바른 문장 순서로 놓아보세요!</p>
+        <div id="review-drop-zone" style="background:#f0f9ff;border:3px dashed #93c5fd;border-radius:20px;min-height:86px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:16px;margin:0 0 14px;transition:background .2s;">
+            <span style="color:#94a3b8;font-size:.88rem;">여기에 카드를 놓아요</span>
+        </div>
+        <div id="review-word-bank" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:4px 0 10px;min-height:48px;"></div>
+        <div id="review-result-msg" style="text-align:center;font-weight:800;font-size:1.05rem;margin-top:10px;min-height:24px;"></div>
+        <div id="review-correct-hint" class="correct-hint" style="display:none;"></div>
+        <div class="controls">
+            <button id="review-check-btn" class="btn btn-green" onclick="checkReview()">정답 확인 ✅</button>
+            <button id="review-next-btn" class="btn btn-blue" onclick="nextReview()" style="display:none;">다음 문제 👉</button>
+        </div>
+    </div>
+
+    <!-- 복습 완료 -->
+    <div id="review-done" style="text-align:center;padding:20px 0;display:none;">
+        <div style="font-size:3rem;margin-bottom:10px;">🌟</div>
+        <h3 id="review-done-title" style="margin-bottom:8px;"></h3>
+        <p id="review-done-msg" style="color:#64748b;margin-bottom:16px;"></p>
+        <button class="btn btn-blue" onclick="showScreen('category-screen')">돌아가기</button>
+    </div>
+</div>
+
+
+<script>
+// ── Firebase 연동 ──────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyD6TSBChqkOAqVPDhBHJe9SCnfVWPVTBB8",
   authDomain: "spelling-quiz-47b78.firebaseapp.com",
@@ -461,8 +511,31 @@ const firebaseConfig = {
   appId: "1:605492122350:web:0b8154a1e818b23fe019ff"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+let db;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+} catch(e) {
+    console.error('Firebase 초기화 실패:', e);
+}
+
+// DOM 완전 로드 후 앱 시작 보장
+document.addEventListener('DOMContentLoaded', () => {
+    if(!db) {
+        document.getElementById('login-error').innerText = '⚠️ Firebase 연결에 실패했습니다. 인터넷 연결을 확인해주세요.';
+    }
+    initApp();
+});
+
+// Firebase compat API 래퍼 (기존 코드와 호환)
+function ref(database, path){ 
+    if(!database) throw new Error('Firebase DB가 초기화되지 않았습니다');
+    return database.ref(path); 
+}
+function get(refObj){ return refObj.get(); }
+function set(refObj, val){ return refObj.set(val); }
+function push(refObj, val){ return val !== undefined ? refObj.push(val) : refObj.push(); }
+function remove(refObj){ return refObj.remove(); }
 
 // ── 문제 데이터 ──────────────────────────────────
 const quizData = {
@@ -792,10 +865,11 @@ async function loadCustomQuizData(){
 
 async function initApp(){
     showScreen('login-screen');  // 즉시 표시
+    if(!db) return; // Firebase 없으면 화면만 표시
     await loadTeacherPw();
     await loadCustomQuizData();
 }
-initApp();
+// initApp()은 DOMContentLoaded에서 호출
 let selectedCat = "";
 let gameQueue=[], currentIdx=0, sessionScore=0, sessionTotal=0;
 let mode1CorrectAnswers=[]; // ①번 정답 문장 저장 (②번 검증용)
@@ -820,6 +894,7 @@ window.showScreen=showScreen;
 
 // ── 로그인 ──
 window.switchTab=(tab,btn)=>{
+    console.log('switchTab 호출됨:', tab);
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('student-login').style.display=tab==='student'?'flex':'none';
@@ -1141,12 +1216,15 @@ window.prepareGame=()=>{
 
     if(spacingMode==='type'){
         // ①번: 새 문제 세트 생성
-        gameQueue=[...quizData[selectedCat]].sort(()=>Math.random()-.5).slice(0,count);
+        const pool=[...quizData[selectedCat]].sort(()=>Math.random()-.5);
+        gameQueue=pool.slice(0,Math.min(count,pool.length));
         mode1CorrectAnswers=[]; // 1번 정답 기록 초기화
     } else {
         // ②번: 1번에서 틀린 문제들로 재도전 (없으면 같은 세트 재사용)
-        if(!gameQueue||gameQueue.length===0)
-            gameQueue=[...quizData[selectedCat]].sort(()=>Math.random()-.5).slice(0,count);
+        if(!gameQueue||gameQueue.length===0){
+            const pool2=[...quizData[selectedCat]].sort(()=>Math.random()-.5);
+            gameQueue=pool2.slice(0,Math.min(count,pool2.length));
+        }
     }
 
     currentIdx=0;sessionScore=0;sessionTotal=gameQueue.length;
@@ -1300,6 +1378,8 @@ window.checkResult=()=>{
             ? mode1CorrectAnswers[currentIdx]
             : correctStr;
         hint.innerHTML='💡 정답: <span>'+hintStr+'</span>';
+        // 오답 저장
+        saveWrongAnswer(quiz);
     }
 
     document.getElementById('score-badge').innerText=`⭐ ${sessionScore}`;
@@ -1433,6 +1513,8 @@ window.checkDictation=()=>{
         msg.innerText='🔄 다시 한번 들어보세요!';msg.style.color='var(--red)';
         hint.style.display='block';
         hint.innerHTML='💡 정답: <span>'+correctStr+'</span>';
+        // 받아쓰기 오답 복습함에 저장
+        saveWrongAnswer(quiz);
     }
     document.getElementById('dict-score-badge').innerText=`⭐ ${dictScore}`;
     document.getElementById('dict-check-btn').style.display='none';
@@ -1813,6 +1895,140 @@ window.deleteQuiz=async(catKey,idx)=>{
     renderQuizItems(catKey,items);
 };
 
+
+
+// 오답 Firebase에 저장
+async function saveWrongAnswer(quiz){
+    if(!currentUser||currentUser.role!=='student')return;
+    const key=quiz.correct.join('|').replace(/[.#$[\]/]/g,'_');
+    const snap=await get(ref(db,`students/${currentUser.key}/wrongAnswers/${key}`));
+    const existing=snap.val()||{correct:quiz.correct,shuffled:quiz.shuffled,count:0};
+    existing.count=(existing.count||0)+1;
+    await set(ref(db,`students/${currentUser.key}/wrongAnswers/${key}`),existing);
+}
+
+// ── 복습하기 ────────────────────────────────────────────────────
+let reviewQueue=[], reviewIdx=0, reviewScore=0;
+
+window.enterReview=async()=>{
+    // Firebase에서 현재 학생의 틀린 문제 목록 로드
+    if(!currentUser||currentUser.role!=='student'){alert('학생으로 로그인해주세요!');return;}
+    showScreen('review-screen');
+    document.getElementById('review-empty').style.display='none';
+    document.getElementById('review-game').style.display='none';
+    document.getElementById('review-done').style.display='none';
+
+    const snap=await get(ref(db,`students/${currentUser.key}/wrongAnswers`));
+    const wrongData=snap.val()||{};
+    // wrongAnswers: { "카테고리명|correct joined": {correct:[...], shuffled:[...], count:N} }
+    const wrongs=Object.values(wrongData);
+
+    if(!wrongs.length){
+        document.getElementById('review-empty').style.display='block';
+        return;
+    }
+
+    // count 높은 순 정렬 후 최대 20문제
+    reviewQueue=wrongs.sort((a,b)=>(b.count||1)-(a.count||1)).slice(0,20);
+    reviewIdx=0; reviewScore=0;
+
+    // 배지 업데이트
+    const badge=document.getElementById('review-count-badge');
+    if(badge){badge.innerText=reviewQueue.length;badge.style.display='block';}
+
+    document.getElementById('review-game').style.display='block';
+    loadReviewQuestion();
+};
+
+function loadReviewQuestion(){
+    const q=reviewQueue[reviewIdx];
+    const total=reviewQueue.length;
+    document.getElementById('review-prog-badge').innerText=`${reviewIdx+1}/${total}`;
+    document.getElementById('review-score-badge').innerText=`⭐ ${reviewScore}`;
+    document.getElementById('review-progress-bar').style.width=(reviewIdx/total*100)+'%';
+    document.getElementById('review-result-msg').innerText='';
+    document.getElementById('review-correct-hint').style.display='none';
+    document.getElementById('review-check-btn').style.display='inline-block';
+    document.getElementById('review-next-btn').style.display='none';
+
+    const dz=document.getElementById('review-drop-zone');
+    const wb=document.getElementById('review-word-bank');
+    dz.innerHTML='<span style="color:#94a3b8;font-size:.88rem;">여기에 카드를 놓아요</span>';
+    wb.innerHTML='';
+    dz.style.background='#f0f9ff'; dz.style.borderColor='#93c5fd';
+
+    const shuffled=[...q.shuffled].sort(()=>Math.random()-.5);
+    shuffled.forEach(word=>{
+        const card=document.createElement('div');
+        card.className='word-card';
+        card.innerText=word;
+        card.onclick=()=>{
+            if(card.classList.contains('in-drop')){
+                card.classList.remove('in-drop');
+                wb.appendChild(card);
+                if(!dz.querySelector('.word-card')) dz.innerHTML='<span style="color:#94a3b8;font-size:.88rem;">여기에 카드를 놓아요</span>';
+            } else {
+                const ph=dz.querySelector('span');if(ph)ph.remove();
+                card.classList.add('in-drop');
+                dz.appendChild(card);
+            }
+        };
+        wb.appendChild(card);
+    });
+}
+
+window.checkReview=()=>{
+    const q=reviewQueue[reviewIdx];
+    const placed=[...document.getElementById('review-drop-zone').querySelectorAll('.word-card')].map(c=>c.innerText);
+    const msg=document.getElementById('review-result-msg');
+    const hint=document.getElementById('review-correct-hint');
+    if(!placed.length){msg.style.color='var(--orange)';msg.innerText='카드를 놓아주세요!';return;}
+
+    const isCorrect=placed.join(' ')===q.correct.join(' ');
+    document.getElementById('review-check-btn').style.display='none';
+    document.getElementById('review-next-btn').style.display='inline-block';
+
+    if(isCorrect){
+        reviewScore++;
+        msg.style.color='var(--green)'; msg.innerText='🎉 정답이에요!';
+        document.getElementById('review-drop-zone').style.background='#dcfce7';
+        playOk();
+        // 맞혔으면 wrongAnswers에서 제거
+        removeWrongAnswer(q);
+    } else {
+        msg.style.color='var(--red)'; msg.innerText='❌ 틀렸어요!';
+        document.getElementById('review-drop-zone').style.background='#fee2e2';
+        hint.style.display='block';
+        hint.innerHTML='정답: <span>'+q.correct.join(' ')+'</span>';
+        playNo();
+    }
+};
+
+async function removeWrongAnswer(q){
+    if(!currentUser||currentUser.role!=='student')return;
+    const key=q.correct.join('|').replace(/[.#$[\]/]/g,'_');
+    await remove(ref(db,`students/${currentUser.key}/wrongAnswers/${key}`));
+}
+
+window.nextReview=()=>{
+    reviewIdx++;
+    if(reviewIdx<reviewQueue.length){
+        loadReviewQuestion();
+    } else {
+        // 완료
+        document.getElementById('review-game').style.display='none';
+        document.getElementById('review-done').style.display='block';
+        const pct=Math.round(reviewScore/reviewQueue.length*100);
+        document.getElementById('review-done-title').innerText=
+            pct===100?'완벽해요! 🌟':pct>=60?'잘했어요! 👍':'조금 더 연습해봐요 💪';
+        document.getElementById('review-done-msg').innerText=
+            `${reviewQueue.length}문제 중 ${reviewScore}개 정답 (${pct}%)`;
+        // 배지 숨기기
+        const badge=document.getElementById('review-count-badge');
+        if(badge) badge.style.display='none';
+    }
+};
+
 // ── module 스코프 함수를 window에 등록 (onclick 속성에서 호출 가능하도록) ──
 window.enterTeacherMode = enterTeacherMode;
 window.enterStudentMode = enterStudentMode;
@@ -1823,6 +2039,9 @@ window.loadDictQuestion = loadDictQuestion;
 window.loadDailyQuestion = loadDailyQuestion;
 window.renderQuizItems = renderQuizItems;
 window.finishGame = finishGame;
+window.checkReview = checkReview;
+window.nextReview = nextReview;
+window.loadReviewQuestion = loadReviewQuestion;
 
 </script>
 </body>
