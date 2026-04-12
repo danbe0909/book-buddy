@@ -104,6 +104,27 @@
         <input class="input" id="s-num"  placeholder="학번 (예: 15)" type="number" min="1" max="40">
         <input class="input" id="s-pw"   placeholder="비밀번호 (설정된 경우)" type="password">
         <button class="btn btn-blue" onclick="studentLogin()">학습 시작! 🚀</button>
+        <button type="button" style="background:none;border:none;color:var(--blue);font-size:.85rem;font-weight:800;font-family:'Nanum Gothic',sans-serif;cursor:pointer;padding:2px 0;margin-top:-4px;" onclick="showStudentPwForm()">🔑 비밀번호 설정/변경</button>
+    </div>
+
+    <!-- 학생 비밀번호 설정/변경 폼 -->
+    <div id="student-pw-form" style="display:none;background:#f0f9ff;border:2px solid #bfdbfe;border-radius:16px;padding:16px;margin-top:10px;max-width:300px;margin-left:auto;margin-right:auto;">
+        <h3 style="margin-bottom:10px;font-size:.98rem;">🔑 비밀번호 설정/변경</h3>
+        <p style="font-size:.8rem;color:#64748b;margin-bottom:10px;">이름과 학번으로 본인 확인 후 비밀번호를 설정해요.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <input class="input" id="spw-name" placeholder="이름" maxlength="10">
+            <input class="input" id="spw-num"  placeholder="학번 (예: 15)" type="number" min="1" max="40">
+            <div id="spw-current-wrap" style="display:none;">
+                <input class="input" id="spw-current" type="password" placeholder="현재 비밀번호">
+            </div>
+            <input class="input" id="spw-new"     type="password" placeholder="새 비밀번호">
+            <input class="input" id="spw-confirm" type="password" placeholder="새 비밀번호 확인">
+            <div id="spw-msg" style="font-size:.83rem;font-weight:800;min-height:16px;"></div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-blue btn-sm" onclick="changeStudentPwSelf()">확인</button>
+                <button class="btn btn-gray btn-sm" onclick="hideStudentPwForm()">취소</button>
+            </div>
+        </div>
     </div>
     <div id="teacher-login" class="login-form" style="display:none;">
         <input class="input" id="t-pw" placeholder="선생님 비밀번호" type="password">
@@ -997,6 +1018,55 @@ window.teacherLogin=()=>{
 };
 
 window.logout=()=>{currentUser=null;showScreen('login-screen');};
+
+// ── 학생 본인 비밀번호 설정/변경 ──
+window.showStudentPwForm=()=>{
+    document.getElementById('student-pw-form').style.display='block';
+    document.getElementById('spw-name').value='';
+    document.getElementById('spw-num').value='';
+    document.getElementById('spw-current').value='';
+    document.getElementById('spw-new').value='';
+    document.getElementById('spw-confirm').value='';
+    document.getElementById('spw-msg').innerText='';
+    document.getElementById('spw-current-wrap').style.display='none';
+    const n=document.getElementById('s-name').value.trim();
+    const num=document.getElementById('s-num').value.trim();
+    if(n) document.getElementById('spw-name').value=n;
+    if(num) document.getElementById('spw-num').value=num;
+};
+window.hideStudentPwForm=()=>{
+    document.getElementById('student-pw-form').style.display='none';
+};
+
+window.changeStudentPwSelf=async()=>{
+    const name=document.getElementById('spw-name').value.trim();
+    const num=document.getElementById('spw-num').value.trim();
+    const curPw=document.getElementById('spw-current').value;
+    const newPw=document.getElementById('spw-new').value;
+    const cfPw=document.getElementById('spw-confirm').value;
+    const msg=document.getElementById('spw-msg');
+    if(!name||!num){msg.style.color='var(--red)';msg.innerText='이름과 학번을 입력해주세요!';return;}
+    msg.style.color='#64748b';msg.innerText='확인 중...';
+    const snap=await get(ref(db,'students'));
+    const all=snap.val()||{};
+    let found=null;
+    for(const[k,v]of Object.entries(all)){
+        if(v.name===name&&String(v.num)===String(num)){found={key:k,...v};break;}
+    }
+    if(!found){msg.style.color='var(--red)';msg.innerText='등록된 학생을 찾을 수 없어요!';return;}
+    if(found.pw){
+        document.getElementById('spw-current-wrap').style.display='block';
+        if(!curPw){msg.style.color='var(--red)';msg.innerText='현재 비밀번호를 입력해주세요!';return;}
+        if(curPw!==found.pw){msg.style.color='var(--red)';msg.innerText='현재 비밀번호가 틀렸어요!';return;}
+    }
+    if(!newPw){msg.style.color='var(--red)';msg.innerText='새 비밀번호를 입력해주세요!';return;}
+    if(newPw!==cfPw){msg.style.color='var(--red)';msg.innerText='새 비밀번호가 일치하지 않아요!';return;}
+    if(newPw.length<2){msg.style.color='var(--red)';msg.innerText='비밀번호는 2자리 이상으로 설정해주세요!';return;}
+    await set(ref(db,`students/${found.key}/pw`),newPw);
+    msg.style.color='var(--green)';
+    msg.innerText=`✅ ${name} 학생의 비밀번호가 ${found.pw?'변경':'설정'}됐어요!`;
+    setTimeout(()=>hideStudentPwForm(),1800);
+};
 
 // ── 선생님 비밀번호 변경 ──
 window.showChangePw=()=>{
