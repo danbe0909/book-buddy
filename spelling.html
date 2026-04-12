@@ -807,6 +807,7 @@ function tone(f,t,d,v=0.28){try{const c=getCtx(),o=c.createOscillator(),g=c.crea
 function playOk(){tone(523,'sine',.12);setTimeout(()=>tone(659,'sine',.12),100);setTimeout(()=>tone(784,'sine',.22),200);}
 function playNo(){tone(300,'sawtooth',.18,.2);setTimeout(()=>tone(250,'sawtooth',.18,.2),140);}
 function playClick(){tone(600,'triangle',.07,.14);}
+window.playOk=playOk; window.playNo=playNo; window.playClick=playClick;
 
 // ── 화면 전환 ──
 function showScreen(id){
@@ -1812,6 +1813,16 @@ window.deleteQuiz=async(catKey,idx)=>{
     renderQuizItems(catKey,items);
 };
 
+// ── module 스코프 함수를 window에 등록 (onclick 속성에서 호출 가능하도록) ──
+window.enterTeacherMode = enterTeacherMode;
+window.enterStudentMode = enterStudentMode;
+window.renderCategories = renderCategories;
+window.selectCat = selectCat;
+window.loadQuiz = loadQuiz;
+window.loadDictQuestion = loadDictQuestion;
+window.loadDailyQuestion = loadDailyQuestion;
+window.renderQuizItems = renderQuizItems;
+window.finishGame = finishGame;
 
 </script>
 </body>
