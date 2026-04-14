@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎈 풍선 알파벳 게임</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:'Nunito','Noto Sans KR',sans-serif;
+  background:linear-gradient(180deg,#87CEEB 0%,#B0E0FF 40%,#E8F7FF 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+#wrap{
+  max-width:640px;
+  margin:0 auto;
+  min-height:100vh;
+  padding:12px;
+  position:relative;
+}
+
+/* CLOUDS */
+.cloud{position:absolute;background:#fff;border-radius:50px;opacity:0.65;pointer-events:none;z-index:0;}
+
+/* HUD */
+.hud{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,0.85);
+  border-radius:50px;padding:8px 18px;
+  margin-bottom:8px;position:relative;z-index:10;
+  backdrop-filter:blur(4px);
+}
+.hud-mode{font-size:14px;font-weight:800;color:#1a1a2e;}
+.hud-score{font-size:15px;font-weight:800;color:#185FA5;}
+.hud-lives{display:flex;gap:3px;font-size:18px;}
+.quit-btn{background:rgba(255,255,255,0.6);border:1.5px solid rgba(0,0,0,0.12);border-radius:50px;padding:4px 12px;font-size:12px;font-weight:800;color:#6B7280;cursor:pointer;font-family:inherit;transition:background 0.15s,transform 0.1s;white-space:nowrap;}
+.quit-btn:active{background:rgba(255,100,100,0.15);transform:scale(0.95);}
+.timer-bar-wrap{position:relative;z-index:10;margin-bottom:6px;}
+.timer-bar-track{background:rgba(255,255,255,0.35);border-radius:99px;height:18px;overflow:hidden;position:relative;}
+.timer-bar-fill{height:100%;border-radius:99px;background:#4ADE80;transition:width 1s linear,background 0.4s;}
+.timer-bar-num{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.3);line-height:1;}
+.score-board-btn{display:block;width:100%;padding:11px;margin-top:8px;background:rgba(255,255,255,0.7);color:#185FA5;border:2px solid #B5D4F4;border-radius:50px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background 0.15s,transform 0.1s;}
+.score-board-btn:active{transform:scale(0.97);}
+.team-name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.team-color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.team-name-input{flex:1;padding:7px 10px;font-size:14px;font-family:inherit;border:1.5px solid #E5E7EB;border-radius:8px;background:#F9FAFB;color:#1a1a2e;font-weight:700;outline:none;}
+.team-name-input:focus{border-color:#3B82F6;}
+.sb-card{background:rgba(255,255,255,0.88);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.sb-color{width:18px;height:18px;border-radius:50%;flex-shrink:0;}
+.sb-name{font-size:15px;font-weight:800;color:#1a1a2e;flex:1;}
+.sb-score{font-size:26px;font-weight:900;}
+.sb-btn-row{display:flex;gap:6px;}
+.sb-adj{padding:5px 12px;border-radius:8px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;}
+.sb-plus{background:#EAF3DE;color:#27500A;}
+.sb-minus{background:#FCEBEB;color:#A32D2D;}
+.save-team-btn{padding:7px 16px;border-radius:50px;border:2px solid #E5E7EB;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1a1a2e;transition:transform 0.1s,border-color 0.15s;}
+.save-team-btn:active{transform:scale(0.94);}
+
+/* STREAK */
+.streak-bar{position:relative;z-index:10;text-align:center;height:24px;margin-bottom:4px;}
+.streak-txt{font-size:14px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.3);}
+
+/* QUESTION */
+.q-box{
+  position:relative;z-index:10;text-align:center;
+  margin-bottom:6px;
+  background:rgba(255,255,255,0.22);
+  border-radius:20px;padding:10px 12px;
+  backdrop-filter:blur(2px);
+}
+.q-label{font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);margin-bottom:2px;}
+.q-letter{
+  font-size:96px;font-weight:900;color:#fff;
+  line-height:1;text-shadow:0 4px 10px rgba(0,0,0,0.2);
+  letter-spacing:-2px;
+}
+.q-hint{font-size:13px;color:rgba(255,255,255,0.9);font-weight:700;margin-top:2px;}
+
+/* BALLOON FIELD */
+.balloon-field{
+  position:relative;z-index:5;
+  height:350px;
+  overflow:hidden;
+  border-radius:16px;
+}
+.balloon{position:absolute;cursor:pointer;user-select:none;transition:transform 0.08s;pointer-events:auto;touch-action:manipulation;}
+.balloon:hover{transform:scale(1.06);}
+.balloon:active{transform:scale(0.86)!important;}
+.balloon svg{display:block;}
+.balloon.pop{animation:popAnim 0.3s forwards;}
+.balloon.wrong-shake{animation:shakeBl 0.38s;}
+@keyframes popAnim{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.45)}
+  100%{transform:scale(0);opacity:0;}
+}
+@keyframes shakeBl{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-10px)}
+  60%{transform:translateX(10px)}
+}
+.pop-particle{
+  position:absolute;border-radius:50%;pointer-events:none;
+  animation:particleFly 0.5s forwards;
+}
+@keyframes particleFly{
+  0%{transform:scale(1);opacity:1}
+  100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0;}
+}
+
+
+/* FEEDBACK */
+#feedbackMsg{
+  position:absolute;top:38%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:34px;font-weight:900;
+  color:#fff;
+  text-shadow:0 3px 10px rgba(0,0,0,0.25);
+  pointer-events:none;z-index:40;
+  opacity:0;transition:opacity 0.18s;
+  text-align:center;white-space:nowrap;
+}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* MENU */
+.center-card{
+  background:rgba(255,255,255,0.93);
+  border-radius:24px;
+  padding:28px 22px 24px;
+  max-width:380px;
+  margin:32px auto 0;
+  text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.1);
+}
+.big-icon{font-size:56px;margin-bottom:8px;display:block;}
+.big-title{font-size:30px;font-weight:900;color:#1a1a2e;margin-bottom:4px;}
+.sub-txt{font-size:14px;color:#6B7280;font-weight:600;margin-bottom:20px;}
+
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.mode-btn{
+  background:#F9FAFB;border:2px solid #E5E7EB;
+  border-radius:14px;padding:16px 8px;
+  cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:6px;font-family:inherit;
+  transition:border-color 0.15s,background 0.15s,transform 0.1s;
+}
+.mode-btn:active{transform:scale(0.95);}
+.mode-btn.sel{border-color:#3B82F6;background:#EFF6FF;}
+.mode-icon{font-size:26px;}
+.mode-lbl{font-size:13px;font-weight:800;color:#1a1a2e;}
+.mode-sub{font-size:11px;color:#9CA3AF;font-weight:600;}
+
+.section-label{font-size:13px;font-weight:700;color:#9CA3AF;margin-bottom:8px;}
+.diff-row{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+.diff-btn{
+  padding:8px 20px;border:2px solid #E5E7EB;
+  border-radius:50px;font-size:13px;font-weight:800;
+  cursor:pointer;background:#F9FAFB;color:#1a1a2e;
+  font-family:inherit;transition:background 0.15s,border-color 0.15s,transform 0.1s;
+}
+.diff-btn:active{transform:scale(0.95);}
+.diff-btn.sel{background:#3B82F6;border-color:#3B82F6;color:#fff;}
+
+.start-btn{
+  display:block;width:100%;padding:15px;
+  background:linear-gradient(135deg,#3B82F6,#6366F1);
+  color:#fff;border:none;border-radius:50px;
+  font-size:18px;font-weight:900;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 4px 16px rgba(59,130,246,0.4);
+  transition:transform 0.1s,box-shadow 0.1s;
+}
+.start-btn:active{transform:scale(0.97);box-shadow:none;}
+
+/* RESULT */
+.res-icon{font-size:56px;display:block;margin-bottom:8px;}
+.res-score{font-size:52px;font-weight:900;color:#3B82F6;margin:8px 0;}
+.res-detail{font-size:14px;color:#6B7280;font-weight:600;margin-bottom:8px;}
+.res-grade{font-size:15px;font-weight:800;margin-bottom:20px;}
+.action-row{display:flex;gap:10px;justify-content:center;}
+.act-btn{
+  padding:12px 24px;border:2px solid #E5E7EB;
+  border-radius:50px;font-size:14px;font-weight:800;
+  cursor:pointer;background:#F9FAFB;color:#1a1a2e;
+  font-family:inherit;transition:transform 0.1s;
+}
+.act-btn:active{transform:scale(0.96);}
+.act-btn.prim{
+  background:linear-gradient(135deg,#3B82F6,#6366F1);
+  border-color:transparent;color:#fff;
+  box-shadow:0 3px 12px rgba(59,130,246,0.35);
+}
+
+/* PROGRESS */
+.q-progress{
+  display:flex;gap:5px;justify-content:center;
+  margin-bottom:8px;position:relative;z-index:10;
+}
+.q-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,0.4);
+  transition:background 0.3s;
+}
+.q-dot.done{background:#FFD700;}
+.q-dot.current{background:#fff;}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="cloudLayer"></div>
+
+  <!-- MENU -->
+  <div id="menuScreen" class="screen active">
+    <div class="center-card">
+      <span class="big-icon">🎈</span>
+      <div class="big-title">풍선 알파벳</div>
+      <div class="sub-txt">풍선을 터뜨려서 알파벳을 배워요!</div>
+
+      <div class="mode-row">
+        <button class="mode-btn sel" id="modeUL" onclick="selectMode('ul')">
+          <span class="mode-icon">🔡</span>
+          <span class="mode-lbl">대→소문자</span>
+          <span class="mode-sub">A 보고 a 찾기</span>
+        </button>
+        <button class="mode-btn" id="modeLU" onclick="selectMode('lu')">
+          <span class="mode-icon">🔠</span>
+          <span class="mode-lbl">소→대문자</span>
+          <span class="mode-sub">a 보고 A 찾기</span>
+        </button>
+        <button class="mode-btn" id="modeMIX" onclick="selectMode('mix')">
+          <span class="mode-icon">🎲</span>
+          <span class="mode-lbl">섞기 모드</span>
+          <span class="mode-sub">랜덤으로 번갈아</span>
+        </button>
+        <button class="mode-btn" id="modeALL" onclick="selectMode('all')">
+          <span class="mode-icon">🌈</span>
+          <span class="mode-lbl">전체 모드</span>
+          <span class="mode-sub">A~Z 모두 다!</span>
+        </button>
+      </div>
+
+      <div class="section-label">난이도 선택</div>
+      <div class="diff-row">
+        <button class="diff-btn sel" id="diffE" onclick="selectDiff('easy')">🐢 쉬움</button>
+        <button class="diff-btn"    id="diffN" onclick="selectDiff('normal')">🐇 보통</button>
+        <button class="diff-btn"    id="diffH" onclick="selectDiff('hard')">🚀 어려움</button>
+      </div>
+
+      <div class="section-label">제한 시간 (전체)</div>
+      <div class="diff-row">
+        <button class="diff-btn" id="time30"  onclick="selectTime(30)">30초</button>
+        <button class="diff-btn sel" id="time60"  onclick="selectTime(60)">1분</button>
+        <button class="diff-btn" id="time120" onclick="selectTime(120)">2분</button>
+        <button class="diff-btn" id="time0"   onclick="selectTime(0)">무제한</button>
+      </div>
+
+      <button class="start-btn" onclick="startGame()">게임 시작! 🎈</button>
+      <button class="score-board-btn" onclick="setScreen('teamSetupScreen')">📋 모둠 점수판</button>
+    </div>
+  </div>
+
+  <!-- TEAM SETUP -->
+  <div id="teamSetupScreen" class="screen">
+    <div class="center-card" style="max-width:420px;">
+      <div class="big-title" style="font-size:22px;margin-bottom:4px;">📋 모둠 점수판 설정</div>
+      <div class="sub-txt" style="margin-bottom:16px;">모둠 수와 이름을 정해요</div>
+      <div class="section-label">모둠 수</div>
+      <div class="diff-row" style="margin-bottom:16px;">
+        <button class="diff-btn" id="team2" onclick="setTeamCount(2)">2모둠</button>
+        <button class="diff-btn sel" id="team3" onclick="setTeamCount(3)">3모둠</button>
+        <button class="diff-btn" id="team4" onclick="setTeamCount(4)">4모둠</button>
+        <button class="diff-btn" id="team5" onclick="setTeamCount(5)">5모둠</button>
+        <button class="diff-btn" id="team6" onclick="setTeamCount(6)">6모둠</button>
+      </div>
+      <div id="teamNameInputs" style="margin-bottom:16px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="act-btn" style="flex:1;" onclick="setScreen('menuScreen')">← 뒤로</button>
+        <button class="act-btn prim" style="flex:2;" onclick="openScoreboard()">점수판 열기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCOREBOARD -->
+  <div id="scoreboardScreen" class="screen">
+    <div style="padding:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:18px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.2);">📋 모둠 점수판</div>
+        <button class="quit-btn" onclick="setScreen('menuScreen')">← 메뉴</button>
+      </div>
+      <div id="scoreboardGrid" style="display:grid;gap:8px;margin-bottom:10px;"></div>
+      <button class="start-btn" onclick="startGameFromScoreboard()" style="margin-bottom:8px;">게임 시작! 🎈</button>
+      <button class="act-btn" style="width:100%;text-align:center;" onclick="resetScoreboard()">점수 초기화</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen" class="screen">
+    <div class="hud">
+      <div class="hud-mode" id="hudMode">대→소문자</div>
+      <div class="hud-score">⭐ <span id="scoreDisplay">0</span></div>
+      <div class="hud-lives" id="livesDisplay"></div>
+      <button class="quit-btn" onclick="goMenu()">그만하기 ✕</button>
+    </div>
+    <div class="timer-bar-wrap" id="timerBarWrap" style="display:none;">
+      <div class="timer-bar-track">
+        <div class="timer-bar-fill" id="timerBarFill"></div>
+        <span class="timer-bar-num" id="timerBarNum">15</span>
+      </div>
+    </div>
+    <div class="streak-bar"><span class="streak-txt" id="streakTxt"></span></div>
+    <div class="q-progress" id="qProgress"></div>
+    <div class="q-box">
+      <div class="q-label" id="qLabel">이 대문자와 짝꿍인 소문자 풍선을 터뜨려요!</div>
+      <div class="q-letter" id="qLetter">A</div>
+      <div class="q-hint" id="qHint"></div>
+    </div>
+    <div class="balloon-field" id="balloonField"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultScreen" class="screen">
+    <div class="center-card">
+      <span class="res-icon" id="resEmoji">🏆</span>
+      <div class="big-title" id="resTitle">게임 끝!</div>
+      <div class="res-score" id="resScore">0점</div>
+      <div class="res-detail" id="resDetail">맞힌 개수: 0 / 0</div>
+      <div class="res-grade" id="resGrade"></div>
+      <div id="saveTeamArea" style="display:none;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:#6B7280;margin-bottom:8px;">어느 모둠 점수로 저장할까요?</div>
+        <div id="saveTeamBtns" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;"></div>
+      </div>
+      <div class="action-row">
+        <button class="act-btn prim" id="retryBtn">다시 하기</button>
+        <button class="act-btn" onclick="goMenu()">메뉴</button>
+        <button class="act-btn" onclick="setScreen('scoreboardScreen');renderScoreboard()">점수판 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="feedbackMsg"></div>
+</div>
+
+<script>
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const BALLOON_COLORS = [
+  '#FF6B6B','#FF9F43','#FECA57','#48DBFB','#1DD1A1',
+  '#A29BFE','#FD79A8','#6C5CE7','#00CEC9','#E17055',
+  '#0984E3','#55EFC4','#FDCB6E','#E84393','#2ECC71'
+];
+const NAMES = {
+  A:'에이',B:'비',C:'씨',D:'디',E:'이',F:'에프',G:'지',H:'에이치',
+  I:'아이',J:'제이',K:'케이',L:'엘',M:'엠',N:'엔',O:'오',P:'피',
+  Q:'큐',R:'아르',S:'에스',T:'티',U:'유',V:'브이',W:'더블유',
+  X:'엑스',Y:'와이',Z:'제트'
+};
+const DIFF_CFG = {
+  easy:   {count:5, speedMin:7, speedMax:10, delayMs:500},
+  normal: {count:6, speedMin:5, speedMax:8,  delayMs:400},
+  hard:   {count:8, speedMin:3, speedMax:5,  delayMs:280}
+};
+const TOTAL_Q = {ul:10, lu:10, mix:10, all:26};
+
+let AU = null;
+try { AU = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+
+function beep(freq, dur, type='sine', vol=0.2) {
+  if (!AU) return;
+  try {
+    const o = AU.createOscillator(), g = AU.createGain();
+    o.connect(g); g.connect(AU.destination);
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, AU.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AU.currentTime + dur);
+    o.start(); o.stop(AU.currentTime + dur);
+  } catch(e) {}
+}
+function sfxPop()    { beep(600,0.05); setTimeout(()=>beep(850,0.07),40); setTimeout(()=>beep(1100,0.1),85); }
+function sfxWrong()  { beep(160,0.22,'sawtooth',0.08); }
+function sfxStreak() { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,0.1),i*55)); }
+function sfxFinish() { [523,659,784,523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,0.14),i*75)); }
+function sfxMiss()   { beep(220,0.15,'sawtooth',0.07); }
+
+function speak(letter) {
+  if (!window.speechSynthesis) return;
+  const name = NAMES[letter.toUpperCase()] || letter;
+  const utter = new SpeechSynthesisUtterance(name);
+  utter.lang = 'ko-KR'; utter.rate = 0.85; utter.pitch = 1.15; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+function speakLetter(letter) {
+  if (!window.speechSynthesis) return;
+  const utter = new SpeechSynthesisUtterance(letter);
+  utter.lang = 'en-US'; utter.rate = 0.75; utter.pitch = 1.1; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+let gMode = 'ul', gDiff = 'easy', gTimeLimit = 60;
+let gScore = 0, gLives = 3, gStreak = 0, gTotal = 0, gCorrect = 0, gMaxQ = 10;
+let gQuestion = '', gAnswer = '', gLocked = false;
+let gRetryFn = null;
+let gUsedLetters = [];
+let floatTimers = [];
+let gTimerInt = null, gTimerLeft = 0;
+
+function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function selectMode(m) {
+  gMode = m;
+  ['ul','lu','mix','all'].forEach(x => {
+    const el = document.getElementById('mode' + x.toUpperCase());
+    if (el) el.classList.toggle('sel', x === m);
+  });
+}
+function selectDiff(d) {
+  gDiff = d;
+  const map = {easy:'E', normal:'N', hard:'H'};
+  ['E','N','H'].forEach(x => document.getElementById('diff'+x).classList.remove('sel'));
+  document.getElementById('diff'+map[d]).classList.add('sel');
+}
+function selectTime(t) {
+  gTimeLimit = t;
+  [30,60,120,0].forEach(v => document.getElementById('time'+v).classList.remove('sel'));
+  document.getElementById('time'+t).classList.add('sel');
+}
+
+function setScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goMenu() { clearAllTimers(); if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; } setScreen('menuScreen'); }
+
+function clearAllTimers() {
+  floatTimers.forEach(t => clearTimeout(t));
+  floatTimers = [];
+}
+
+function makeClouds() {
+  const layer = document.getElementById('cloudLayer');
+  layer.innerHTML = '';
+  [[8,5,100,38],[18,55,130,32],[45,20,90,36],[62,60,115,30],[78,10,105,40]].forEach(([t,l,w,h]) => {
+    const d = document.createElement('div');
+    d.className = 'cloud';
+    d.style.cssText = `top:${t}%;left:${l}%;width:${w}px;height:${h}px;`;
+    layer.appendChild(d);
+  });
+}
+
+function buildProgressDots(total, current) {
+  const cont = document.getElementById('qProgress');
+  cont.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i < current ? ' done' : i === current ? ' current' : '');
+    cont.appendChild(d);
+  }
+}
+
+function startGame() {
+  makeClouds();
+  gScore = 0; gLives = 3; gStreak = 0; gTotal = 0; gCorrect = 0; gLocked = false;
+  gUsedLetters = [];
+  gMaxQ = TOTAL_Q[gMode] || 10;
+  document.getElementById('scoreDisplay').textContent = '0';
+  renderLives();
+  document.getElementById('hudMode').textContent = {ul:'대→소문자', lu:'소→대문자', mix:'섞기', all:'전체 A~Z'}[gMode];
+  gRetryFn = startGame;
+  setScreen('gameScreen');
+  startGameTimer();
+  nextQuestion();
+}
+
+function renderLives() {
+  const el = document.getElementById('livesDisplay');
+  el.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const sp = document.createElement('span');
+    sp.textContent = i < gLives ? '❤️' : '🖤';
+    sp.style.fontSize = '16px';
+    el.appendChild(sp);
+  }
+}
+
+function getNextLetter() {
+  const pool = gMode === 'all' ? ALPHA : ALPHA.slice(0, 20);
+  const avail = pool.filter(l => !gUsedLetters.includes(l));
+  if (avail.length === 0) return null;
+  return avail[Math.floor(Math.random() * avail.length)];
+}
+
+function nextQuestion() {
+  clearAllTimers();
+  document.getElementById('balloonField').innerHTML = '';
+  gLocked = false;
+
+  const letter = getNextLetter();
+  if (!letter || gTotal >= gMaxQ) { endGame(); return; }
+  gUsedLetters.push(letter);
+
+  let dir;
+  if (gMode === 'ul') dir = 'ul';
+  else if (gMode === 'lu') dir = 'lu';
+  else dir = Math.random() < 0.5 ? 'ul' : 'lu';
+
+  gQuestion = letter;
+  const qShow = dir === 'ul' ? letter : letter.toLowerCase();
+  const aShow = dir === 'ul' ? letter.toLowerCase() : letter;
+  gAnswer = aShow;
+
+  document.getElementById('qLetter').textContent = qShow;
+  document.getElementById('qLabel').textContent = dir === 'ul'
+    ? '이 대문자와 짝꿍인 소문자 풍선을 터뜨려요!'
+    : '이 소문자와 짝꿍인 대문자 풍선을 터뜨려요!';
+  document.getElementById('qHint').textContent = NAMES[letter] + '  (' + letter + ' / ' + letter.toLowerCase() + ')';
+
+  buildProgressDots(gMaxQ, gTotal);
+  gTotal++;
+
+  speakLetter(qShow);
+
+  const cfg = DIFF_CFG[gDiff];
+  spawnBalloons(cfg, aShow);
+}
+
+function startGameTimer() {
+  if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; }
+  const wrap = document.getElementById('timerBarWrap');
+  if (!gTimeLimit) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  gTimerLeft = gTimeLimit;
+  updateTimerUI(gTimerLeft);
+  gTimerInt = setInterval(() => {
+    gTimerLeft--;
+    updateTimerUI(gTimerLeft);
+    if (gTimerLeft <= 5 && gTimerLeft > 0) beep(880, 0.04, 'square', 0.05);
+    if (gTimerLeft <= 0) {
+      clearInterval(gTimerInt); gTimerInt = null;
+      showFeedback('⏰ 시간 종료!', false);
+      setTimeout(endGame, 800);
+    }
+  }, 1000);
+}
+
+function updateTimerUI(t) {
+  const fill = document.getElementById('timerBarFill');
+  const num  = document.getElementById('timerBarNum');
+  if (!fill || !num) return;
+  const pct = gTimeLimit > 0 ? (t / gTimeLimit) * 100 : 100;
+  fill.style.width = pct + '%';
+  const ratio = gTimeLimit > 0 ? t / gTimeLimit : 1;
+  fill.style.background = ratio <= 0.15 ? '#FF6B6B' : ratio <= 0.35 ? '#FECA57' : '#4ADE80';
+  const m = Math.floor(t / 60), s = t % 60;
+  num.textContent = gTimeLimit >= 60 ? m + ':' + String(s).padStart(2,'0') : t + '초';
+}
+
+function spawnBalloons(cfg, answer) {
+  const field = document.getElementById('balloonField');
+  const fieldW = field.offsetWidth || 360;
+  const fieldH = field.offsetHeight || 350;
+  const allLetters = (gMode === 'all' ? ALPHA : ALPHA.slice(0, 20))
+    .map(l => answer === answer.toLowerCase() ? l : l.toLowerCase());
+  const wrongs = shuffle(allLetters.filter(l => l !== answer)).slice(0, cfg.count - 1);
+  const picks = shuffle([answer, ...wrongs]);
+
+  picks.forEach((letter, i) => {
+    const t = setTimeout(() => {
+      const x = 22 + Math.random() * (fieldW - 86);
+      const color = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+      const speedPx = (fieldH + 100) / ((cfg.speedMin + Math.random() * (cfg.speedMax - cfg.speedMin)) * 60);
+      const isAns = letter === answer;
+      const size = 68 + Math.floor(Math.random() * 18);
+      const el = document.createElement('div');
+      el.className = 'balloon';
+      let posY = -size * 1.28;
+      el.style.cssText = `left:${x}px;top:${fieldH}px;position:absolute;`;
+      el.innerHTML = `<svg width="${size}" height="${Math.round(size*1.28)}" viewBox="0 0 72 92">
+        <ellipse cx="36" cy="35" rx="30" ry="31" fill="${color}"/>
+        <polygon points="36,66 29,80 43,80" fill="${color}"/>
+        <line x1="36" y1="80" x2="36" y2="91" stroke="#bbb" stroke-width="1.5"/>
+        <ellipse cx="25" cy="23" rx="8" ry="10" fill="rgba(255,255,255,0.28)"/>
+        <text x="36" y="40" font-family="Nunito,'Noto Sans KR',sans-serif" font-size="28" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central">${letter}</text>
+      </svg>`;
+      el.addEventListener('click', () => handleClick(el, letter, isAns, color));
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); handleClick(el, letter, isAns, color); }, {passive:false});
+      field.appendChild(el);
+
+      let currentY = fieldH;
+      function rise() {
+        if (!el.parentNode || el.classList.contains('pop')) return;
+        currentY -= speedPx;
+        el.style.top = currentY + 'px';
+        if (currentY < posY) {
+          el.remove();
+          checkFieldEmpty();
+          return;
+        }
+        el._raf = requestAnimationFrame(rise);
+      }
+      el._raf = requestAnimationFrame(rise);
+    }, i * cfg.delayMs);
+    floatTimers.push(t);
+  });
+}
+
+function checkFieldEmpty() {
+  if (gLocked) return;
+  const remaining = document.querySelectorAll('#balloonField .balloon:not(.pop)');
+  if (remaining.length === 0) {
+    handleMissed();
+  }
+}
+
+function handleClick(el, letter, isAns, color) {
+  if (gLocked) return;
+  if (isAns) {
+    gLocked = true;
+    gCorrect++; gStreak++;
+    const bonus = gStreak >= 3 ? (gStreak - 2) * 5 : 0;
+    const pts = 10 + bonus;
+    gScore += pts;
+    document.getElementById('scoreDisplay').textContent = gScore;
+    sfxPop();
+    popBalloon(el, color);
+    if (gStreak >= 3) { sfxStreak(); showFeedback('🔥 ' + gStreak + '연속!'); }
+    else showFeedback('정답! +' + pts);
+    updateStreak();
+    const t = setTimeout(() => nextQuestion(), 950);
+    floatTimers.push(t);
+  } else {
+    gStreak = 0; updateStreak();
+    gLives--; renderLives(); sfxWrong();
+    el.classList.add('wrong-shake');
+    el.addEventListener('animationend', () => el.classList.remove('wrong-shake'), { once: true });
+    showFeedback('틀렸어요! 다시!', false);
+    if (gLives <= 0) { gLocked = true; const t = setTimeout(endGame, 700); floatTimers.push(t); }
+  }
+}
+
+function handleMissed() {
+  gStreak = 0; updateStreak();
+  gLives--; renderLives(); sfxMiss();
+  showFeedback('놓쳤어요!', false);
+  if (gLives <= 0) { setTimeout(endGame, 700); }
+  else { const t = setTimeout(nextQuestion, 900); floatTimers.push(t); }
+}
+
+function popBalloon(el, color) {
+  if (el._raf) cancelAnimationFrame(el._raf);
+  el.classList.add('pop');
+  const fieldEl = document.getElementById('balloonField');
+  const rect = el.getBoundingClientRect();
+  const fRect = fieldEl.getBoundingClientRect();
+  const cx = rect.left - fRect.left + rect.width / 2;
+  const cy = rect.top  - fRect.top  + rect.height / 2;
+  el.addEventListener('animationend', () => el.remove(), { once: true });
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'pop-particle';
+    const ang = (i / 12) * 360 + Math.random() * 20;
+    const dist = 28 + Math.random() * 52;
+    const dx = Math.cos(ang * Math.PI / 180) * dist + 'px';
+    const dy = Math.sin(ang * Math.PI / 180) * dist + 'px';
+    const sz = 5 + Math.random() * 9;
+    p.style.cssText = `left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;background:${color};--dx:${dx};--dy:${dy};z-index:20;`;
+    fieldEl.appendChild(p);
+    p.addEventListener('animationend', () => p.remove(), { once: true });
+  }
+}
+
+function showFeedback(msg, good = true) {
+  const el = document.getElementById('feedbackMsg');
+  el.textContent = msg;
+  el.style.color = good ? '#fff' : '#FFD93D';
+  el.style.fontSize = good ? '30px' : '22px';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 750);
+}
+
+function updateStreak() {
+  const el = document.getElementById('streakTxt');
+  el.textContent = gStreak >= 3 ? '🔥 ' + gStreak + '연속 콤보!' : '';
+}
+
+function endGame() {
+  clearAllTimers();
+  if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; }
+  sfxFinish();
+  const pct = gMaxQ > 0 ? Math.round(gCorrect / gMaxQ * 100) : 0;
+  document.getElementById('resScore').textContent = gScore + '점';
+  document.getElementById('resDetail').textContent = `맞힌 개수: ${gCorrect} / ${gMaxQ}  (${pct}%)`;
+  const grades = [
+    [90,'🏆','완벽해요! 알파벳 마스터!','최고 점수예요! 대단해요!'],
+    [70,'🎉','정말 잘했어요!','조금만 더 연습하면 완벽!'],
+    [50,'👍','잘하고 있어요!','다시 도전해봐요!'],
+    [0, '💪','다시 도전해봐요!','연습하면 잘할 수 있어요!']
+  ];
+  const [,emoji,title,grade] = grades.find(([th])=>pct>=th);
+  document.getElementById('resEmoji').textContent = emoji;
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resGrade').textContent = grade;
+  document.getElementById('retryBtn').onclick = gRetryFn;
+  renderSaveTeamBtns();
+  setScreen('resultScreen');
+}
+
+const TEAM_COLORS = ['#FF6B6B','#3B82F6','#1DD1A1','#FECA57','#A29BFE','#FD79A8'];
+let gTeamCount = 3;
+let gTeams = [{name:'1모둠',score:0},{name:'2모둠',score:0},{name:'3모둠',score:0}];
+let gCurrentTeam = -1; // -1 = 모둠 없이 시작
+
+function setTeamCount(n) {
+  gTeamCount = n;
+  [2,3,4,5,6].forEach(v => document.getElementById('team'+v).classList.toggle('sel', v===n));
+  renderTeamNameInputs();
+}
+
+function renderTeamNameInputs() {
+  const cont = document.getElementById('teamNameInputs');
+  cont.innerHTML = '';
+  for (let i = 0; i < gTeamCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'team-name-row';
+    const dot = document.createElement('div');
+    dot.className = 'team-color-dot';
+    dot.style.background = TEAM_COLORS[i];
+    const inp = document.createElement('input');
+    inp.className = 'team-name-input';
+    inp.type = 'text';
+    inp.maxLength = 8;
+    inp.value = gTeams[i] ? gTeams[i].name : (i+1)+'모둠';
+    inp.placeholder = (i+1)+'모둠';
+    inp.dataset.idx = i;
+    row.appendChild(dot); row.appendChild(inp);
+    cont.appendChild(row);
+  }
+}
+
+function openScoreboard() {
+  const inputs = document.querySelectorAll('.team-name-input');
+  gTeams = [];
+  inputs.forEach((inp, i) => {
+    gTeams.push({ name: inp.value || (i+1)+'모둠', score: gTeams[i]?.score || 0 });
+  });
+  while (gTeams.length < gTeamCount) gTeams.push({name:(gTeams.length+1)+'모둠', score:0});
+  gTeams = gTeams.slice(0, gTeamCount);
+  renderScoreboard();
+  setScreen('scoreboardScreen');
+}
+
+function renderScoreboard() {
+  const grid = document.getElementById('scoreboardGrid');
+  grid.innerHTML = '';
+  const maxScore = Math.max(...gTeams.map(t=>t.score), 1);
+  const sorted = gTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=>b.score-a.score);
+  sorted.forEach((team, rank) => {
+    const i = team.origIdx;
+    const card = document.createElement('div');
+    card.className = 'sb-card';
+    const isTop = team.score === maxScore && team.score > 0;
+    if (isTop) card.style.border = '2px solid '+TEAM_COLORS[i];
+    const rankIcon = rank===0&&team.score>0?'🥇':rank===1&&team.score>0?'🥈':rank===2&&team.score>0?'🥉':'';
+    card.innerHTML = `
+      <div style="font-size:20px;min-width:24px;text-align:center;">${rankIcon||'<span style="font-size:13px;color:#9CA3AF;font-weight:800;">'+(rank+1)+'</span>'}</div>
+      <div class="sb-color" style="background:${TEAM_COLORS[i]};"></div>
+      <div class="sb-name">${team.name}</div>
+      <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>
+      <div class="sb-btn-row">
+        <button class="sb-adj sb-plus" onclick="adjustTeam(${i},10)">+10</button>
+        <button class="sb-adj sb-minus" onclick="adjustTeam(${i},-10)">-10</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function adjustTeam(idx, delta) {
+  gTeams[idx].score = Math.max(0, gTeams[idx].score + delta);
+  renderScoreboard();
+}
+
+function resetScoreboard() {
+  if (!confirm('점수를 모두 초기화할까요?')) return;
+  gTeams.forEach(t => t.score = 0);
+  renderScoreboard();
+}
+
+function startGameFromScoreboard() {
+  gCurrentTeam = -1;
+  setScreen('menuScreen');
+}
+
+function renderSaveTeamBtns() {
+  const area = document.getElementById('saveTeamArea');
+  const cont = document.getElementById('saveTeamBtns');
+  if (!gTeams || gTeams.length === 0) { area.style.display='none'; return; }
+  area.style.display = 'block';
+  cont.innerHTML = '';
+  gTeams.forEach((team, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'save-team-btn';
+    btn.style.borderColor = TEAM_COLORS[i];
+    btn.style.color = TEAM_COLORS[i];
+    btn.textContent = team.name + '에 저장';
+    btn.onclick = () => {
+      gTeams[i].score += gScore;
+      btn.textContent = '✓ 저장됨! ('+gTeams[i].score+'점)';
+      btn.style.background = TEAM_COLORS[i];
+      btn.style.color = '#fff';
+      btn.disabled = true;
+    };
+    cont.appendChild(btn);
+  });
+}
+
+selectMode('ul');
+renderTeamNameInputs();
+</script>
+</body>
+</html>
