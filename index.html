@@ -2113,6 +2113,8 @@
         if (isSuper) loadSchoolCodeList();
         updateAddStudentSelects();
         if (!isSuper) setTimeout(loadTeacherEmailToInput, 500);
+        // ✅ 교사 로그인/학교 변경 후 커스텀 단어장 항상 최신 렌더링
+        if (!isSuper) renderEngWordEditor();
     }
 
     // ✅ 담임 교사의 담당 반 외 학년/반 비활성화
@@ -2749,6 +2751,10 @@
         currentSchoolCode = null;
         detachAllListeners();
         students = []; rawData = {}; pendingData = {}; allClassNames = {}; teacherAccounts = {}; classNotices = {};
+        // ✅ 학교 변경 시 커스텀 단어장 초기화
+        engCustomSets = {};
+        engMergeWordSets();
+        renderEngWordEditor();
         document.getElementById('schoolCodeSection').classList.remove('hidden');
         document.getElementById('loginSection').classList.add('hidden');
         document.getElementById('writeSection').classList.add('hidden');
@@ -4792,7 +4798,7 @@ const engWordSets = {
     { word:"Ww", meaning:"더블유", emoji:"🌊", example:"W is for wave.", exampleTrans:"W는 파도예요." },
     { word:"Xx", meaning:"엑스", emoji:"🎸", example:"X is for xylophone.", exampleTrans:"X는 실로폰이에요." },
     { word:"Yy", meaning:"와이", emoji:"🪀", example:"Y is for yo-yo.", exampleTrans:"Y는 요요예요." },
-    { word:"Zz", meaning:"즈", emoji:"🦓", example:"Z is for zebra.", exampleTrans:"Z는 얼룩말이에요." },
+    { word:"Zz", meaning:"지", emoji:"🦓", example:"Z is for zebra.", exampleTrans:"Z는 얼룩말이에요." },
   ],
   "동물": [
     { word:"cat", meaning:"고양이", emoji:"🐱", example:"The cat is cute.", exampleTrans:"고양이는 귀여워요." },
@@ -5151,6 +5157,7 @@ function engMergeWordSets() {
   Object.keys(engWordSets).forEach(k => { if (engWordSets[k]._custom) delete engWordSets[k]; });
   Object.entries(engCustomSets).forEach(([catKey, catData]) => {
     if (!catData || !catData.name) return;
+    if (catData.visible === false) return; // 비노출 카테고리 제외
     const words = catData.words ? Object.entries(catData.words).map(([wk, w]) => ({
       _key: wk, word: w.word || '', meaning: w.meaning || '',
       emoji: w.emoji || '📝', example: w.example || '', exampleTrans: w.exampleTrans || '',
@@ -5177,12 +5184,17 @@ function renderEngWordEditor() {
     const cat = engCustomSets[catKey];
     if (!cat) return '';
     const wordCount = cat.words ? Object.keys(cat.words).length : 0;
-    return `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#f3e5f5; border-radius:12px; margin-bottom:8px; border:2px solid #ce93d8;">
+    const isVisible = cat.visible !== false;
+    const visBtn = isVisible
+      ? `<button onclick="engToggleVisibility('${catKey}', false)" style="background:#fff3cd; color:#856404; border:1.5px solid #ffc107; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; font-weight:bold;">👁️ 노출중</button>`
+      : `<button onclick="engToggleVisibility('${catKey}', true)" style="background:#e9ecef; color:#6c757d; border:1.5px solid #adb5bd; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; font-weight:bold;">🚫 비노출</button>`;
+    return `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:${isVisible ? '#f3e5f5' : '#f0f0f0'}; border-radius:12px; margin-bottom:8px; border:2px solid ${isVisible ? '#ce93d8' : '#bbb'};">
       <div>
-        <span style="font-size:14px; font-weight:bold; color:#5e35b1;">${esc(cat.name)}</span>
+        <span style="font-size:14px; font-weight:bold; color:${isVisible ? '#5e35b1' : '#999'};">${esc(cat.name)}</span>
         <span style="font-size:12px; color:#aaa; margin-left:8px;">${wordCount}개 단어</span>
       </div>
-      <div style="display:flex; gap:6px;">
+      <div style="display:flex; gap:6px; align-items:center;">
+        ${visBtn}
         <button class="btn-edit" style="font-size:12px; padding:5px 10px; border-radius:8px; background:#ede7f6; color:#5e35b1;" onclick="engOpenEditPanel('${catKey}')">✏️ 편집</button>
         <button class="btn-del" onclick="engDeleteCategory('${catKey}', '${esc(cat.name)}')">🗑️ 삭제</button>
       </div>
@@ -5211,6 +5223,16 @@ async function engDeleteCategory(catKey, catName) {
   if (!confirm(`"${catName}" 단어장을 삭제하면 단어가 모두 사라져요.\n정말 삭제할까요?`)) return;
   await schoolRef(`engCustomSets/${catKey}`).remove();
   if (_engCurrentCat === catKey) engCloseEditPanel();
+}
+
+// ✅ 카테고리 노출/비노출 토글
+async function engToggleVisibility(catKey, makeVisible) {
+  if (!currentTeacher || currentTeacher === 'super') return alert('교사로 로그인한 후 사용할 수 있어요.');
+  await schoolRef(`engCustomSets/${catKey}/visible`).set(makeVisible);
+  // 로컬 즉시 반영
+  if (engCustomSets[catKey]) engCustomSets[catKey].visible = makeVisible;
+  engMergeWordSets();
+  renderEngWordEditor();
 }
 
 // ✅ 단어 편집 패널 열기
