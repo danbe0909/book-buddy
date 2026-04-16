@@ -744,9 +744,10 @@ function renderTeamNameInputs() {
 
 function openScoreboard() {
   const inputs = document.querySelectorAll('.team-name-input');
+  const prevScores = gTeams.map(t => t.score);
   gTeams = [];
   inputs.forEach((inp, i) => {
-    gTeams.push({ name: inp.value || (i+1)+'모둠', score: gTeams[i]?.score || 0 });
+    gTeams.push({ name: inp.value || (i+1)+'모둠', score: prevScores[i] || 0 });
   });
   while (gTeams.length < gTeamCount) gTeams.push({name:(gTeams.length+1)+'모둠', score:0});
   gTeams = gTeams.slice(0, gTeamCount);
@@ -770,11 +771,7 @@ function renderScoreboard() {
       <div style="font-size:20px;min-width:24px;text-align:center;">${rankIcon||'<span style="font-size:13px;color:#9CA3AF;font-weight:800;">'+(rank+1)+'</span>'}</div>
       <div class="sb-color" style="background:${TEAM_COLORS[i]};"></div>
       <div class="sb-name">${team.name}</div>
-      <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>
-      <div class="sb-btn-row">
-        <button class="sb-adj sb-plus" onclick="adjustTeam(${i},10)">+10</button>
-        <button class="sb-adj sb-minus" onclick="adjustTeam(${i},-10)">-10</button>
-      </div>`;
+      <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>`;
     grid.appendChild(card);
   });
 }
