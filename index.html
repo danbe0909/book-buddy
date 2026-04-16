@@ -316,6 +316,17 @@
     .eng-stat-know .eng-stat-num { color: #16a34a; }
     .eng-stat-again .eng-stat-num { color: #f87171; }
     .eng-stat-left .eng-stat-num { color: #ff8e72; }
+    /* 골든벨 타이머 선택 */
+    .eng-timer-opt-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; padding: 18px 10px; border-radius: 20px;
+      border: 3px solid #ffe082; background: white; cursor: pointer;
+      transition: all 0.18s; box-shadow: 0 4px 0px rgba(255,224,130,0.5);
+    }
+    .eng-timer-opt-btn:hover, .eng-timer-opt-btn:active { background: #fff3cc; transform: translateY(-2px); border-color: var(--primary); }
+    .eng-timer-opt-btn.selected { background: #fff3cc; border-color: var(--primary); box-shadow: 0 4px 0px var(--primary-dark); }
+    .eng-timer-opt-label { font-size: 1.5rem; font-weight: bold; color: var(--primary-dark); }
+    .eng-timer-opt-sub { font-size: 0.75rem; color: #aaa; }
     /* 골든벨 */
     .eng-quiz-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .eng-quiz-score { font-family: 'Baloo 2', cursive; font-size: 2.4rem; font-weight: 800; color: #ff8e72; }
@@ -364,6 +375,22 @@
     .eng-pop { animation: eng-pop 0.3s ease; }
     @keyframes eng-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
     .eng-shake { animation: eng-shake 0.35s ease; }
+    /* 모둠 점수판 */
+    .eng-team-color-dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+    .eng-team-name-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .eng-team-name-input { flex:1; padding:8px 12px; font-size:14px; font-family:inherit; border:2px solid #ffe082; border-radius:10px; background:#fffbe0; color:#4a4a4a; font-weight:700; outline:none; }
+    .eng-team-name-input:focus { border-color:var(--primary); }
+    .eng-sb-card { background:white; border-radius:16px; padding:12px 14px; display:flex; align-items:center; gap:12px; border:2px solid #ffe082; box-shadow:0 3px 0px rgba(255,224,130,0.4); }
+    .eng-sb-color { width:18px; height:18px; border-radius:50%; flex-shrink:0; }
+    .eng-sb-name { font-size:15px; font-weight:800; color:#4a4a4a; flex:1; }
+    .eng-sb-score { font-size:28px; font-weight:900; }
+    .eng-sb-adj { padding:5px 13px; border-radius:8px; border:none; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit; }
+    .eng-sb-plus { background:#dcfce7; color:#166534; }
+    .eng-sb-minus { background:#fee2e2; color:#991b1b; }
+    .eng-save-team-btn { padding:8px 16px; border-radius:50px; border:2px solid #ffe082; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; background:white; color:#4a4a4a; transition:transform 0.1s; }
+    .eng-save-team-btn:active { transform:scale(0.94); }
+    .eng-team-count-btn { padding:8px 16px; border:2px solid #ffe082; border-radius:50px; font-size:13px; font-weight:800; cursor:pointer; background:#fffbe0; color:#4a4a4a; font-family:inherit; transition:all 0.15s; }
+    .eng-team-count-btn.sel { background:var(--primary); border-color:var(--primary-dark); color:white; }
     </style>
     <script>
   if ('serviceWorker' in navigator) {
@@ -656,6 +683,41 @@
               </div>
             </div>
           </div>
+          <button onclick="engOpenTeamSetup()" style="display:block; width:100%; margin-top:10px; padding:11px; background:white; color:var(--primary-dark); border:2px solid #ffe082; border-radius:50px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; transition:all 0.15s;">📋 모둠 점수판</button>
+        </div>
+
+        <!-- 모둠 설정 -->
+        <div id="eng-team-setup-screen" style="display:none;">
+          <button class="eng-back-btn" onclick="engShowHome()">← 홈으로</button>
+          <div style="text-align:center; padding:10px 0 16px 0;">
+            <div style="font-size:1.8rem; margin-bottom:4px;">📋</div>
+            <div style="font-size:1.1rem; font-weight:bold; color:var(--primary-dark); margin-bottom:2px;">모둠 점수판 설정</div>
+            <div style="font-size:0.85rem; color:#aaa;">모둠 수와 이름을 정해요</div>
+          </div>
+          <div style="font-size:12px; font-weight:700; color:#aaa; margin-bottom:8px;">모둠 수</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;">
+            <button class="eng-team-count-btn" id="eng-teamcnt-2" onclick="engSetTeamCount(2)">2모둠</button>
+            <button class="eng-team-count-btn sel" id="eng-teamcnt-3" onclick="engSetTeamCount(3)">3모둠</button>
+            <button class="eng-team-count-btn" id="eng-teamcnt-4" onclick="engSetTeamCount(4)">4모둠</button>
+            <button class="eng-team-count-btn" id="eng-teamcnt-5" onclick="engSetTeamCount(5)">5모둠</button>
+            <button class="eng-team-count-btn" id="eng-teamcnt-6" onclick="engSetTeamCount(6)">6모둠</button>
+          </div>
+          <div id="eng-team-name-inputs" style="margin-bottom:16px;"></div>
+          <div style="display:flex; gap:8px;">
+            <button class="eng-retry-btn" style="background:white; color:#4a4a4a; border:1.5px solid #ddd; flex:1;" onclick="engShowHome()">← 뒤로</button>
+            <button class="eng-retry-btn" style="flex:2;" onclick="engOpenScoreboard()">점수판 열기 →</button>
+          </div>
+        </div>
+
+        <!-- 점수판 -->
+        <div id="eng-scoreboard-screen" style="display:none;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <div style="font-size:1.1rem; font-weight:900; color:var(--primary-dark);">📋 모둠 점수판</div>
+            <button class="eng-back-btn" style="position:static; font-size:13px; padding:6px 14px;" onclick="engShowHome()">← 메뉴</button>
+          </div>
+          <div id="eng-scoreboard-grid" style="display:grid; gap:8px; margin-bottom:12px;"></div>
+          <button class="eng-retry-btn" onclick="engStartQuizFromScoreboard()" style="margin-bottom:8px;">게임 시작! 🔔</button>
+          <button class="eng-retry-btn" style="background:white; color:#4a4a4a; border:1.5px solid #ddd;" onclick="engResetScoreboard()">점수 초기화</button>
         </div>
 
         <!-- 플래시카드 -->
@@ -693,11 +755,44 @@
           </div>
         </div>
 
+        <!-- 골든벨 타이머 선택 -->
+        <div id="eng-timer-select-screen" style="display:none;">
+          <button class="eng-back-btn" onclick="engShowHome()">← 홈으로</button>
+          <div style="text-align:center; padding: 10px 0 18px 0;">
+            <div style="font-size:2.4rem; margin-bottom:8px;">🔔</div>
+            <div style="font-size:1.2rem; font-weight:bold; color:var(--primary-dark); margin-bottom:4px;">골든벨 퀴즈</div>
+            <div style="font-size:0.9rem; color:#999;">문제당 제한 시간을 선택해요!</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+            <button class="eng-timer-opt-btn" onclick="engSelectTimer(15)">
+              <span style="font-size:1.8rem;">⚡</span>
+              <span class="eng-timer-opt-label">15초</span>
+              <span class="eng-timer-opt-sub">번개처럼 빠르게!</span>
+            </button>
+            <button class="eng-timer-opt-btn" onclick="engSelectTimer(30)">
+              <span style="font-size:1.8rem;">🔥</span>
+              <span class="eng-timer-opt-label">30초</span>
+              <span class="eng-timer-opt-sub">기본 난이도</span>
+            </button>
+            <button class="eng-timer-opt-btn" onclick="engSelectTimer(60)">
+              <span style="font-size:1.8rem;">🧠</span>
+              <span class="eng-timer-opt-label">1분</span>
+              <span class="eng-timer-opt-sub">생각할 시간이 있어요</span>
+            </button>
+            <button class="eng-timer-opt-btn" onclick="engSelectTimer(120)">
+              <span style="font-size:1.8rem;">🐢</span>
+              <span class="eng-timer-opt-label">2분</span>
+              <span class="eng-timer-opt-sub">느긋하게 풀어요</span>
+            </button>
+          </div>
+        </div>
+
         <!-- 골든벨 퀴즈 -->
         <div id="eng-quiz-screen" style="display:none;">
           <button class="eng-back-btn" onclick="engShowHome()">← 홈으로</button>
           <div class="eng-quiz-info">
             <div class="eng-quiz-score">⭐ <span id="eng-quiz-score">0</span></div>
+            <div id="eng-quiz-timer-text" style="font-size:1.4rem; font-weight:bold; color:#ff8e72; font-family:'Baloo 2',cursive;"></div>
             <div class="eng-quiz-lives" id="eng-quiz-lives"></div>
           </div>
           <div class="eng-timer-bar-wrap"><div class="eng-timer-bar" id="eng-timer-bar"></div></div>
@@ -717,11 +812,17 @@
           <div class="eng-result-score" id="eng-result-score"></div>
           <div class="eng-result-grade" id="eng-result-grade"></div>
           <div id="eng-quiz-wrong-list" style="display:none; margin:14px 0; text-align:left;"></div>
+          <!-- 모둠 저장 영역 -->
+          <div id="eng-save-team-area" style="display:none; width:100%; background:#fffbe0; border:2px solid #ffe082; border-radius:16px; padding:14px; margin:6px 0;">
+            <div style="font-size:13px; font-weight:700; color:#888; margin-bottom:10px;">어느 모둠 점수로 저장할까요?</div>
+            <div id="eng-save-team-btns" style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;"></div>
+          </div>
           <div style="display:flex; flex-direction:column; gap:10px; width:100%; margin-top:6px;">
             <button class="eng-retry-btn" onclick="engRetryWrongWords()" id="eng-retry-wrong-btn" style="display:none; background:#f87171; box-shadow:0 4px 0px #dc2626;">😅 모르는 단어만 다시!</button>
             <span id="eng-retry-wrong-br" style="display:none"></span>
             <button class="eng-retry-btn" onclick="engStartQuiz()">🔄 다시 도전!</button>
             <button class="eng-retry-btn" style="background:white; color:#4a4a4a; border:1.5px solid #ddd;" onclick="engShowHome()">🏠 홈으로</button>
+            <button class="eng-retry-btn" id="eng-goto-scoreboard-btn" style="display:none; background:white; color:var(--primary-dark); border:2px solid #ffe082;" onclick="engShowScoreboardFromResult()">📋 점수판 보기</button>
           </div>
         </div>
       </div>
@@ -4798,7 +4899,7 @@ const engWordSets = {
     { word:"Ww", meaning:"더블유", emoji:"🌊", example:"W is for wave.", exampleTrans:"W는 파도예요." },
     { word:"Xx", meaning:"엑스", emoji:"🎸", example:"X is for xylophone.", exampleTrans:"X는 실로폰이에요." },
     { word:"Yy", meaning:"와이", emoji:"🪀", example:"Y is for yo-yo.", exampleTrans:"Y는 요요예요." },
-    { word:"Zz", meaning:"즈으", emoji:"🦓", example:"Z is for zebra.", exampleTrans:"Z는 얼룩말이에요." },
+    { word:"Zz", meaning:"즈", emoji:"🦓", example:"Z is for zebra.", exampleTrans:"Z는 얼룩말이에요." },
   ],
   "동물": [
     { word:"cat", meaning:"고양이", emoji:"🐱", example:"The cat is cute.", exampleTrans:"고양이는 귀여워요." },
@@ -5145,7 +5246,10 @@ function engShowHome() {
   document.getElementById('eng-home-screen').style.display = 'block';
   document.getElementById('eng-flash-screen').style.display = 'none';
   document.getElementById('eng-quiz-screen').style.display = 'none';
+  document.getElementById('eng-timer-select-screen').style.display = 'none';
   document.getElementById('eng-result-screen').style.display = 'none';
+  document.getElementById('eng-team-setup-screen').style.display = 'none';
+  document.getElementById('eng-scoreboard-screen').style.display = 'none';
   engRenderCatBtns();
 }
 
@@ -5489,6 +5593,154 @@ function engMarkCard(know) {
   engFlashIndex++;
   engShowFlashCard();
 }
+// ══════════════════════════════════════
+// 📋 모둠 점수판
+// ══════════════════════════════════════
+const ENG_TEAM_COLORS = ['#FF6B6B','#3B82F6','#1DD1A1','#FECA57','#A29BFE','#FD79A8'];
+let engTeamCount = 3;
+let engTeams = [{name:'1모둠',score:0},{name:'2모둠',score:0},{name:'3모둠',score:0}];
+
+function engOpenTeamSetup() {
+  document.getElementById('eng-home-screen').style.display = 'none';
+  document.getElementById('eng-team-setup-screen').style.display = 'block';
+  engRenderTeamNameInputs();
+}
+
+function engSetTeamCount(n) {
+  engTeamCount = n;
+  [2,3,4,5,6].forEach(v => document.getElementById('eng-teamcnt-'+v).classList.toggle('sel', v===n));
+  engRenderTeamNameInputs();
+}
+
+function engRenderTeamNameInputs() {
+  const cont = document.getElementById('eng-team-name-inputs');
+  cont.innerHTML = '';
+  for (let i = 0; i < engTeamCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'eng-team-name-row';
+    const dot = document.createElement('div');
+    dot.className = 'eng-team-color-dot';
+    dot.style.background = ENG_TEAM_COLORS[i];
+    const inp = document.createElement('input');
+    inp.className = 'eng-team-name-input';
+    inp.type = 'text';
+    inp.maxLength = 8;
+    inp.value = engTeams[i] ? engTeams[i].name : (i+1)+'모둠';
+    inp.placeholder = (i+1)+'모둠';
+    inp.dataset.idx = i;
+    row.appendChild(dot); row.appendChild(inp);
+    cont.appendChild(row);
+  }
+}
+
+function engOpenScoreboard() {
+  const inputs = document.querySelectorAll('.eng-team-name-input');
+  const prevScores = engTeams.map(t => t.score);
+  engTeams = [];
+  inputs.forEach((inp, i) => {
+    engTeams.push({ name: inp.value || (i+1)+'모둠', score: prevScores[i] || 0 });
+  });
+  while (engTeams.length < engTeamCount) engTeams.push({name:(engTeams.length+1)+'모둠', score:0});
+  engTeams = engTeams.slice(0, engTeamCount);
+  document.getElementById('eng-team-setup-screen').style.display = 'none';
+  document.getElementById('eng-scoreboard-screen').style.display = 'block';
+  engRenderScoreboard();
+}
+
+function engRenderScoreboard() {
+  const grid = document.getElementById('eng-scoreboard-grid');
+  grid.innerHTML = '';
+  const maxScore = Math.max(...engTeams.map(t=>t.score), 1);
+  const sorted = engTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=>b.score-a.score);
+  sorted.forEach((team, rank) => {
+    const i = team.origIdx;
+    const card = document.createElement('div');
+    card.className = 'eng-sb-card';
+    if (team.score === maxScore && team.score > 0) card.style.borderColor = ENG_TEAM_COLORS[i];
+
+    // 순위 아이콘
+    const rankEl = document.createElement('div');
+    rankEl.style.cssText = 'font-size:20px;min-width:24px;text-align:center;';
+    if (rank===0 && team.score>0) rankEl.textContent = '🥇';
+    else if (rank===1 && team.score>0) rankEl.textContent = '🥈';
+    else if (rank===2 && team.score>0) rankEl.textContent = '🥉';
+    else { rankEl.style.fontSize='13px'; rankEl.style.color='#aaa'; rankEl.style.fontWeight='800'; rankEl.textContent = (rank+1)+''; }
+
+    // 색상 도트
+    const dot = document.createElement('div');
+    dot.className = 'eng-sb-color';
+    dot.style.background = ENG_TEAM_COLORS[i];
+
+    // 이름
+    const nameEl = document.createElement('div');
+    nameEl.className = 'eng-sb-name';
+    nameEl.textContent = team.name;
+
+    // 점수
+    const scoreEl = document.createElement('div');
+    scoreEl.className = 'eng-sb-score';
+    scoreEl.style.color = ENG_TEAM_COLORS[i];
+    scoreEl.textContent = team.score;
+
+    card.appendChild(rankEl);
+    card.appendChild(dot);
+    card.appendChild(nameEl);
+    card.appendChild(scoreEl);
+    grid.appendChild(card);
+  });
+}
+
+function engAdjTeam(idx, delta) {
+  engTeams[idx].score = Math.max(0, engTeams[idx].score + delta);
+  engRenderScoreboard();
+}
+
+function engResetScoreboard() {
+  if (!confirm('점수를 모두 초기화할까요?')) return;
+  engTeams.forEach(t => t.score = 0);
+  engRenderScoreboard();
+}
+
+function engStartQuizFromScoreboard() {
+  document.getElementById('eng-scoreboard-screen').style.display = 'none';
+  engShowHome();
+}
+
+function engShowScoreboardFromResult() {
+  document.getElementById('eng-result-screen').style.display = 'none';
+  document.getElementById('eng-scoreboard-screen').style.display = 'block';
+  engRenderScoreboard();
+}
+
+function engRenderSaveTeamBtns() {
+  const area = document.getElementById('eng-save-team-area');
+  const cont = document.getElementById('eng-save-team-btns');
+  const gotoBtn = document.getElementById('eng-goto-scoreboard-btn');
+  if (!engTeams || engTeams.length === 0) {
+    area.style.display = 'none';
+    gotoBtn.style.display = 'none';
+    return;
+  }
+  area.style.display = 'block';
+  gotoBtn.style.display = 'block';
+  cont.innerHTML = '';
+  engTeams.forEach((team, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'eng-save-team-btn';
+    btn.style.borderColor = ENG_TEAM_COLORS[i];
+    btn.style.color = ENG_TEAM_COLORS[i];
+    btn.textContent = team.name + '에 저장';
+    btn.onclick = () => {
+      engTeams[i].score += engQuizScore;
+      btn.textContent = '✓ 저장됨! ('+engTeams[i].score+'점)';
+      btn.style.background = ENG_TEAM_COLORS[i];
+      btn.style.color = '#fff';
+      btn.disabled = true;
+    };
+    cont.appendChild(btn);
+  });
+}
+
 function engRetryWrongWords() {
   // 'again' 표시된 단어들만 추려서 복습
   engFlashDeck = engFlashDeck.filter(w => w._again);
@@ -5708,12 +5960,38 @@ function engSpeakExample() {
 function engStartQuiz() {
   const words = engWordSets[engCurrentCat];
   if (!words || words.length < 4) return alert('골든벨 퀴즈는 단어가 4개 이상 있어야 해요!');
-  engQuizWords = [...words].sort(() => Math.random()-0.5);
-  engQuizIndex = 0; engQuizScore = 0; engQuizLives = 3; engQuizWrong = [];
+  // 타이머 선택 화면으로 이동
   document.getElementById('eng-home-screen').style.display = 'none';
   document.getElementById('eng-result-screen').style.display = 'none';
+  document.getElementById('eng-quiz-screen').style.display = 'none';
+  document.getElementById('eng-timer-select-screen').style.display = 'block';
+  document.getElementById('eng-timer-custom-input').value = '';
+  // 이전에 선택된 버튼 초기화
+  document.querySelectorAll('.eng-timer-opt-btn').forEach(b => b.classList.remove('selected'));
+}
+
+function engSelectTimer(seconds) {
+  engTotalTime = seconds;
+  document.querySelectorAll('.eng-timer-opt-btn').forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  setTimeout(() => engBeginQuiz(), 300);
+}
+
+function engSelectTimerCustom() {
+  const val = parseInt(document.getElementById('eng-timer-custom-input').value);
+  if (!val || val < 5 || val > 300) return alert('5초에서 300초(5분) 사이로 입력해주세요!');
+  engTotalTime = val;
+  engBeginQuiz();
+}
+
+function engBeginQuiz() {
+  const words = engWordSets[engCurrentCat];
+  engQuizWords = [...words].sort(() => Math.random()-0.5);
+  engQuizIndex = 0; engQuizScore = 0; engQuizLives = 3; engQuizWrong = [];
+  document.getElementById('eng-timer-select-screen').style.display = 'none';
   document.getElementById('eng-quiz-screen').style.display = 'block';
   engRenderLives();
+  engStartTimer();      // ← 타이머는 게임 시작 시 딱 한 번만 시작
   engNextQuestion();
 }
 
@@ -5730,7 +6008,7 @@ function engRenderLives() {
 
 function engNextQuestion() {
   if (engQuizIndex >= engQuizWords.length) { engShowQuizResult(); return; }
-  clearInterval(engTimerInterval);
+  // 타이머는 재시작하지 않음 — 계속 흐름
   engAnswered = false;
   const w = engQuizWords[engQuizIndex];
   const allWords = engWordSets[engCurrentCat];
@@ -5758,24 +6036,38 @@ function engNextQuestion() {
     btn.addEventListener('touchend', (e) => { e.preventDefault(); engSelectAnswer(btn, opt.word === w.word, w, isWordToMeaning); });
     container.appendChild(btn);
   });
-  engStartTimer();
 }
 
 function engStartTimer() {
+  // 전체 게임 타이머 — 문제 전환과 무관하게 계속 흐름
   engTimeLeft = engTotalTime;
   engUpdateTimerBar();
   engTimerInterval = setInterval(() => {
     engTimeLeft -= 0.1;
     engUpdateTimerBar();
-    if (engTimeLeft <= 0) { clearInterval(engTimerInterval); if (!engAnswered) engTimeUp(); }
+    if (engTimeLeft <= 0) {
+      clearInterval(engTimerInterval);
+      engTimeUp();
+    }
   }, 100);
 }
 
 function engUpdateTimerBar() {
   const bar = document.getElementById('eng-timer-bar');
+  const timerText = document.getElementById('eng-quiz-timer-text');
   const pct = Math.max(0, engTimeLeft / engTotalTime * 100);
   bar.style.width = pct + '%';
   bar.style.background = pct > 50 ? '#ff8e72' : pct > 25 ? '#ff9f43' : '#f87171';
+  // 남은 시간 텍스트 표시
+  const secs = Math.ceil(Math.max(0, engTimeLeft));
+  if (engTotalTime >= 60) {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    timerText.textContent = `⏱ ${m}:${String(s).padStart(2,'0')}`;
+  } else {
+    timerText.textContent = `⏱ ${secs}초`;
+  }
+  timerText.style.color = pct > 50 ? '#ff8e72' : pct > 25 ? '#ff9f43' : '#f87171';
 }
 
 
@@ -5838,7 +6130,7 @@ function engPlayCorrectSound() {
 function engSelectAnswer(btn, correct, word, isWordToMeaning) {
   if (engAnswered) return;
   engAnswered = true;
-  clearInterval(engTimerInterval);
+  // 타이머는 멈추지 않음 — 계속 흐름
   const opts = document.querySelectorAll('.eng-quiz-opt');
   opts.forEach(b => { b.disabled = true; });
   const fb = document.getElementById('eng-quiz-feedback');
@@ -5868,15 +6160,11 @@ function engSelectAnswer(btn, correct, word, isWordToMeaning) {
 }
 
 function engTimeUp() {
-  engAnswered = true;
-  engQuizLives--;
-  engRenderLives();
-  document.getElementById('eng-quiz-feedback').textContent = '⏰ 시간 초과!';
-  document.getElementById('eng-quiz-feedback').className = 'eng-quiz-feedback eng-feedback-wrong';
+  // 타이머 0 → 게임 전체 종료
   document.querySelectorAll('.eng-quiz-opt').forEach(b => b.disabled = true);
-  if (engQuizLives <= 0) { setTimeout(engShowQuizResult, 1200); return; }
-  engQuizIndex++;
-  setTimeout(engNextQuestion, 1400);
+  document.getElementById('eng-quiz-feedback').textContent = '⏰ 시간이 다 됐어요!';
+  document.getElementById('eng-quiz-feedback').className = 'eng-quiz-feedback eng-feedback-wrong';
+  setTimeout(engShowQuizResult, 1200);
 }
 
 function engSpeak(word) {
@@ -5906,14 +6194,17 @@ function engShowQuizResult() {
     wl.style.display = 'none';
   }
   const pct = Math.round(engQuizScore / engQuizWords.length * 100);
-  document.getElementById('eng-result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🌟' : pct >= 40 ? '😊' : '💪';
-  document.getElementById('eng-result-title').textContent = '골든벨 결과!';
+  const timedOut = engTimeLeft <= 0;
+  document.getElementById('eng-result-emoji').textContent = timedOut ? '⏰' : (pct >= 80 ? '🏆' : pct >= 60 ? '🌟' : pct >= 40 ? '😊' : '💪');
+  document.getElementById('eng-result-title').textContent = timedOut ? '⏰ 시간 종료!' : '골든벨 결과!';
   document.getElementById('eng-result-score').textContent = `${engQuizScore}점`;
   const g = document.getElementById('eng-result-grade');
   if (pct >= 90) { g.textContent = '🥇 영단어 왕!'; g.className = 'eng-result-grade eng-grade-s'; }
   else if (pct >= 70) { g.textContent = '🥈 훌륭해요!'; g.className = 'eng-result-grade eng-grade-a'; }
   else if (pct >= 50) { g.textContent = '🥉 잘했어요!'; g.className = 'eng-result-grade eng-grade-b'; }
   else { g.textContent = '💪 더 연습해요!'; g.className = 'eng-result-grade eng-grade-c'; }
+  // 모둠 저장 버튼 렌더링
+  engRenderSaveTeamBtns();
 }
 
 </script>
