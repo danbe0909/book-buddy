@@ -713,7 +713,7 @@
         <div id="eng-scoreboard-screen" style="display:none;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
             <div style="font-size:1.1rem; font-weight:900; color:var(--primary-dark);">📋 모둠 점수판</div>
-            <button class="eng-back-btn" style="position:static; font-size:13px; padding:6px 14px;" onclick="engShowHome()">← 메뉴</button>
+            <button class="eng-back-btn" style="position:static; font-size:18px; padding:10px 24px;" onclick="engShowHome()">← 메뉴</button>
           </div>
           <div id="eng-scoreboard-grid" style="display:grid; gap:8px; margin-bottom:12px;"></div>
           <button class="eng-retry-btn" onclick="engStartQuizFromScoreboard()" style="margin-bottom:8px;">게임 시작! 🔔</button>
@@ -5544,7 +5544,14 @@ async function engDeleteWord(catKey, wordKey) {
   renderEngWordItemList(catKey);
 }
 
+// ✅ engTeamCount와 engTeams 배열을 동기화 (퀴즈/플래시 시작 전 항상 호출)
+function engSyncTeams() {
+  while (engTeams.length < engTeamCount) engTeams.push({name:(engTeams.length+1)+'모둠', score:0, lastScored:0});
+  engTeams = engTeams.slice(0, engTeamCount);
+}
+
 function engStartFlash() {
+  engSyncTeams();
   const words = engWordSets[engCurrentCat];
   if (!words || words.length === 0) return alert('이 단어장에는 아직 단어가 없어요. 선생님께 단어 추가를 부탁해보세요!');
   engFlashDeck = [...words].sort(() => Math.random()-0.5);
@@ -5598,7 +5605,7 @@ function engMarkCard(know) {
 // ══════════════════════════════════════
 const ENG_TEAM_COLORS = ['#FF6B6B','#3B82F6','#1DD1A1','#FECA57','#A29BFE','#FD79A8'];
 let engTeamCount = 3;
-let engTeams = [{name:'1모둠',score:0},{name:'2모둠',score:0},{name:'3모둠',score:0}];
+let engTeams = [{name:'1모둠',score:0,lastScored:0},{name:'2모둠',score:0,lastScored:0},{name:'3모둠',score:0,lastScored:0}];
 
 function engOpenTeamSetup() {
   document.getElementById('eng-home-screen').style.display = 'none';
@@ -5636,11 +5643,12 @@ function engRenderTeamNameInputs() {
 function engOpenScoreboard() {
   const inputs = document.querySelectorAll('.eng-team-name-input');
   const prevScores = engTeams.map(t => t.score);
+  const prevLastScored = engTeams.map(t => t.lastScored || 0);
   engTeams = [];
   inputs.forEach((inp, i) => {
-    engTeams.push({ name: inp.value || (i+1)+'모둠', score: prevScores[i] || 0 });
+    engTeams.push({ name: inp.value || (i+1)+'모둠', score: prevScores[i] || 0, lastScored: prevLastScored[i] || 0 });
   });
-  while (engTeams.length < engTeamCount) engTeams.push({name:(engTeams.length+1)+'모둠', score:0});
+  while (engTeams.length < engTeamCount) engTeams.push({name:(engTeams.length+1)+'모둠', score:0, lastScored:0});
   engTeams = engTeams.slice(0, engTeamCount);
   document.getElementById('eng-team-setup-screen').style.display = 'none';
   document.getElementById('eng-scoreboard-screen').style.display = 'block';
@@ -5651,7 +5659,7 @@ function engRenderScoreboard() {
   const grid = document.getElementById('eng-scoreboard-grid');
   grid.innerHTML = '';
   const maxScore = Math.max(...engTeams.map(t=>t.score), 1);
-  const sorted = engTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=>b.score-a.score);
+  const sorted = engTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=> b.score - a.score || b.lastScored - a.lastScored);
   sorted.forEach((team, rank) => {
     const i = team.origIdx;
     const card = document.createElement('div');
@@ -5697,13 +5705,13 @@ function engAdjTeam(idx, delta) {
 
 function engResetScoreboard() {
   if (!confirm('점수를 모두 초기화할까요?')) return;
-  engTeams.forEach(t => t.score = 0);
+  engTeams.forEach(t => { t.score = 0; t.lastScored = 0; });
   engRenderScoreboard();
 }
 
 function engStartQuizFromScoreboard() {
   document.getElementById('eng-scoreboard-screen').style.display = 'none';
-  engShowHome();
+  engStartQuiz();
 }
 
 function engShowScoreboardFromResult() {
@@ -5725,19 +5733,45 @@ function engRenderSaveTeamBtns() {
   gotoBtn.style.display = 'block';
   cont.innerHTML = '';
   engTeams.forEach((team, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.alignItems = 'center';
+    wrap.style.gap = '4px';
+
     const btn = document.createElement('button');
     btn.className = 'eng-save-team-btn';
     btn.style.borderColor = ENG_TEAM_COLORS[i];
     btn.style.color = ENG_TEAM_COLORS[i];
     btn.textContent = team.name + '에 저장';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = '↩';
+    cancelBtn.title = '저장 취소';
+    cancelBtn.style.cssText = 'display:none; border:none; background:none; font-size:16px; cursor:pointer; padding:2px 4px; opacity:0.7;';
+    cancelBtn.onclick = () => {
+      engTeams[i].score -= engQuizScore;
+      if (engTeams[i].score < 0) engTeams[i].score = 0;
+      engTeams[i].lastScored = 0;
+      btn.textContent = team.name + '에 저장';
+      btn.style.background = 'white';
+      btn.style.color = ENG_TEAM_COLORS[i];
+      btn.disabled = false;
+      cancelBtn.style.display = 'none';
+    };
+
     btn.onclick = () => {
       engTeams[i].score += engQuizScore;
       btn.textContent = '✓ 저장됨! ('+engTeams[i].score+'점)';
+      engTeams[i].lastScored = Date.now();
       btn.style.background = ENG_TEAM_COLORS[i];
       btn.style.color = '#fff';
       btn.disabled = true;
+      cancelBtn.style.display = 'inline';
     };
-    cont.appendChild(btn);
+
+    wrap.appendChild(btn);
+    wrap.appendChild(cancelBtn);
+    cont.appendChild(wrap);
   });
 }
 
@@ -5985,6 +6019,7 @@ function engSelectTimerCustom() {
 }
 
 function engBeginQuiz() {
+  engSyncTeams();
   const words = engWordSets[engCurrentCat];
   engQuizWords = [...words].sort(() => Math.random()-0.5);
   engQuizIndex = 0; engQuizScore = 0; engQuizLives = 3; engQuizWrong = [];
