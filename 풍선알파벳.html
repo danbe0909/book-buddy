@@ -771,10 +771,7 @@ function renderScoreboard() {
       <div class="sb-color" style="background:${TEAM_COLORS[i]};"></div>
       <div class="sb-name">${team.name}</div>
       <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>
-      <div class="sb-btn-row">
-        <button class="sb-adj sb-plus" onclick="adjustTeam(${i},10)">+10</button>
-        <button class="sb-adj sb-minus" onclick="adjustTeam(${i},-10)">-10</button>
-      </div>`;
+      `;
     grid.appendChild(card);
   });
 }
