@@ -186,7 +186,7 @@
 <!-- ③-B 주제·문제 관리 (선생님) -->
 <div id="quiz-manage-screen" class="screen">
     <div class="dashboard-header">
-        <div><h2>📝 주제·문제 관리</h2><p style="font-size:.82rem;color:#64748b;">주제를 선택하면 문제를 편집할 수 있어요</p></div>
+        <div><h2>📝 주제·문제 관리</h2><p style="font-size:.82rem;color:#64748b;">주제를 선택하면 문제를 편집하고, 👁️/🙈 으로 학생 노출 여부를 설정할 수 있어요</p></div>
         <button class="btn btn-gray btn-sm" onclick="showScreen('teacher-screen')">← 대시보드</button>
     </div>
     <hr class="divider">
@@ -907,6 +907,7 @@ let TEACHER_PW = "1234";
 let currentUser = null;
 let editingQuizKey = null;   // 문제 편집 중인 Firebase 키
 let currentEditCat = null;   // 현재 편집 중인 카테고리명
+let hiddenCats = {};          // { catKey: true } — 학생에게 숨긴 카테고리
 
 // ── 앱 시작: 선생님 PW + Firebase 커스텀 퀴즈 로드 ──
 async function loadTeacherPw(){
@@ -936,12 +937,16 @@ async function loadCustomQuizData(){
             await remove(ref(db,`quizData/${key}`));
         }
     }
-    // 저장된 전체 데이터로 quizData 교체
+    // 저장된 전체 데이터로 quizData 교체 + hiddenCats 갱신
     const snap2=await get(ref(db,'quizData'));
     const all=snap2.val()||{};
     const merged={};
-    for(const [,v] of Object.entries(all)){
-        if(v&&v.name&&Array.isArray(v.items)) merged[v.name]=v.items;
+    hiddenCats={};
+    for(const [key,v] of Object.entries(all)){
+        if(v&&v.name&&Array.isArray(v.items)){
+            merged[v.name]=v.items;
+            if(v.hidden) hiddenCats[v.name]=true;
+        }
     }
     Object.keys(quizData).forEach(k=>delete quizData[k]);
     Object.assign(quizData,merged);
@@ -1253,8 +1258,8 @@ function makeCatBtn(cat){
 
 function renderCategories(){
     const SPACING_KEYWORD='띄어쓰기';
-    const spacingCats=Object.keys(quizData).filter(c=>c.includes(SPACING_KEYWORD));
-    const normalCats =Object.keys(quizData).filter(c=>!c.includes(SPACING_KEYWORD));
+    const spacingCats=Object.keys(quizData).filter(c=>c.includes(SPACING_KEYWORD)&&!hiddenCats[c]);
+    const normalCats =Object.keys(quizData).filter(c=>!c.includes(SPACING_KEYWORD)&&!hiddenCats[c]);
 
     // 특별 기능 섹션 항상 표시 (받아쓰기·오늘의도전·복습하기)
     const spacingSection=document.getElementById('spacing-section');
@@ -1855,6 +1860,7 @@ window.loadQuizManage=async()=>{
         const cnt=Array.isArray(v.items)?v.items.length:0;
         const icon=v.name.split(' ')[0];
         const name=v.name.split(' ').slice(1).join(' ')||v.name;
+        const isHidden=!!v.hidden;
         const row=document.createElement('div');
         row.className='student-row';
         row.innerHTML=`
@@ -1866,6 +1872,11 @@ window.loadQuizManage=async()=>{
                 </div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn btn-sm" style="background:${isHidden?'#94a3b8':'#22c55e'};" 
+                    onclick="toggleCatVisible('${key}',${isHidden})"
+                    title="${isHidden?'학생에게 숨김':'학생에게 공개'}">
+                    ${isHidden?'🙈 숨김':'👁️ 공개'}
+                </button>
                 <button class="btn btn-blue btn-sm"   onclick="openQuizEdit('${key}')">✏️ 문제 편집</button>
                 <button class="btn btn-orange btn-sm" onclick="renameCat('${key}','${v.name.replace(/'/g,"\\'")}')">이름 변경</button>
                 <button class="btn btn-red btn-sm"    onclick="deleteCat('${key}','${v.name.replace(/'/g,"\\'")}')">삭제</button>
@@ -1913,6 +1924,20 @@ window.deleteCat=async(key,name)=>{
     if(!confirm(`"${name}" 주제와 모든 문제를 삭제할까요?`))return;
     await remove(ref(db,`quizData/${key}`));
     delete quizData[name];
+    loadQuizManage();
+};
+
+// 주제 노출/비노출 토글
+window.toggleCatVisible=async(key,currentlyHidden)=>{
+    const newHidden=!currentlyHidden;
+    await set(ref(db,`quizData/${key}/hidden`),newHidden);
+    // hiddenCats 메모리 갱신은 loadCustomQuizData 재호출로 처리
+    const snap=await get(ref(db,`quizData/${key}/name`));
+    const catName=snap.val();
+    if(catName){
+        if(newHidden) hiddenCats[catName]=true;
+        else delete hiddenCats[catName];
+    }
     loadQuizManage();
 };
 
