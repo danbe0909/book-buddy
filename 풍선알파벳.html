@@ -57,6 +57,8 @@ body{
 .sb-minus{background:#FCEBEB;color:#A32D2D;}
 .save-team-btn{padding:7px 16px;border-radius:50px;border:2px solid #E5E7EB;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1a1a2e;transition:transform 0.1s,border-color 0.15s;}
 .save-team-btn:active{transform:scale(0.94);}
+.undo-team-btn{padding:5px 12px;border-radius:50px;border:2px solid #E5E7EB;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#9CA3AF;transition:transform 0.1s,background 0.15s;margin-top:4px;}
+.undo-team-btn:active{transform:scale(0.94);background:#FEF3C7;}
 
 /* STREAK */
 .streak-bar{position:relative;z-index:10;text-align:center;height:24px;margin-bottom:4px;}
@@ -712,7 +714,7 @@ function endGame() {
 
 const TEAM_COLORS = ['#FF6B6B','#3B82F6','#1DD1A1','#FECA57','#A29BFE','#FD79A8'];
 let gTeamCount = 3;
-let gTeams = [{name:'1모둠',score:0},{name:'2모둠',score:0},{name:'3모둠',score:0}];
+let gTeams = [{name:'1모둠',score:0,lastSaved:0},{name:'2모둠',score:0,lastSaved:0},{name:'3모둠',score:0,lastSaved:0}];
 let gCurrentTeam = -1; // -1 = 모둠 없이 시작
 
 function setTeamCount(n) {
@@ -744,11 +746,12 @@ function renderTeamNameInputs() {
 
 function openScoreboard() {
   const inputs = document.querySelectorAll('.team-name-input');
+  const prevScores = gTeams.map(t => t.score);
   gTeams = [];
   inputs.forEach((inp, i) => {
-    gTeams.push({ name: inp.value || (i+1)+'모둠', score: gTeams[i]?.score || 0 });
+    gTeams.push({ name: inp.value || (i+1)+'모둠', score: prevScores[i] || 0 });
   });
-  while (gTeams.length < gTeamCount) gTeams.push({name:(gTeams.length+1)+'모둠', score:0});
+  while (gTeams.length < gTeamCount) gTeams.push({name:(gTeams.length+1)+'모둠', score:0, lastSaved:0});
   gTeams = gTeams.slice(0, gTeamCount);
   renderScoreboard();
   setScreen('scoreboardScreen');
@@ -758,7 +761,7 @@ function renderScoreboard() {
   const grid = document.getElementById('scoreboardGrid');
   grid.innerHTML = '';
   const maxScore = Math.max(...gTeams.map(t=>t.score), 1);
-  const sorted = gTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=>b.score-a.score);
+  const sorted = gTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=> b.score - a.score || b.lastSaved - a.lastSaved);
   sorted.forEach((team, rank) => {
     const i = team.origIdx;
     const card = document.createElement('div');
@@ -770,8 +773,7 @@ function renderScoreboard() {
       <div style="font-size:20px;min-width:24px;text-align:center;">${rankIcon||'<span style="font-size:13px;color:#9CA3AF;font-weight:800;">'+(rank+1)+'</span>'}</div>
       <div class="sb-color" style="background:${TEAM_COLORS[i]};"></div>
       <div class="sb-name">${team.name}</div>
-      <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>
-      `;
+      <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>`;
     grid.appendChild(card);
   });
 }
@@ -783,7 +785,7 @@ function adjustTeam(idx, delta) {
 
 function resetScoreboard() {
   if (!confirm('점수를 모두 초기화할까요?')) return;
-  gTeams.forEach(t => t.score = 0);
+  gTeams.forEach(t => { t.score = 0; t.lastSaved = 0; });
   renderScoreboard();
 }
 
@@ -799,19 +801,38 @@ function renderSaveTeamBtns() {
   area.style.display = 'block';
   cont.innerHTML = '';
   gTeams.forEach((team, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;';
     const btn = document.createElement('button');
     btn.className = 'save-team-btn';
     btn.style.borderColor = TEAM_COLORS[i];
     btn.style.color = TEAM_COLORS[i];
     btn.textContent = team.name + '에 저장';
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'undo-team-btn';
+    undoBtn.textContent = '↩ 저장 취소';
+    undoBtn.style.display = 'none';
     btn.onclick = () => {
       gTeams[i].score += gScore;
+      gTeams[i].lastSaved = Date.now();
       btn.textContent = '✓ 저장됨! ('+gTeams[i].score+'점)';
       btn.style.background = TEAM_COLORS[i];
       btn.style.color = '#fff';
       btn.disabled = true;
+      undoBtn.style.display = 'inline-block';
     };
-    cont.appendChild(btn);
+    undoBtn.onclick = () => {
+      gTeams[i].score = Math.max(0, gTeams[i].score - gScore);
+      gTeams[i].lastSaved = 0;
+      btn.textContent = team.name + '에 저장';
+      btn.style.background = '#fff';
+      btn.style.color = TEAM_COLORS[i];
+      btn.disabled = false;
+      undoBtn.style.display = 'none';
+    };
+    wrap.appendChild(btn);
+    wrap.appendChild(undoBtn);
+    cont.appendChild(wrap);
   });
 }
 
