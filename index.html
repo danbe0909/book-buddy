@@ -6,6 +6,7 @@
     <title>BookBuddy AI - 스마트 독서 기록장</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#FFCC00">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,10 +22,10 @@
             --border: #ffe082;
         }
         body { font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; letter-spacing: -0.5px; }
-        .mode-selector { display: flex; background: white; padding: 8px; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 999; gap: 8px; border-radius: 0 0 15px 15px; }
-        .mode-btn { flex: 1; border: none; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 20px; color: #888; background: #f1f5f9; transition: 0.2s ease; }
+        .mode-selector { display: flex; background: white; padding: 8px; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 1001; gap: 8px; border-radius: 0 0 15px 15px; }
+        .mode-btn { flex: 1; border: none; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 20px; color: #888; background: #f1f5f9; transition: 0.2s ease; position: relative; z-index: 1001; }
         .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 0px var(--primary-dark); transform: translateY(-2px); }
-        header { background: linear-gradient(135deg, #ff9a8b 0%, #ff8e72 100%); color: white; padding: 35px 20px; text-align: center; border-radius: 0 0 50% 50% / 0 0 20px 20px; box-shadow: 0 4px 10px rgba(255,142,114,0.3); margin-bottom: 10px; position: relative; z-index: 0; pointer-events: none; }
+        header { background: linear-gradient(135deg, #ff9a8b 0%, #ff8e72 100%); color: white; padding: 35px 20px; text-align: center; border-radius: 0 0 30% 30% / 0 0 20px 20px; box-shadow: 0 4px 10px rgba(255,142,114,0.3); margin-bottom: 0; position: relative; z-index: 0; pointer-events: none; }
         header * { pointer-events: auto; }
         .container { max-width: 500px; margin: 0 auto; padding: 16px; }
         .card { background: var(--card-bg); border-radius: 25px; padding: 22px; margin-bottom: 18px; border: 3px solid var(--border); box-shadow: 0 6px 0px rgba(255,224,130,0.5); transition: transform 0.2s ease; position: relative; }
@@ -48,6 +49,7 @@
         .grade-row select { margin-bottom: 0; }
         .hidden { display: none !important; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(3px); }
+        #adminAuthModal { background: var(--bg) !important; backdrop-filter: none !important; align-items: flex-start; padding-top: 60px; overflow-y: auto; z-index: 2000 !important; }
         #myChart { background-color: rgba(255,255,255,0.3); border-radius: 15px; padding: 5px; }
         .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .title-row h3 { font-size: 18px; margin: 0; color: var(--primary-dark); }
@@ -391,6 +393,288 @@
     .eng-save-team-btn:active { transform:scale(0.94); }
     .eng-team-count-btn { padding:8px 16px; border:2px solid #ffe082; border-radius:50px; font-size:13px; font-weight:800; cursor:pointer; background:#fffbe0; color:#4a4a4a; font-family:inherit; transition:all 0.15s; }
     .eng-team-count-btn.sel { background:var(--primary); border-color:var(--primary-dark); color:white; }
+
+    /* ── 알파벳 따라쓰기 CSS ── */
+    #alphaView .alpha-app { max-width: 500px; margin: 0 auto; padding: 0 0 40px; }
+    #alphaView .alpha-header { text-align: center; padding: 16px 0 14px; }
+    #alphaView .alpha-header h2 { font-family: 'Fredoka One', cursive; font-size: 26px; color: #2C2C2A; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; }
+    #alphaView .alpha-header h2 .alpha-pencil { display: inline-block; animation: alphawiggle 2s infinite; }
+    #alphaView .alpha-header p { font-size: 13px; color: #888780; margin-top: 4px; font-weight: 600; }
+    @keyframes alphawiggle { 0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg);} }
+    #alphaView .alpha-mode-tabs { display: flex; gap: 10px; justify-content: center; margin: 0 0 16px; }
+    #alphaView .alpha-mode-tab { font-family: 'Fredoka One', cursive; font-size: 16px; padding: 9px 24px; border-radius: 999px; border: 2.5px solid transparent; cursor: pointer; transition: all 0.25s; background: #fff; color: #888780; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    #alphaView .alpha-mode-tab:hover { transform: translateY(-2px); }
+    #alphaView .alpha-mode-tab.active-upper { background: #EEEDFE; color: #3C3489; border-color: #7F77DD; }
+    #alphaView .alpha-mode-tab.active-lower { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
+    #alphaView .alpha-nav-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    #alphaView .alpha-nav-btn { font-family: 'Fredoka One', cursive; font-size: 22px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); background: #fff; color: #2C2C2A; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: 0 4px 24px rgba(0,0,0,0.08); flex-shrink: 0; }
+    #alphaView .alpha-nav-btn:hover { background: #f0f0f0; transform: scale(1.08); }
+    #alphaView .alpha-letter-pills { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; flex: 1; }
+    #alphaView .alpha-letter-pill { font-family: 'Fredoka One', cursive; font-size: 12px; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.1); background: #fff; color: #888780; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.18s; user-select: none; }
+    #alphaView .alpha-letter-pill:hover { transform: scale(1.15); }
+    #alphaView .alpha-letter-pill.done-upper { background: #EEEDFE; color: #3C3489; border-color: #7F77DD; }
+    #alphaView .alpha-letter-pill.done-lower { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
+    #alphaView .alpha-letter-pill.current-upper { background: #7F77DD; color: #fff; border-color: #534AB7; transform: scale(1.2); box-shadow: 0 2px 10px #7F77DD55; }
+    #alphaView .alpha-letter-pill.current-lower { background: #1D9E75; color: #fff; border-color: #0F6E56; transform: scale(1.2); box-shadow: 0 2px 10px #1D9E7555; }
+    #alphaView .alpha-tracing-card { background: #fff; border-radius: 20px; border: 0.5px solid rgba(0,0,0,0.1); padding: 20px 16px 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    #alphaView .alpha-stroke-order-panel { background: #F8F7F2; border-radius: 14px; border: 1px solid rgba(0,0,0,0.1); padding: 12px 14px; margin-bottom: 16px; }
+    #alphaView .alpha-stroke-order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
+    #alphaView .alpha-stroke-order-title { font-family: 'Fredoka One', cursive; font-size: 14px; color: #2C2C2A; }
+    #alphaView .alpha-stroke-controls { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    #alphaView .alpha-stroke-ctrl-btn { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 11px; padding: 5px 12px; border-radius: 999px; border: 1.5px solid rgba(0,0,0,0.1); background: #fff; color: #2C2C2A; cursor: pointer; transition: all 0.15s; }
+    #alphaView .alpha-stroke-ctrl-btn.playing-upper { background: #EEEDFE; color: #3C3489; border-color: #7F77DD; }
+    #alphaView .alpha-stroke-ctrl-btn.playing-lower { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
+    #alphaView .alpha-stroke-steps { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+    #alphaView .alpha-stroke-step { position: relative; background: #fff; border-radius: 12px; border: 2.5px solid rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+    #alphaView .alpha-stroke-step:hover { transform: scale(1.07); border-color: #bbb; }
+    #alphaView .alpha-stroke-step.active-upper { border-color: #7F77DD; box-shadow: 0 0 0 3px #7F77DD22; }
+    #alphaView .alpha-stroke-step.active-lower { border-color: #1D9E75; box-shadow: 0 0 0 3px #1D9E7522; }
+    #alphaView .alpha-stroke-step canvas { display: block; }
+    #alphaView .alpha-stroke-num { position: absolute; top: 4px; left: 5px; font-family: 'Fredoka One', cursive; font-size: 10px; color: #fff; border-radius: 999px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    #alphaView .alpha-stroke-num.upper-num { background: #7F77DD; }
+    #alphaView .alpha-stroke-num.lower-num { background: #1D9E75; }
+    #alphaView .alpha-letter-info { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    #alphaView .alpha-big-letter { font-family: 'Fredoka One', cursive; font-size: 72px; line-height: 1; width: 90px; height: 90px; border-radius: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; }
+    #alphaView .alpha-big-letter.upper { background: #EEEDFE; color: #534AB7; }
+    #alphaView .alpha-big-letter.lower { background: #E1F5EE; color: #0F6E56; }
+    #alphaView .alpha-letter-details { flex: 1; }
+    #alphaView .alpha-letter-name { font-family: 'Fredoka One', cursive; font-size: 20px; color: #2C2C2A; margin-bottom: 4px; }
+    #alphaView .alpha-letter-example { font-size: 14px; color: #888780; font-weight: 600; }
+    #alphaView .alpha-hint-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-top: 6px; }
+    #alphaView .alpha-hint-badge.upper { background: #EEEDFE; color: #3C3489; }
+    #alphaView .alpha-hint-badge.lower { background: #E1F5EE; color: #085041; }
+    #alphaView .alpha-canvas-section { position: relative; }
+    #alphaView .alpha-canvas-label { font-size: 12px; font-weight: 700; color: #888780; margin-bottom: 6px; }
+    #alphaView .alpha-canvas-wrap { position: relative; border-radius: 14px; overflow: hidden; border: 2px dashed rgba(0,0,0,0.12); background: #FFFDF5; }
+    #alphaView .alpha-canvas-wrap canvas { display: block; width: 100%; }
+    #alphaView #alpha-guide-canvas { position: absolute; top: 0; left: 0; pointer-events: none; transition: opacity 0.3s; }
+    #alphaView #alpha-draw-canvas { cursor: crosshair; }
+    #alphaView .alpha-toolbar { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+    #alphaView .alpha-toolbar-section { display: flex; gap: 5px; align-items: center; padding: 5px 8px; background: #F8F7F2; border-radius: 999px; border: 1px solid rgba(0,0,0,0.1); }
+    #alphaView .alpha-color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid transparent; cursor: pointer; transition: transform 0.15s; flex-shrink: 0; }
+    #alphaView .alpha-color-dot:hover { transform: scale(1.2); }
+    #alphaView .alpha-color-dot.selected { border-color: #2C2C2A; transform: scale(1.15); box-shadow: 0 0 0 2px #fff inset; }
+    #alphaView .alpha-pen-size-dot { border-radius: 50%; background: #2C2C2A; cursor: pointer; border: 2.5px solid transparent; transition: all 0.15s; flex-shrink: 0; }
+    #alphaView .alpha-pen-size-dot.selected { border-color: #7F77DD; box-shadow: 0 0 0 2px #7F77DD44; }
+    #alphaView .alpha-tool-btn { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; padding: 7px 13px; border-radius: 999px; border: 1.5px solid rgba(0,0,0,0.1); background: #fff; color: #2C2C2A; cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+    #alphaView .alpha-tool-btn:hover { background: #F1EFE8; transform: translateY(-1px); }
+    #alphaView .alpha-tool-btn.active { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
+    #alphaView .alpha-tool-btn.erasing { background: #FAECE7; color: #D85A30; border-color: #F0997B; }
+    #alphaView .alpha-tool-btn.clear-btn { background: #FBEAF0; color: #72243E; border-color: #D4537E; }
+    #alphaView .alpha-progress-section { margin-top: 14px; }
+    #alphaView .alpha-star-row { display: flex; gap: 4px; align-items: center; justify-content: center; margin-bottom: 6px; font-size: 20px; }
+    #alphaView .alpha-progress-bar { height: 8px; background: #F1EFE8; border-radius: 999px; overflow: hidden; }
+    #alphaView .alpha-progress-fill { height: 100%; border-radius: 999px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+    #alphaView .alpha-progress-fill.upper { background: linear-gradient(90deg, #AFA9EC, #7F77DD); }
+    #alphaView .alpha-progress-fill.lower { background: linear-gradient(90deg, #5DCAA5, #1D9E75); }
+    #alphaView .alpha-progress-text { font-size: 12px; font-weight: 700; color: #888780; text-align: right; margin-top: 4px; }
+    /* ── 🎈 풍선 알파벳 CSS ── */
+
+
+#balloonView {
+  font-family:'Nunito','Noto Sans KR',sans-serif;
+  background:linear-gradient(180deg,#87CEEB 0%,#B0E0FF 40%,#E8F7FF 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+#balloon-wrap{
+  max-width:640px;
+  margin:0 auto;
+  min-height:100vh;
+  padding:12px;
+  position:relative;
+}
+
+/* CLOUDS */
+.cloud{position:absolute;background:#fff;border-radius:50px;opacity:0.65;pointer-events:none;z-index:0;}
+
+/* HUD */
+.hud{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,0.85);
+  border-radius:50px;padding:8px 18px;
+  margin-bottom:8px;position:relative;z-index:10;
+  backdrop-filter:blur(4px);
+}
+.hud-mode{font-size:14px;font-weight:800;color:#1a1a2e;}
+.hud-score{font-size:15px;font-weight:800;color:#185FA5;}
+.hud-lives{display:flex;gap:3px;font-size:18px;}
+.quit-btn{background:rgba(255,255,255,0.6);border:1.5px solid rgba(0,0,0,0.12);border-radius:50px;padding:4px 12px;font-size:12px;font-weight:800;color:#6B7280;cursor:pointer;font-family:inherit;transition:background 0.15s,transform 0.1s;white-space:nowrap;}
+.quit-btn:active{background:rgba(255,100,100,0.15);transform:scale(0.95);}
+.timer-bar-wrap{position:relative;z-index:10;margin-bottom:6px;}
+.timer-bar-track{background:rgba(255,255,255,0.35);border-radius:99px;height:18px;overflow:hidden;position:relative;}
+.timer-bar-fill{height:100%;border-radius:99px;background:#4ADE80;transition:width 1s linear,background 0.4s;}
+.timer-bar-num{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.3);line-height:1;}
+.score-board-btn{display:block;width:100%;padding:11px;margin-top:8px;background:rgba(255,255,255,0.7);color:#185FA5;border:2px solid #B5D4F4;border-radius:50px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background 0.15s,transform 0.1s;}
+.score-board-btn:active{transform:scale(0.97);}
+.team-name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.team-color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.team-name-input{flex:1;padding:7px 10px;font-size:14px;font-family:inherit;border:1.5px solid #E5E7EB;border-radius:8px;background:#F9FAFB;color:#1a1a2e;font-weight:700;outline:none;}
+.team-name-input:focus{border-color:#3B82F6;}
+.sb-card{background:rgba(255,255,255,0.88);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.sb-color{width:18px;height:18px;border-radius:50%;flex-shrink:0;}
+.sb-name{font-size:15px;font-weight:800;color:#1a1a2e;flex:1;}
+.sb-score{font-size:26px;font-weight:900;}
+.sb-btn-row{display:flex;gap:6px;}
+.sb-adj{padding:5px 12px;border-radius:8px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;}
+.sb-plus{background:#EAF3DE;color:#27500A;}
+.sb-minus{background:#FCEBEB;color:#A32D2D;}
+.save-team-btn{padding:7px 16px;border-radius:50px;border:2px solid #E5E7EB;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1a1a2e;transition:transform 0.1s,border-color 0.15s;}
+.save-team-btn:active{transform:scale(0.94);}
+.undo-team-btn{padding:5px 12px;border-radius:50px;border:2px solid #E5E7EB;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#9CA3AF;transition:transform 0.1s,background 0.15s;margin-top:4px;}
+.undo-team-btn:active{transform:scale(0.94);background:#FEF3C7;}
+
+/* STREAK */
+.streak-bar{position:relative;z-index:10;text-align:center;height:24px;margin-bottom:4px;}
+.streak-txt{font-size:14px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.3);}
+
+/* QUESTION */
+.q-box{
+  position:relative;z-index:10;text-align:center;
+  margin-bottom:6px;
+  background:rgba(255,255,255,0.22);
+  border-radius:20px;padding:10px 12px;
+  backdrop-filter:blur(2px);
+}
+.q-label{font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);margin-bottom:2px;}
+.q-letter{
+  font-size:96px;font-weight:900;color:#fff;
+  line-height:1;text-shadow:0 4px 10px rgba(0,0,0,0.2);
+  letter-spacing:-2px;
+}
+.q-hint{font-size:13px;color:rgba(255,255,255,0.9);font-weight:700;margin-top:2px;}
+
+/* BALLOON FIELD */
+.balloon-field{
+  position:relative;z-index:5;
+  height:350px;
+  overflow:hidden;
+  border-radius:16px;
+}
+.balloon{position:absolute;cursor:pointer;user-select:none;transition:transform 0.08s;pointer-events:auto;touch-action:manipulation;}
+.balloon:hover{transform:scale(1.06);}
+.balloon:active{transform:scale(0.86)!important;}
+.balloon svg{display:block;}
+.balloon.pop{animation:popAnim 0.3s forwards;}
+.balloon.wrong-shake{animation:shakeBl 0.38s;}
+@keyframes popAnim{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.45)}
+  100%{transform:scale(0);opacity:0;}
+}
+@keyframes shakeBl{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-10px)}
+  60%{transform:translateX(10px)}
+}
+.pop-particle{
+  position:absolute;border-radius:50%;pointer-events:none;
+  animation:particleFly 0.5s forwards;
+}
+@keyframes particleFly{
+  0%{transform:scale(1);opacity:1}
+  100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0;}
+}
+
+
+/* FEEDBACK */
+#feedbackMsg{
+  position:absolute;top:38%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:34px;font-weight:900;
+  color:#fff;
+  text-shadow:0 3px 10px rgba(0,0,0,0.25);
+  pointer-events:none;z-index:40;
+  opacity:0;transition:opacity 0.18s;
+  text-align:center;white-space:nowrap;
+}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* MENU */
+.center-card{
+  background:rgba(255,255,255,0.93);
+  border-radius:24px;
+  padding:28px 22px 24px;
+  max-width:380px;
+  margin:32px auto 0;
+  text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.1);
+}
+.big-icon{font-size:56px;margin-bottom:8px;display:block;}
+.big-title{font-size:30px;font-weight:900;color:#1a1a2e;margin-bottom:4px;}
+.sub-txt{font-size:14px;color:#6B7280;font-weight:600;margin-bottom:20px;}
+
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.mode-btn{
+  background:#F9FAFB;border:2px solid #E5E7EB;
+  border-radius:14px;padding:16px 8px;
+  cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:6px;font-family:inherit;
+  transition:border-color 0.15s,background 0.15s,transform 0.1s;
+}
+.mode-btn:active{transform:scale(0.95);}
+.mode-btn.sel{border-color:#3B82F6;background:#EFF6FF;}
+.mode-icon{font-size:26px;}
+.mode-lbl{font-size:13px;font-weight:800;color:#1a1a2e;}
+.mode-sub{font-size:11px;color:#9CA3AF;font-weight:600;}
+
+.section-label{font-size:13px;font-weight:700;color:#9CA3AF;margin-bottom:8px;}
+.diff-row{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+.diff-btn{
+  padding:8px 20px;border:2px solid #E5E7EB;
+  border-radius:50px;font-size:13px;font-weight:800;
+  cursor:pointer;background:#F9FAFB;color:#1a1a2e;
+  font-family:inherit;transition:background 0.15s,border-color 0.15s,transform 0.1s;
+}
+.diff-btn:active{transform:scale(0.95);}
+.diff-btn.sel{background:#3B82F6;border-color:#3B82F6;color:#fff;}
+
+.start-btn{
+  display:block;width:100%;padding:15px;
+  background:linear-gradient(135deg,#3B82F6,#6366F1);
+  color:#fff;border:none;border-radius:50px;
+  font-size:18px;font-weight:900;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 4px 16px rgba(59,130,246,0.4);
+  transition:transform 0.1s,box-shadow 0.1s;
+}
+.start-btn:active{transform:scale(0.97);box-shadow:none;}
+
+/* RESULT */
+.res-icon{font-size:56px;display:block;margin-bottom:8px;}
+.res-score{font-size:52px;font-weight:900;color:#3B82F6;margin:8px 0;}
+.res-detail{font-size:14px;color:#6B7280;font-weight:600;margin-bottom:8px;}
+.res-grade{font-size:15px;font-weight:800;margin-bottom:20px;}
+.action-row{display:flex;gap:10px;justify-content:center;}
+.act-btn{
+  padding:12px 24px;border:2px solid #E5E7EB;
+  border-radius:50px;font-size:14px;font-weight:800;
+  cursor:pointer;background:#F9FAFB;color:#1a1a2e;
+  font-family:inherit;transition:transform 0.1s;
+}
+.act-btn:active{transform:scale(0.96);}
+.act-btn.prim{
+  background:linear-gradient(135deg,#3B82F6,#6366F1);
+  border-color:transparent;color:#fff;
+  box-shadow:0 3px 12px rgba(59,130,246,0.35);
+}
+
+/* PROGRESS */
+.q-progress{
+  display:flex;gap:5px;justify-content:center;
+  margin-bottom:8px;position:relative;z-index:10;
+}
+.q-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,0.4);
+  transition:background 0.3s;
+}
+.q-dot.done{background:#FFD700;}
+.q-dot.current{background:#fff;}
+
     </style>
     <script>
   if ('serviceWorker' in navigator) {
@@ -400,19 +684,22 @@
 </head>
 <body>
 
+<header>
+    <div id="headerClassName" style="font-size:14px; opacity:0.9; margin-bottom:8px; font-weight:bold;">학년/반을 선택해주세요</div>
+    <h1 style="font-size:28px; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.2);">📖 BookBuddy AI</h1>
+    <div style="font-size:10px; opacity:0.6; margin-top:4px;">v2025.04.18-fix4</div>
+    <div id="headerTeacherBadge" style="margin-top:8px;"></div>
+</header>
+
 <div class="mode-selector">
     <button id="sModeBtn" class="mode-btn active" onclick="executeSwitch('student')">👶 학생 접속</button>
     <button id="mModeBtn" class="mode-btn" onclick="executeSwitch('math')">🔢 연산 드릴</button>
     <button id="wjModeBtn" class="mode-btn" onclick="executeSwitch('wordjang')">📖 문장제 드릴</button>
     <button id="engModeBtn" class="mode-btn" onclick="executeSwitch('english')">⭐ 영단어 드릴</button>
+    <button id="alphaModeBtn" class="mode-btn" onclick="executeSwitch('alpha')">✏️ 알파벳 쓰기</button>
+    <button id="balloonModeBtn" class="mode-btn" onclick="executeSwitch('balloon')">🎈 풍선게임</button>
     <button id="tModeBtn" class="mode-btn" onclick="openTeacherModal()">👩‍🏫 교사 관리 🔒</button>
 </div>
-
-<header>
-    <div id="headerClassName" style="font-size:14px; opacity:0.9; margin-bottom:8px; font-weight:bold;">학년/반을 선택해주세요</div>
-    <h1 style="font-size:28px; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.2);">📖 BookBuddy AI</h1>
-    <div id="headerTeacherBadge" style="margin-top:8px;"></div>
-</header>
 
 <div class="container">
 
@@ -829,6 +1116,699 @@
     </div>
     <!-- ══ 영단어 별나라 뷰 끝 ══ -->
 
+    <!-- ══════════════════════════════════════
+         ✏️ 알파벳 따라쓰기 뷰
+    ══════════════════════════════════════ -->
+    <div id="alphaView" class="hidden">
+      <div class="alpha-app">
+        <div class="alpha-header">
+          <h2><span class="alpha-pencil">✏️</span> 알파벳 따라쓰기</h2>
+          <p>획순 애니메이션을 보고 따라 써봐요!</p>
+        </div>
+        <div class="alpha-mode-tabs">
+          <button class="alpha-mode-tab active-upper" id="alpha-tab-upper" onclick="alphaSetMode('upper')">🅰 대문자</button>
+          <button class="alpha-mode-tab" id="alpha-tab-lower" onclick="alphaSetMode('lower')">🔡 소문자</button>
+        </div>
+        <div class="alpha-nav-bar">
+          <button class="alpha-nav-btn" onclick="alphaPrevLetter()">←</button>
+          <div class="alpha-letter-pills" id="alpha-pills"></div>
+          <button class="alpha-nav-btn" onclick="alphaNextLetter()">→</button>
+        </div>
+        <div class="alpha-tracing-card">
+          <div class="alpha-stroke-order-panel">
+            <div class="alpha-stroke-order-header">
+              <div class="alpha-stroke-order-title" id="alpha-stroke-title">✍️ 획순 보기</div>
+              <div class="alpha-stroke-controls">
+                <button class="alpha-stroke-ctrl-btn" id="alpha-anim-btn" onclick="alphaPlayAnimation()">▶ 애니메이션 보기</button>
+                <button class="alpha-stroke-ctrl-btn" onclick="alphaResetStrokePreview()">↺ 처음부터</button>
+              </div>
+            </div>
+            <div class="alpha-stroke-steps" id="alpha-stroke-steps"></div>
+          </div>
+          <div class="alpha-letter-info">
+            <div class="alpha-big-letter upper" id="alpha-big-letter">A</div>
+            <div class="alpha-letter-details">
+              <div class="alpha-letter-name" id="alpha-letter-name">A / a</div>
+              <div class="alpha-letter-example" id="alpha-letter-example">Apple 🍎</div>
+              <span class="alpha-hint-badge upper" id="alpha-hint-badge">위에서 아래로</span>
+            </div>
+          </div>
+          <div class="alpha-canvas-section">
+            <div class="alpha-canvas-label" id="alpha-canvas-label">👆 아래에 따라 써보세요</div>
+            <div class="alpha-canvas-wrap">
+              <canvas id="alpha-guide-canvas" width="700" height="240"></canvas>
+              <canvas id="alpha-draw-canvas" width="700" height="240"></canvas>
+            </div>
+          </div>
+          <div class="alpha-toolbar">
+            <div class="alpha-toolbar-section" id="alpha-color-dots"></div>
+            <div class="alpha-toolbar-section" id="alpha-pen-sizes"></div>
+            <button class="alpha-tool-btn active" id="alpha-guide-btn" onclick="alphaToggleGuide()">👁 가이드</button>
+            <button class="alpha-tool-btn" id="alpha-erase-btn" onclick="alphaToggleEraser()">🧹 지우개</button>
+            <button class="alpha-tool-btn clear-btn" onclick="alphaClearCanvas()">🗑 전체 지우기</button>
+          </div>
+          <div class="alpha-progress-section">
+            <div class="alpha-star-row" id="alpha-star-row"></div>
+            <div class="alpha-progress-bar"><div class="alpha-progress-fill upper" id="alpha-progress-fill" style="width:0%"></div></div>
+            <div class="alpha-progress-text" id="alpha-progress-text">0 / 26 완료</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ══ 알파벳 따라쓰기 뷰 끝 ══ -->
+    <!-- ══════════════════════════════════════
+         🎈 풍선 알파벳 게임 뷰
+    ══════════════════════════════════════ -->
+    <div id="balloonView" class="hidden">
+<div id="balloon-wrap">
+  <div id="cloudLayer"></div>
+
+  <!-- MENU -->
+  <div id="menuScreen" class="screen active">
+    <div class="center-card">
+      <span class="big-icon">🎈</span>
+      <div class="big-title">풍선 알파벳</div>
+      <div class="sub-txt">풍선을 터뜨려서 알파벳을 배워요!</div>
+
+      <div class="mode-row">
+        <button class="mode-btn sel" id="modeUL" onclick="selectMode('ul')">
+          <span class="mode-icon">🔡</span>
+          <span class="mode-lbl">대→소문자</span>
+          <span class="mode-sub">A 보고 a 찾기</span>
+        </button>
+        <button class="mode-btn" id="modeLU" onclick="selectMode('lu')">
+          <span class="mode-icon">🔠</span>
+          <span class="mode-lbl">소→대문자</span>
+          <span class="mode-sub">a 보고 A 찾기</span>
+        </button>
+        <button class="mode-btn" id="modeMIX" onclick="selectMode('mix')">
+          <span class="mode-icon">🎲</span>
+          <span class="mode-lbl">섞기 모드</span>
+          <span class="mode-sub">랜덤으로 번갈아</span>
+        </button>
+        <button class="mode-btn" id="modeALL" onclick="selectMode('all')">
+          <span class="mode-icon">🌈</span>
+          <span class="mode-lbl">전체 모드</span>
+          <span class="mode-sub">A~Z 모두 다!</span>
+        </button>
+      </div>
+
+      <div class="section-label">난이도 선택</div>
+      <div class="diff-row">
+        <button class="diff-btn sel" id="diffE" onclick="selectDiff('easy')">🐢 쉬움</button>
+        <button class="diff-btn"    id="diffN" onclick="selectDiff('normal')">🐇 보통</button>
+        <button class="diff-btn"    id="diffH" onclick="selectDiff('hard')">🚀 어려움</button>
+      </div>
+
+      <div class="section-label">제한 시간 (전체)</div>
+      <div class="diff-row">
+        <button class="diff-btn" id="time30"  onclick="selectTime(30)">30초</button>
+        <button class="diff-btn sel" id="time60"  onclick="selectTime(60)">1분</button>
+        <button class="diff-btn" id="time120" onclick="selectTime(120)">2분</button>
+        <button class="diff-btn" id="time0"   onclick="selectTime(0)">무제한</button>
+      </div>
+
+      <button class="start-btn" onclick="startGame()">게임 시작! 🎈</button>
+      <button class="score-board-btn" onclick="setScreen('teamSetupScreen')">📋 모둠 점수판</button>
+    </div>
+  </div>
+
+  <!-- TEAM SETUP -->
+  <div id="teamSetupScreen" class="screen">
+    <div class="center-card" style="max-width:420px;">
+      <div class="big-title" style="font-size:22px;margin-bottom:4px;">📋 모둠 점수판 설정</div>
+      <div class="sub-txt" style="margin-bottom:16px;">모둠 수와 이름을 정해요</div>
+      <div class="section-label">모둠 수</div>
+      <div class="diff-row" style="margin-bottom:16px;">
+        <button class="diff-btn" id="team2" onclick="setTeamCount(2)">2모둠</button>
+        <button class="diff-btn sel" id="team3" onclick="setTeamCount(3)">3모둠</button>
+        <button class="diff-btn" id="team4" onclick="setTeamCount(4)">4모둠</button>
+        <button class="diff-btn" id="team5" onclick="setTeamCount(5)">5모둠</button>
+        <button class="diff-btn" id="team6" onclick="setTeamCount(6)">6모둠</button>
+      </div>
+      <div id="teamNameInputs" style="margin-bottom:16px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="act-btn" style="flex:1;" onclick="setScreen('menuScreen')">← 뒤로</button>
+        <button class="act-btn prim" style="flex:2;" onclick="openScoreboard()">점수판 열기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCOREBOARD -->
+  <div id="scoreboardScreen" class="screen">
+    <div style="padding:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:18px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.2);">📋 모둠 점수판</div>
+        <button class="quit-btn" onclick="setScreen('menuScreen')">← 메뉴</button>
+      </div>
+      <div id="scoreboardGrid" style="display:grid;gap:8px;margin-bottom:10px;"></div>
+      <button class="start-btn" onclick="startGameFromScoreboard()" style="margin-bottom:8px;">게임 시작! 🎈</button>
+      <button class="act-btn" style="width:100%;text-align:center;" onclick="resetScoreboard()">점수 초기화</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen" class="screen">
+    <div class="hud">
+      <div class="hud-mode" id="hudMode">대→소문자</div>
+      <div class="hud-score">⭐ <span id="scoreDisplay">0</span></div>
+      <div class="hud-lives" id="livesDisplay"></div>
+      <button class="quit-btn" onclick="goMenu()">그만하기 ✕</button>
+    </div>
+    <div class="timer-bar-wrap" id="timerBarWrap" style="display:none;">
+      <div class="timer-bar-track">
+        <div class="timer-bar-fill" id="timerBarFill"></div>
+        <span class="timer-bar-num" id="timerBarNum">15</span>
+      </div>
+    </div>
+    <div class="streak-bar"><span class="streak-txt" id="streakTxt"></span></div>
+    <div class="q-progress" id="qProgress"></div>
+    <div class="q-box">
+      <div class="q-label" id="qLabel">이 대문자와 짝꿍인 소문자 풍선을 터뜨려요!</div>
+      <div class="q-letter" id="qLetter">A</div>
+      <div class="q-hint" id="qHint"></div>
+    </div>
+    <div class="balloon-field" id="balloonField"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultScreen" class="screen">
+    <div class="center-card">
+      <span class="res-icon" id="resEmoji">🏆</span>
+      <div class="big-title" id="resTitle">게임 끝!</div>
+      <div class="res-score" id="resScore">0점</div>
+      <div class="res-detail" id="resDetail">맞힌 개수: 0 / 0</div>
+      <div class="res-grade" id="resGrade"></div>
+      <div id="saveTeamArea" style="display:none;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:#6B7280;margin-bottom:8px;">어느 모둠 점수로 저장할까요?</div>
+        <div id="saveTeamBtns" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;"></div>
+      </div>
+      <div class="action-row">
+        <button class="act-btn prim" id="retryBtn">다시 하기</button>
+        <button class="act-btn" onclick="goMenu()">메뉴</button>
+        <button class="act-btn" onclick="setScreen('scoreboardScreen');renderScoreboard()">점수판 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="feedbackMsg"></div>
+</div>
+
+<script>
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const BALLOON_COLORS = [
+  '#FF6B6B','#FF9F43','#FECA57','#48DBFB','#1DD1A1',
+  '#A29BFE','#FD79A8','#6C5CE7','#00CEC9','#E17055',
+  '#0984E3','#55EFC4','#FDCB6E','#E84393','#2ECC71'
+];
+const NAMES = {
+  A:'에이',B:'비',C:'씨',D:'디',E:'이',F:'에프',G:'지',H:'에이치',
+  I:'아이',J:'제이',K:'케이',L:'엘',M:'엠',N:'엔',O:'오',P:'피',
+  Q:'큐',R:'아르',S:'에스',T:'티',U:'유',V:'브이',W:'더블유',
+  X:'엑스',Y:'와이',Z:'제트'
+};
+const DIFF_CFG = {
+  easy:   {count:5, speedMin:7, speedMax:10, delayMs:500},
+  normal: {count:6, speedMin:5, speedMax:8,  delayMs:400},
+  hard:   {count:8, speedMin:3, speedMax:5,  delayMs:280}
+};
+const TOTAL_Q = {ul:10, lu:10, mix:10, all:26};
+
+let AU = null;
+try { AU = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+
+function beep(freq, dur, type='sine', vol=0.2) {
+  if (!AU) return;
+  try {
+    const o = AU.createOscillator(), g = AU.createGain();
+    o.connect(g); g.connect(AU.destination);
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, AU.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AU.currentTime + dur);
+    o.start(); o.stop(AU.currentTime + dur);
+  } catch(e) {}
+}
+function sfxPop()    { beep(600,0.05); setTimeout(()=>beep(850,0.07),40); setTimeout(()=>beep(1100,0.1),85); }
+function sfxWrong()  { beep(160,0.22,'sawtooth',0.08); }
+function sfxStreak() { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,0.1),i*55)); }
+function sfxFinish() { [523,659,784,523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,0.14),i*75)); }
+function sfxMiss()   { beep(220,0.15,'sawtooth',0.07); }
+
+function speak(letter) {
+  if (!window.speechSynthesis) return;
+  const name = NAMES[letter.toUpperCase()] || letter;
+  const utter = new SpeechSynthesisUtterance(name);
+  utter.lang = 'ko-KR'; utter.rate = 0.85; utter.pitch = 1.15; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+function speakLetter(letter) {
+  if (!window.speechSynthesis) return;
+  const utter = new SpeechSynthesisUtterance(letter);
+  utter.lang = 'en-US'; utter.rate = 0.75; utter.pitch = 1.1; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+let gMode = 'ul', gDiff = 'easy', gTimeLimit = 60;
+let gScore = 0, gLives = 3, gStreak = 0, gTotal = 0, gCorrect = 0, gMaxQ = 10;
+let gQuestion = '', gAnswer = '', gLocked = false;
+let gRetryFn = null;
+let gUsedLetters = [];
+let floatTimers = [];
+let gTimerInt = null, gTimerLeft = 0;
+
+function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function selectMode(m) {
+  gMode = m;
+  ['ul','lu','mix','all'].forEach(x => {
+    const el = document.getElementById('mode' + x.toUpperCase());
+    if (el) el.classList.toggle('sel', x === m);
+  });
+}
+function selectDiff(d) {
+  gDiff = d;
+  const map = {easy:'E', normal:'N', hard:'H'};
+  ['E','N','H'].forEach(x => document.getElementById('diff'+x).classList.remove('sel'));
+  document.getElementById('diff'+map[d]).classList.add('sel');
+}
+function selectTime(t) {
+  gTimeLimit = t;
+  [30,60,120,0].forEach(v => document.getElementById('time'+v).classList.remove('sel'));
+  document.getElementById('time'+t).classList.add('sel');
+}
+
+function setScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goMenu() { clearAllTimers(); if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; } setScreen('menuScreen'); }
+
+function clearAllTimers() {
+  floatTimers.forEach(t => clearTimeout(t));
+  floatTimers = [];
+}
+
+function makeClouds() {
+  const layer = document.getElementById('cloudLayer');
+  layer.innerHTML = '';
+  [[8,5,100,38],[18,55,130,32],[45,20,90,36],[62,60,115,30],[78,10,105,40]].forEach(([t,l,w,h]) => {
+    const d = document.createElement('div');
+    d.className = 'cloud';
+    d.style.cssText = `top:${t}%;left:${l}%;width:${w}px;height:${h}px;`;
+    layer.appendChild(d);
+  });
+}
+
+function buildProgressDots(total, current) {
+  const cont = document.getElementById('qProgress');
+  cont.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i < current ? ' done' : i === current ? ' current' : '');
+    cont.appendChild(d);
+  }
+}
+
+function startGame() {
+  makeClouds();
+  gScore = 0; gLives = 3; gStreak = 0; gTotal = 0; gCorrect = 0; gLocked = false;
+  gUsedLetters = [];
+  gMaxQ = TOTAL_Q[gMode] || 10;
+  document.getElementById('scoreDisplay').textContent = '0';
+  renderLives();
+  document.getElementById('hudMode').textContent = {ul:'대→소문자', lu:'소→대문자', mix:'섞기', all:'전체 A~Z'}[gMode];
+  gRetryFn = startGame;
+  setScreen('gameScreen');
+  startGameTimer();
+  nextQuestion();
+}
+
+function renderLives() {
+  const el = document.getElementById('livesDisplay');
+  el.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const sp = document.createElement('span');
+    sp.textContent = i < gLives ? '❤️' : '🖤';
+    sp.style.fontSize = '16px';
+    el.appendChild(sp);
+  }
+}
+
+function getNextLetter() {
+  const pool = gMode === 'all' ? ALPHA : ALPHA.slice(0, 20);
+  const avail = pool.filter(l => !gUsedLetters.includes(l));
+  if (avail.length === 0) return null;
+  return avail[Math.floor(Math.random() * avail.length)];
+}
+
+function nextQuestion() {
+  clearAllTimers();
+  document.getElementById('balloonField').innerHTML = '';
+  gLocked = false;
+
+  const letter = getNextLetter();
+  if (!letter || gTotal >= gMaxQ) { endGame(); return; }
+  gUsedLetters.push(letter);
+
+  let dir;
+  if (gMode === 'ul') dir = 'ul';
+  else if (gMode === 'lu') dir = 'lu';
+  else dir = Math.random() < 0.5 ? 'ul' : 'lu';
+
+  gQuestion = letter;
+  const qShow = dir === 'ul' ? letter : letter.toLowerCase();
+  const aShow = dir === 'ul' ? letter.toLowerCase() : letter;
+  gAnswer = aShow;
+
+  document.getElementById('qLetter').textContent = qShow;
+  document.getElementById('qLabel').textContent = dir === 'ul'
+    ? '이 대문자와 짝꿍인 소문자 풍선을 터뜨려요!'
+    : '이 소문자와 짝꿍인 대문자 풍선을 터뜨려요!';
+  document.getElementById('qHint').textContent = NAMES[letter] + '  (' + letter + ' / ' + letter.toLowerCase() + ')';
+
+  buildProgressDots(gMaxQ, gTotal);
+  gTotal++;
+
+  speakLetter(qShow);
+
+  const cfg = DIFF_CFG[gDiff];
+  spawnBalloons(cfg, aShow);
+}
+
+function startGameTimer() {
+  if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; }
+  const wrap = document.getElementById('timerBarWrap');
+  if (!gTimeLimit) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  gTimerLeft = gTimeLimit;
+  updateTimerUI(gTimerLeft);
+  gTimerInt = setInterval(() => {
+    gTimerLeft--;
+    updateTimerUI(gTimerLeft);
+    if (gTimerLeft <= 5 && gTimerLeft > 0) beep(880, 0.04, 'square', 0.05);
+    if (gTimerLeft <= 0) {
+      clearInterval(gTimerInt); gTimerInt = null;
+      showFeedback('⏰ 시간 종료!', false);
+      setTimeout(endGame, 800);
+    }
+  }, 1000);
+}
+
+function updateTimerUI(t) {
+  const fill = document.getElementById('timerBarFill');
+  const num  = document.getElementById('timerBarNum');
+  if (!fill || !num) return;
+  const pct = gTimeLimit > 0 ? (t / gTimeLimit) * 100 : 100;
+  fill.style.width = pct + '%';
+  const ratio = gTimeLimit > 0 ? t / gTimeLimit : 1;
+  fill.style.background = ratio <= 0.15 ? '#FF6B6B' : ratio <= 0.35 ? '#FECA57' : '#4ADE80';
+  const m = Math.floor(t / 60), s = t % 60;
+  num.textContent = gTimeLimit >= 60 ? m + ':' + String(s).padStart(2,'0') : t + '초';
+}
+
+function spawnBalloons(cfg, answer) {
+  const field = document.getElementById('balloonField');
+  const fieldW = field.offsetWidth || 360;
+  const fieldH = field.offsetHeight || 350;
+  const allLetters = (gMode === 'all' ? ALPHA : ALPHA.slice(0, 20))
+    .map(l => answer === answer.toLowerCase() ? l : l.toLowerCase());
+  const wrongs = shuffle(allLetters.filter(l => l !== answer)).slice(0, cfg.count - 1);
+  const picks = shuffle([answer, ...wrongs]);
+
+  picks.forEach((letter, i) => {
+    const t = setTimeout(() => {
+      const x = 22 + Math.random() * (fieldW - 86);
+      const color = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+      const speedPx = (fieldH + 100) / ((cfg.speedMin + Math.random() * (cfg.speedMax - cfg.speedMin)) * 60);
+      const isAns = letter === answer;
+      const size = 68 + Math.floor(Math.random() * 18);
+      const el = document.createElement('div');
+      el.className = 'balloon';
+      let posY = -size * 1.28;
+      el.style.cssText = `left:${x}px;top:${fieldH}px;position:absolute;`;
+      el.innerHTML = `<svg width="${size}" height="${Math.round(size*1.28)}" viewBox="0 0 72 92">
+        <ellipse cx="36" cy="35" rx="30" ry="31" fill="${color}"/>
+        <polygon points="36,66 29,80 43,80" fill="${color}"/>
+        <line x1="36" y1="80" x2="36" y2="91" stroke="#bbb" stroke-width="1.5"/>
+        <ellipse cx="25" cy="23" rx="8" ry="10" fill="rgba(255,255,255,0.28)"/>
+        <text x="36" y="40" font-family="Nunito,'Noto Sans KR',sans-serif" font-size="28" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central">${letter}</text>
+      </svg>`;
+      el.addEventListener('click', () => handleClick(el, letter, isAns, color));
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); handleClick(el, letter, isAns, color); }, {passive:false});
+      field.appendChild(el);
+
+      let currentY = fieldH;
+      function rise() {
+        if (!el.parentNode || el.classList.contains('pop')) return;
+        currentY -= speedPx;
+        el.style.top = currentY + 'px';
+        if (currentY < posY) {
+          el.remove();
+          checkFieldEmpty();
+          return;
+        }
+        el._raf = requestAnimationFrame(rise);
+      }
+      el._raf = requestAnimationFrame(rise);
+    }, i * cfg.delayMs);
+    floatTimers.push(t);
+  });
+}
+
+function checkFieldEmpty() {
+  if (gLocked) return;
+  const remaining = document.querySelectorAll('#balloonField .balloon:not(.pop)');
+  if (remaining.length === 0) {
+    handleMissed();
+  }
+}
+
+function handleClick(el, letter, isAns, color) {
+  if (gLocked) return;
+  if (isAns) {
+    gLocked = true;
+    gCorrect++; gStreak++;
+    const bonus = gStreak >= 3 ? (gStreak - 2) * 5 : 0;
+    const pts = 10 + bonus;
+    gScore += pts;
+    document.getElementById('scoreDisplay').textContent = gScore;
+    sfxPop();
+    popBalloon(el, color);
+    if (gStreak >= 3) { sfxStreak(); showFeedback('🔥 ' + gStreak + '연속!'); }
+    else showFeedback('정답! +' + pts);
+    updateStreak();
+    const t = setTimeout(() => nextQuestion(), 950);
+    floatTimers.push(t);
+  } else {
+    gStreak = 0; updateStreak();
+    gLives--; renderLives(); sfxWrong();
+    el.classList.add('wrong-shake');
+    el.addEventListener('animationend', () => el.classList.remove('wrong-shake'), { once: true });
+    showFeedback('틀렸어요! 다시!', false);
+    if (gLives <= 0) { gLocked = true; const t = setTimeout(endGame, 700); floatTimers.push(t); }
+  }
+}
+
+function handleMissed() {
+  gStreak = 0; updateStreak();
+  gLives--; renderLives(); sfxMiss();
+  showFeedback('놓쳤어요!', false);
+  if (gLives <= 0) { setTimeout(endGame, 700); }
+  else { const t = setTimeout(nextQuestion, 900); floatTimers.push(t); }
+}
+
+function popBalloon(el, color) {
+  if (el._raf) cancelAnimationFrame(el._raf);
+  el.classList.add('pop');
+  const fieldEl = document.getElementById('balloonField');
+  const rect = el.getBoundingClientRect();
+  const fRect = fieldEl.getBoundingClientRect();
+  const cx = rect.left - fRect.left + rect.width / 2;
+  const cy = rect.top  - fRect.top  + rect.height / 2;
+  el.addEventListener('animationend', () => el.remove(), { once: true });
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'pop-particle';
+    const ang = (i / 12) * 360 + Math.random() * 20;
+    const dist = 28 + Math.random() * 52;
+    const dx = Math.cos(ang * Math.PI / 180) * dist + 'px';
+    const dy = Math.sin(ang * Math.PI / 180) * dist + 'px';
+    const sz = 5 + Math.random() * 9;
+    p.style.cssText = `left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;background:${color};--dx:${dx};--dy:${dy};z-index:20;`;
+    fieldEl.appendChild(p);
+    p.addEventListener('animationend', () => p.remove(), { once: true });
+  }
+}
+
+function showFeedback(msg, good = true) {
+  const el = document.getElementById('feedbackMsg');
+  el.textContent = msg;
+  el.style.color = good ? '#fff' : '#FFD93D';
+  el.style.fontSize = good ? '30px' : '22px';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 750);
+}
+
+function updateStreak() {
+  const el = document.getElementById('streakTxt');
+  el.textContent = gStreak >= 3 ? '🔥 ' + gStreak + '연속 콤보!' : '';
+}
+
+function endGame() {
+  clearAllTimers();
+  if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; }
+  sfxFinish();
+  const pct = gMaxQ > 0 ? Math.round(gCorrect / gMaxQ * 100) : 0;
+  document.getElementById('resScore').textContent = gScore + '점';
+  document.getElementById('resDetail').textContent = `맞힌 개수: ${gCorrect} / ${gMaxQ}  (${pct}%)`;
+  const grades = [
+    [90,'🏆','완벽해요! 알파벳 마스터!','최고 점수예요! 대단해요!'],
+    [70,'🎉','정말 잘했어요!','조금만 더 연습하면 완벽!'],
+    [50,'👍','잘하고 있어요!','다시 도전해봐요!'],
+    [0, '💪','다시 도전해봐요!','연습하면 잘할 수 있어요!']
+  ];
+  const [,emoji,title,grade] = grades.find(([th])=>pct>=th);
+  document.getElementById('resEmoji').textContent = emoji;
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resGrade').textContent = grade;
+  document.getElementById('retryBtn').onclick = gRetryFn;
+  renderSaveTeamBtns();
+  setScreen('resultScreen');
+}
+
+const TEAM_COLORS = ['#FF6B6B','#3B82F6','#1DD1A1','#FECA57','#A29BFE','#FD79A8'];
+let gTeamCount = 3;
+let gTeams = [{name:'1모둠',score:0,lastSaved:0},{name:'2모둠',score:0,lastSaved:0},{name:'3모둠',score:0,lastSaved:0}];
+let gCurrentTeam = -1; // -1 = 모둠 없이 시작
+
+function setTeamCount(n) {
+  gTeamCount = n;
+  [2,3,4,5,6].forEach(v => document.getElementById('team'+v).classList.toggle('sel', v===n));
+  renderTeamNameInputs();
+}
+
+function renderTeamNameInputs() {
+  const cont = document.getElementById('teamNameInputs');
+  cont.innerHTML = '';
+  for (let i = 0; i < gTeamCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'team-name-row';
+    const dot = document.createElement('div');
+    dot.className = 'team-color-dot';
+    dot.style.background = TEAM_COLORS[i];
+    const inp = document.createElement('input');
+    inp.className = 'team-name-input';
+    inp.type = 'text';
+    inp.maxLength = 8;
+    inp.value = gTeams[i] ? gTeams[i].name : (i+1)+'모둠';
+    inp.placeholder = (i+1)+'모둠';
+    inp.dataset.idx = i;
+    row.appendChild(dot); row.appendChild(inp);
+    cont.appendChild(row);
+  }
+}
+
+function openScoreboard() {
+  const inputs = document.querySelectorAll('.team-name-input');
+  const prevScores = gTeams.map(t => t.score);
+  gTeams = [];
+  inputs.forEach((inp, i) => {
+    gTeams.push({ name: inp.value || (i+1)+'모둠', score: prevScores[i] || 0 });
+  });
+  while (gTeams.length < gTeamCount) gTeams.push({name:(gTeams.length+1)+'모둠', score:0, lastSaved:0});
+  gTeams = gTeams.slice(0, gTeamCount);
+  renderScoreboard();
+  setScreen('scoreboardScreen');
+}
+
+function renderScoreboard() {
+  const grid = document.getElementById('scoreboardGrid');
+  grid.innerHTML = '';
+  const maxScore = Math.max(...gTeams.map(t=>t.score), 1);
+  const sorted = gTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=> b.score - a.score || b.lastSaved - a.lastSaved);
+  sorted.forEach((team, rank) => {
+    const i = team.origIdx;
+    const card = document.createElement('div');
+    card.className = 'sb-card';
+    const isTop = team.score === maxScore && team.score > 0;
+    if (isTop) card.style.border = '2px solid '+TEAM_COLORS[i];
+    const rankIcon = rank===0&&team.score>0?'🥇':rank===1&&team.score>0?'🥈':rank===2&&team.score>0?'🥉':'';
+    card.innerHTML = `
+      <div style="font-size:20px;min-width:24px;text-align:center;">${rankIcon||'<span style="font-size:13px;color:#9CA3AF;font-weight:800;">'+(rank+1)+'</span>'}</div>
+      <div class="sb-color" style="background:${TEAM_COLORS[i]};"></div>
+      <div class="sb-name">${team.name}</div>
+      <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function adjustTeam(idx, delta) {
+  gTeams[idx].score = Math.max(0, gTeams[idx].score + delta);
+  renderScoreboard();
+}
+
+function resetScoreboard() {
+  if (!confirm('점수를 모두 초기화할까요?')) return;
+  gTeams.forEach(t => { t.score = 0; t.lastSaved = 0; });
+  renderScoreboard();
+}
+
+function startGameFromScoreboard() {
+  gCurrentTeam = -1;
+  setScreen('menuScreen');
+}
+
+function renderSaveTeamBtns() {
+  const area = document.getElementById('saveTeamArea');
+  const cont = document.getElementById('saveTeamBtns');
+  if (!gTeams || gTeams.length === 0) { area.style.display='none'; return; }
+  area.style.display = 'block';
+  cont.innerHTML = '';
+  gTeams.forEach((team, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;';
+    const btn = document.createElement('button');
+    btn.className = 'save-team-btn';
+    btn.style.borderColor = TEAM_COLORS[i];
+    btn.style.color = TEAM_COLORS[i];
+    btn.textContent = team.name + '에 저장';
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'undo-team-btn';
+    undoBtn.textContent = '↩ 저장 취소';
+    undoBtn.style.display = 'none';
+    btn.onclick = () => {
+      gTeams[i].score += gScore;
+      gTeams[i].lastSaved = Date.now();
+      btn.textContent = '✓ 저장됨! ('+gTeams[i].score+'점)';
+      btn.style.background = TEAM_COLORS[i];
+      btn.style.color = '#fff';
+      btn.disabled = true;
+      undoBtn.style.display = 'inline-block';
+    };
+    undoBtn.onclick = () => {
+      gTeams[i].score = Math.max(0, gTeams[i].score - gScore);
+      gTeams[i].lastSaved = 0;
+      btn.textContent = team.name + '에 저장';
+      btn.style.background = '#fff';
+      btn.style.color = TEAM_COLORS[i];
+      btn.disabled = false;
+      undoBtn.style.display = 'none';
+    };
+    wrap.appendChild(btn);
+    wrap.appendChild(undoBtn);
+    cont.appendChild(wrap);
+  });
+}
+
+selectMode('ul');
+renderTeamNameInputs();
+</script>
+    </div>
+    <!-- ══ 풍선 알파벳 게임 뷰 끝 ══ -->
+
     <div id="teacherView" class="hidden">
         <button class="btn-main" style="background:#888; box-shadow:0 4px 0px #666; margin-bottom:18px; font-size:16px;" onclick="teacherLogout()">교사 모드 종료 (로그아웃)</button>
 
@@ -1013,8 +1993,9 @@
             </div>
         </div>
     </div>
+    </div><!-- /#teacherView 끝 -->
 
-    <div id="studentView">
+    <div id="studentView" style="max-width:500px; margin:0 auto; padding:16px;">
         <!-- ✅ 학교 코드 입력 화면 -->
         <div id="schoolCodeSection">
             <div class="card" style="border-color:#ff8e72; text-align:center;">
@@ -2033,6 +3014,16 @@
     }
 
     function openTeacherModal() {
+        // 모달 뒤 배경이 겹치지 않도록 현재 활성 뷰를 모두 숨김
+        ['mathView','wordjangView','engView','alphaView','teacherView','studentView','balloonView'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+        ['tModeBtn','sModeBtn','mModeBtn','wjModeBtn','engModeBtn','alphaModeBtn'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('active');
+        });
+        document.getElementById('tModeBtn').classList.add('active');
         switchTeacherTab('login');
         document.getElementById('adminAuthModal').classList.remove('hidden');
     }
@@ -2799,17 +3790,23 @@
 
     function executeSwitch(mode) {
         document.getElementById('teacherView').classList.toggle('hidden', mode !== 'teacher');
+        document.getElementById('balloonView').classList.toggle('hidden', mode !== 'balloon');
         document.getElementById('studentView').classList.toggle('hidden', mode !== 'student');
         document.getElementById('mathView').classList.toggle('hidden', mode !== 'math');
         document.getElementById('wordjangView').classList.toggle('hidden', mode !== 'wordjang');
         document.getElementById('engView').classList.toggle('hidden', mode !== 'english');
+        document.getElementById('alphaView').classList.toggle('hidden', mode !== 'alpha');
         document.getElementById('tModeBtn').classList.toggle('active', mode === 'teacher');
+        document.getElementById('balloonModeBtn').classList.toggle('active', mode === 'balloon');
         document.getElementById('sModeBtn').classList.toggle('active', mode === 'student');
         document.getElementById('mModeBtn').classList.toggle('active', mode === 'math');
         document.getElementById('wjModeBtn').classList.toggle('active', mode === 'wordjang');
         document.getElementById('engModeBtn').classList.toggle('active', mode === 'english');
+        document.getElementById('alphaModeBtn').classList.toggle('active', mode === 'alpha');
         if (mode === 'english') { engShowHome(); }
+        if (mode === 'alpha') { alphaInitIfNeeded(); }
         document.getElementById('tModeBtn').classList.toggle('active', mode === 'teacher');
+        document.getElementById('balloonModeBtn').classList.toggle('active', mode === 'balloon');
         document.getElementById('sModeBtn').classList.toggle('active', mode === 'student');
         document.getElementById('mModeBtn').classList.toggle('active', mode === 'math');
         document.getElementById('wjModeBtn').classList.toggle('active', mode === 'wordjang');
@@ -6385,6 +7382,971 @@ function engShowQuizResult() {
   <button id="imgZoomClose" onclick="closeImgZoom()">✕</button>
   <img id="imgZoomImg" src="" alt="확대 이미지" onclick="event.stopPropagation()">
 </div>
+
+<script>
+/* ===== 알파벳 따라쓰기 (네임스페이스 처리) ===== */
+(function() {
+
+const ALPHA_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const ALPHA_EXAMPLES = {
+  A:'Apple 🍎',B:'Ball 🏀',C:'Cat 🐱',D:'Dog 🐶',E:'Elephant 🐘',
+  F:'Fish 🐟',G:'Grape 🍇',H:'Hat 🎩',I:'Ice cream 🍦',J:'Juice 🥤',
+  K:'Kite 🪁',L:'Lion 🦁',M:'Moon 🌙',N:'Nest 🪹',O:'Orange 🍊',
+  P:'Pig 🐷',Q:'Queen 👑',R:'Rainbow 🌈',S:'Sun ☀️',T:'Tree 🌳',
+  U:'Umbrella ☂️',V:'Violin 🎻',W:'Whale 🐋',X:'Xylophone 🎵',Y:'Yo-yo 🪀',
+  Z:'Zebra 🦓'
+};
+const ALPHA_HINTS = {
+  A:'위에서 아래로',B:'왼쪽 선 먼저',C:'왼쪽 둥글게',D:'왼쪽 선 먼저',E:'왼쪽 선 먼저',
+  F:'위에서 아래로',G:'왼쪽 둥글게',H:'두 선 그리기',I:'위에서 아래로',J:'위에서 아래로',
+  K:'왼쪽 선 먼저',L:'위에서 아래로',M:'위에서 아래로',N:'왼쪽부터 시작',O:'둥글게 한 번에',
+  P:'위에서 아래로',Q:'둥글게 그리기',R:'위에서 아래로',S:'위에서 S 모양',T:'가로 먼저',
+  U:'위에서 아래로',V:'왼쪽 아래 먼저',W:'왼쪽 아래 먼저',X:'왼쪽 위에서',Y:'위에서 아래로',
+  Z:'위에서 옆으로'
+};
+const ALPHA_STROKES = {
+  upper: {
+    A:[ [[40,8],[12,72]], [[40,8],[68,72]], [[20,48],[60,48]] ],
+    B:[ [[16,8],[16,72]], [[16,8],[46,8],[58,14],[58,30],[46,38],[16,38]], [[16,38],[50,40],[62,50],[58,64],[44,72],[16,72]] ],
+    C:[ [[64,20],[52,10],[34,10],[18,22],[14,36],[14,52],[20,64],[34,72],[52,72],[64,60]] ],
+    D:[ [[16,8],[16,72]], [[16,8],[44,8],[62,20],[66,40],[58,62],[40,72],[16,72]] ],
+    E:[ [[16,8],[16,72]], [[16,8],[64,8]], [[16,40],[52,40]], [[16,72],[64,72]] ],
+    F:[ [[16,8],[16,72]], [[16,8],[64,8]], [[16,40],[54,40]] ],
+    G:[ [[64,20],[52,10],[32,10],[16,22],[12,40],[16,58],[30,70],[50,70],[64,58],[64,40]], [[40,40],[64,40],[64,52]] ],
+    H:[ [[16,8],[16,72]], [[64,8],[64,72]], [[16,40],[64,40]] ],
+    I:[ [[28,8],[52,8]], [[40,8],[40,72]], [[28,72],[52,72]] ],
+    J:[ [[28,8],[52,8]], [[44,8],[44,58],[34,70],[20,64]] ],
+    K:[ [[16,8],[16,72]], [[62,8],[16,40]], [[16,40],[64,72]] ],
+    L:[ [[16,8],[16,72]], [[16,72],[64,72]] ],
+    M:[ [[14,72],[14,8]], [[14,8],[40,48],[66,8]], [[66,8],[66,72]] ],
+    N:[ [[16,72],[16,8]], [[16,8],[64,72]], [[64,72],[64,8]] ],
+    O:[ [[40,8],[24,12],[12,26],[10,40],[12,54],[24,68],[40,72],[56,68],[68,54],[70,40],[68,26],[56,12],[40,8]] ],
+    P:[ [[16,8],[16,72]], [[16,8],[48,8],[60,16],[62,30],[54,42],[40,46],[16,46]] ],
+    Q:[ [[40,8],[24,12],[12,26],[10,40],[12,54],[24,68],[40,72],[56,68],[68,54],[70,40],[68,26],[56,12],[40,8]], [[54,58],[70,76]] ],
+    R:[ [[16,8],[16,72]], [[16,8],[48,8],[60,16],[62,30],[54,42],[40,46],[16,46]], [[40,46],[64,72]] ],
+    S:[ [[64,18],[54,8],[36,8],[20,18],[20,34],[34,42],[52,50],[64,60],[62,68],[46,74],[28,72],[16,64]] ],
+    T:[ [[14,8],[66,8]], [[40,8],[40,72]] ],
+    U:[ [[16,8],[16,54],[22,66],[40,72],[58,66],[64,54],[64,8]] ],
+    V:[ [[14,8],[40,72]], [[66,8],[40,72]] ],
+    W:[ [[10,8],[24,72]], [[24,72],[40,40]], [[40,40],[56,72]], [[56,72],[70,8]] ],
+    X:[ [[14,8],[66,72]], [[66,8],[14,72]] ],
+    Y:[ [[14,8],[40,42]], [[66,8],[40,42]], [[40,42],[40,72]] ],
+    Z:[ [[14,8],[66,8]], [[66,8],[14,72]], [[14,72],[66,72]] ]
+  },
+  lower: {
+    a:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,52],[30,62],[46,64],[58,58],[58,30]], [[58,28],[58,66]] ],
+    b:[ [[18,8],[18,66]], [[18,38],[28,28],[42,26],[54,32],[58,44],[54,56],[42,64],[28,64],[18,56]] ],
+    c:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,58]] ],
+    d:[ [[58,8],[58,66]], [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,56]] ],
+    e:[ [[20,42],[58,42],[60,32],[50,20],[34,20],[20,30],[18,46],[22,60],[34,66],[50,66],[62,58]] ],
+    f:[ [[56,14],[46,8],[36,12],[32,24],[32,70]], [[22,36],[48,36]] ],
+    g:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,56],[58,30]], [[58,28],[60,68],[50,76],[34,76],[22,68]] ],
+    h:[ [[18,8],[18,66]], [[18,38],[28,28],[44,26],[56,34],[58,66]] ],
+    i:[ [[40,20],[40,66]], [[38,10],[42,10]] ],
+    j:[ [[44,20],[44,70],[34,78],[22,72]], [[42,10],[46,10]] ],
+    k:[ [[18,8],[18,66]], [[50,26],[18,48]], [[18,48],[54,66]] ],
+    l:[ [[32,8],[32,60],[44,68]] ],
+    m:[ [[18,28],[18,66]], [[18,30],[26,22],[36,20],[46,26],[48,28]], [[48,28],[50,22],[60,20],[68,26],[70,28],[70,66]] ],
+    n:[ [[18,28],[18,66]], [[18,30],[28,22],[44,20],[56,28],[58,66]] ],
+    o:[ [[40,20],[26,24],[18,36],[18,52],[26,64],[40,68],[54,64],[62,52],[62,36],[54,24],[40,20]] ],
+    p:[ [[18,28],[18,80]], [[18,28],[34,20],[50,22],[58,34],[56,48],[44,58],[30,58],[18,52]] ],
+    q:[ [[58,28],[46,20],[32,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,58],[58,28]], [[58,28],[58,80]] ],
+    r:[ [[18,28],[18,66]], [[18,32],[26,22],[38,20],[50,24]] ],
+    s:[ [[58,30],[48,20],[32,20],[20,28],[20,40],[38,48],[52,56],[56,66],[46,72],[30,72],[18,64]] ],
+    t:[ [[32,10],[32,62],[40,68],[50,66]], [[20,28],[48,28]] ],
+    u:[ [[18,28],[18,58],[26,66],[40,68],[52,62],[58,52],[58,28]], [[58,52],[58,66]] ],
+    v:[ [[20,28],[38,66]], [[56,28],[38,66]] ],
+    w:[ [[14,28],[24,68]], [[24,68],[38,48]], [[38,48],[52,68]], [[52,68],[66,28]] ],
+    x:[ [[20,28],[58,68]], [[58,28],[20,68]] ],
+    y:[ [[18,28],[38,56]], [[58,28],[38,56],[28,70],[18,76]] ],
+    z:[ [[18,28],[58,28]], [[58,28],[18,68]], [[18,68],[58,68]] ]
+  }
+};
+
+const ALPHA_COLORS = ['#E24B4A','#D85A30','#BA7517','#1D9E75','#378ADD','#7F77DD','#D4537E','#2C2C2A'];
+const ALPHA_PEN_SIZES = [4,8,14];
+const ALPHA_THUMB = 70;
+
+let alphaMode = 'upper', alphaCurrentIdx = 0;
+let alphaShowGuide = true, alphaIsEraser = false;
+let alphaPenColor = ALPHA_COLORS[5], alphaPenSize = ALPHA_PEN_SIZES[1];
+let alphaDrawing = false, alphaLastX = 0, alphaLastY = 0;
+let alphaDone = { upper: new Set(), lower: new Set() };
+let alphaWriteStrokes = 0;
+let alphaAnimTimer = null, alphaAnimPlaying = false;
+let alphaInited = false;
+
+let alphaDrawCanvas, alphaGuideCanvas, alphaDCtx, alphaGCtx;
+
+window.alphaInitIfNeeded = function() {
+  if (alphaInited) return;
+  alphaInited = true;
+  alphaDrawCanvas = document.getElementById('alpha-draw-canvas');
+  alphaGuideCanvas = document.getElementById('alpha-guide-canvas');
+  alphaDCtx = alphaDrawCanvas.getContext('2d');
+  alphaGCtx = alphaGuideCanvas.getContext('2d');
+
+  alphaDrawCanvas.addEventListener('mousedown', alphaStartDraw);
+  alphaDrawCanvas.addEventListener('mousemove', alphaDrawMove);
+  alphaDrawCanvas.addEventListener('mouseup', alphaStopDraw);
+  alphaDrawCanvas.addEventListener('mouseleave', alphaStopDraw);
+  alphaDrawCanvas.addEventListener('touchstart', alphaStartDraw, {passive:false});
+  alphaDrawCanvas.addEventListener('touchmove', alphaDrawMove, {passive:false});
+  alphaDrawCanvas.addEventListener('touchend', alphaStopDraw);
+
+  alphaBuildColorDots();
+  alphaBuildPenSizes();
+  alphaUpdateUI();
+};
+
+function alphaGetStrokeKey() {
+  return alphaMode === 'upper' ? ALPHA_LETTERS[alphaCurrentIdx] : ALPHA_LETTERS[alphaCurrentIdx].toLowerCase();
+}
+function alphaGetStrokeData() {
+  return ALPHA_STROKES[alphaMode][alphaGetStrokeKey()] || null;
+}
+function alphaAccentColor() { return alphaMode==='upper' ? '#7F77DD' : '#1D9E75'; }
+function alphaLightColor()  { return alphaMode==='upper' ? '#AFA9EC' : '#5DCAA5'; }
+
+function alphaBuildColorDots() {
+  document.getElementById('alpha-color-dots').innerHTML = ALPHA_COLORS.map(c =>
+    `<div class="alpha-color-dot${c===alphaPenColor?' selected':''}" style="background:${c}" onclick="alphaSetColor('${c}',this)"></div>`
+  ).join('');
+}
+function alphaBuildPenSizes() {
+  document.getElementById('alpha-pen-sizes').innerHTML = ALPHA_PEN_SIZES.map(s =>
+    `<div class="alpha-pen-size-dot${s===alphaPenSize?' selected':''}" style="width:${s+8}px;height:${s+8}px" onclick="alphaSetPenSize(${s},this)"></div>`
+  ).join('');
+}
+window.alphaSetColor = function(c,el) {
+  alphaPenColor=c; alphaIsEraser=false;
+  document.querySelectorAll('.alpha-color-dot').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('alpha-erase-btn').classList.remove('erasing');
+  alphaDrawCanvas.style.cursor='crosshair';
+};
+window.alphaSetPenSize = function(s,el) {
+  alphaPenSize=s;
+  document.querySelectorAll('.alpha-pen-size-dot').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+};
+window.alphaToggleEraser = function() {
+  alphaIsEraser=!alphaIsEraser;
+  document.getElementById('alpha-erase-btn').classList.toggle('erasing',alphaIsEraser);
+  alphaDrawCanvas.style.cursor=alphaIsEraser?'cell':'crosshair';
+};
+window.alphaToggleGuide = function() {
+  alphaShowGuide=!alphaShowGuide;
+  alphaGuideCanvas.style.opacity=alphaShowGuide?'1':'0';
+  const btn=document.getElementById('alpha-guide-btn');
+  btn.classList.toggle('active',alphaShowGuide);
+  btn.textContent=alphaShowGuide?'👁 가이드 숨기기':'👁 가이드 보기';
+};
+window.alphaClearCanvas = function() { alphaDCtx.clearRect(0,0,alphaDrawCanvas.width,alphaDrawCanvas.height); alphaWriteStrokes=0; };
+
+function alphaDrawArrow(ctx, x1,y1,x2,y2,color,size) {
+  const angle=Math.atan2(y2-y1,x2-x1);
+  ctx.save(); ctx.fillStyle=color; ctx.beginPath();
+  ctx.translate(x2,y2); ctx.rotate(angle);
+  ctx.moveTo(0,0); ctx.lineTo(-size,-size*0.5); ctx.lineTo(-size,size*0.5);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+function alphaDrawThumb(ctx, strokeData, upToIdx) {
+  const W=ALPHA_THUMB, H=ALPHA_THUMB;
+  ctx.clearRect(0,0,W,H);
+  ctx.save(); ctx.strokeStyle='rgba(0,0,0,0.1)'; ctx.lineWidth=0.8; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(4,H*0.5); ctx.lineTo(W-4,H*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(4,H*0.15); ctx.lineTo(W-4,H*0.15); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(4,H*0.85); ctx.lineTo(W-4,H*0.85); ctx.stroke();
+  ctx.restore();
+  ctx.save();
+  ctx.font=`bold ${H*0.8}px 'Fredoka One',cursive`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle=alphaLightColor(); ctx.globalAlpha=0.13;
+  ctx.fillText(alphaGetStrokeKey(),W/2,H/2);
+  ctx.restore();
+  const display2=alphaGetStrokeKey();
+  ctx.save();
+  ctx.font=`bold ${H*0.8}px 'Fredoka One',cursive`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const tm=ctx.measureText(display2);
+  ctx.restore();
+  const tbbox={
+    left:W/2-tm.actualBoundingBoxLeft, top:H/2-tm.actualBoundingBoxAscent,
+    width:tm.actualBoundingBoxLeft+tm.actualBoundingBoxRight,
+    height:tm.actualBoundingBoxAscent+tm.actualBoundingBoxDescent
+  };
+  function tsc(x,y){
+    const pad=0.04;
+    return [tbbox.left+(x/80)*tbbox.width*(1-pad*2)+tbbox.width*pad,
+            tbbox.top+(y/80)*tbbox.height*(1-pad*2)+tbbox.height*pad];
+  }
+  strokeData.forEach((pts,si)=>{
+    if(si>upToIdx) return;
+    const isCurr=si===upToIdx;
+    ctx.save(); ctx.beginPath();
+    pts.forEach(([x,y],pi)=>{ const [tx,ty]=tsc(x,y); pi===0?ctx.moveTo(tx,ty):ctx.lineTo(tx,ty); });
+    ctx.strokeStyle=isCurr?alphaAccentColor():'rgba(0,0,0,0.22)';
+    ctx.lineWidth=isCurr?3.5:2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+    if(isCurr){
+      if(pts.length>=2){
+        const n=pts.length;
+        const [ax,ay]=tsc(pts[n-2][0],pts[n-2][1]);
+        const [bx,by]=tsc(pts[n-1][0],pts[n-1][1]);
+        alphaDrawArrow(ctx,ax,ay,bx,by,alphaAccentColor(),7);
+      }
+      const [sc0x,sc0y]=tsc(pts[0][0],pts[0][1]);
+      ctx.beginPath(); ctx.arc(sc0x,sc0y,3.5,0,Math.PI*2);
+      ctx.fillStyle='#FF6B6B'; ctx.fill();
+    }
+    ctx.restore();
+  });
+}
+
+function alphaBuildPills() {
+  document.getElementById('alpha-pills').innerHTML = ALPHA_LETTERS.map((l,i)=>{
+    let cls='alpha-letter-pill';
+    if(alphaDone[alphaMode].has(i)) cls+=alphaMode==='upper'?' done-upper':' done-lower';
+    if(i===alphaCurrentIdx) cls+=alphaMode==='upper'?' current-upper':' current-lower';
+    return `<div class="${cls}" onclick="alphaGoTo(${i})">${alphaMode==='upper'?l:l.toLowerCase()}</div>`;
+  }).join('');
+}
+
+function alphaGetLetterBBox(W,H) {
+  const display=alphaGetStrokeKey();
+  const fontSize=H*0.75;
+  alphaGCtx.save();
+  alphaGCtx.font=`bold ${fontSize}px 'Fredoka One',cursive`;
+  alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
+  const metrics=alphaGCtx.measureText(display);
+  alphaGCtx.restore();
+  const lw=metrics.actualBoundingBoxLeft+metrics.actualBoundingBoxRight;
+  const lh=metrics.actualBoundingBoxAscent+metrics.actualBoundingBoxDescent;
+  return {
+    left:W/2-metrics.actualBoundingBoxLeft, top:H/2-metrics.actualBoundingBoxAscent,
+    width:lw, height:lh
+  };
+}
+function alphaStrokeToCanvas(x,y,bbox) {
+  const pad=0.04;
+  return [bbox.left+(x/80)*bbox.width*(1-pad*2)+bbox.width*pad,
+          bbox.top+(y/80)*bbox.height*(1-pad*2)+bbox.height*pad];
+}
+
+function alphaDrawGuide() { alphaDrawGuideWithHighlight(-1); }
+function alphaDrawGuideWithHighlight(highlightIdx) {
+  const W=alphaGuideCanvas.width, H=alphaGuideCanvas.height;
+  alphaGCtx.clearRect(0,0,W,H);
+  const display=alphaGetStrokeKey();
+  [[H*0.12,4,4,0.07],[H*0.5,12,6,0.13],[H*0.88,4,4,0.07]].forEach(([y,d1,d2,a])=>{
+    alphaGCtx.save(); alphaGCtx.setLineDash([d1,d2]); alphaGCtx.lineWidth=1;
+    alphaGCtx.strokeStyle=`rgba(0,0,0,${a})`; alphaGCtx.beginPath();
+    alphaGCtx.moveTo(20,y); alphaGCtx.lineTo(W-20,y); alphaGCtx.stroke(); alphaGCtx.restore();
+  });
+  alphaGCtx.save();
+  alphaGCtx.font=`bold ${H*0.75}px 'Fredoka One',cursive`;
+  alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
+  alphaGCtx.fillStyle=alphaLightColor(); alphaGCtx.globalAlpha=0.14;
+  alphaGCtx.fillText(display,W/2,H/2); alphaGCtx.restore();
+  alphaGCtx.save();
+  alphaGCtx.font=`bold ${H*0.75}px 'Fredoka One',cursive`;
+  alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
+  alphaGCtx.setLineDash([8,8]); alphaGCtx.lineWidth=4;
+  alphaGCtx.strokeStyle=alphaAccentColor(); alphaGCtx.globalAlpha=0.22;
+  alphaGCtx.strokeText(display,W/2,H/2); alphaGCtx.restore();
+  const strokeData=alphaGetStrokeData();
+  if(strokeData && highlightIdx>=0){
+    const bbox=alphaGetLetterBBox(W,H);
+    strokeData.forEach((pts,si)=>{
+      if(si>highlightIdx) return;
+      const isCurr=si===highlightIdx;
+      alphaGCtx.save(); alphaGCtx.beginPath();
+      pts.forEach(([x,y],pi)=>{
+        const [tx,ty]=alphaStrokeToCanvas(x,y,bbox);
+        pi===0?alphaGCtx.moveTo(tx,ty):alphaGCtx.lineTo(tx,ty);
+      });
+      alphaGCtx.strokeStyle=isCurr?alphaAccentColor():'rgba(0,0,0,0.2)';
+      alphaGCtx.lineWidth=isCurr?7:3;
+      alphaGCtx.lineCap='round'; alphaGCtx.lineJoin='round';
+      alphaGCtx.globalAlpha=isCurr?0.85:0.4; alphaGCtx.stroke();
+      if(isCurr && pts.length>=2){
+        const n=pts.length;
+        const [ax,ay]=alphaStrokeToCanvas(pts[n-2][0],pts[n-2][1],bbox);
+        const [bx,by]=alphaStrokeToCanvas(pts[n-1][0],pts[n-1][1],bbox);
+        alphaGCtx.globalAlpha=0.9;
+        alphaDrawArrow(alphaGCtx,ax,ay,bx,by,alphaAccentColor(),14);
+        const [s0x,s0y]=alphaStrokeToCanvas(pts[0][0],pts[0][1],bbox);
+        alphaGCtx.beginPath(); alphaGCtx.arc(s0x,s0y,6,0,Math.PI*2);
+        alphaGCtx.fillStyle='#FF6B6B'; alphaGCtx.globalAlpha=0.9; alphaGCtx.fill();
+        const mid=Math.floor(pts.length/2);
+        const [mx0,my0]=alphaStrokeToCanvas(pts[mid][0],pts[mid][1],bbox);
+        const mx=mx0, my=my0-18;
+        alphaGCtx.beginPath(); alphaGCtx.arc(mx,my,12,0,Math.PI*2);
+        alphaGCtx.fillStyle=alphaAccentColor(); alphaGCtx.globalAlpha=0.92; alphaGCtx.fill();
+        alphaGCtx.font='bold 13px Nunito'; alphaGCtx.fillStyle='#fff'; alphaGCtx.globalAlpha=1;
+        alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
+        alphaGCtx.fillText(si+1,mx,my);
+      }
+      alphaGCtx.restore();
+    });
+  }
+  alphaGCtx.save();
+  alphaGCtx.font='700 13px Nunito'; alphaGCtx.fillStyle='rgba(0,0,0,0.26)';
+  alphaGCtx.textAlign='left'; alphaGCtx.fillText('👉 점선을 따라 써보세요',16,H-12);
+  alphaGCtx.restore();
+}
+
+function alphaBuildStrokeSteps() {
+  alphaStopAnimation();
+  const panel=document.getElementById('alpha-stroke-steps');
+  const strokeData=alphaGetStrokeData();
+  if(!strokeData){ panel.innerHTML='<span style="font-size:13px;color:#aaa;">데이터 없음</span>'; return; }
+  panel.innerHTML=strokeData.map((_,i)=>`
+    <div class="alpha-stroke-step" id="alpha-sstep-${i}" onclick="alphaSelectStroke(${i})">
+      <canvas id="alpha-sthumb-${i}" width="${ALPHA_THUMB}" height="${ALPHA_THUMB}" style="width:${ALPHA_THUMB}px;height:${ALPHA_THUMB}px;"></canvas>
+      <div class="alpha-stroke-num ${alphaMode==='upper'?'upper-num':'lower-num'}">${i+1}</div>
+    </div>
+  `).join('');
+  strokeData.forEach((_,i)=>{
+    const tc=document.getElementById(`alpha-sthumb-${i}`).getContext('2d');
+    alphaDrawThumb(tc,strokeData,i);
+  });
+  alphaSelectStroke(0);
+}
+
+window.alphaSelectStroke = function(idx) {
+  const strokeData=alphaGetStrokeData();
+  if(!strokeData) return;
+  const acl=alphaMode==='upper'?'active-upper':'active-lower';
+  document.querySelectorAll('.alpha-stroke-step').forEach((el,i)=>{
+    el.classList.remove('active-upper','active-lower');
+    if(i===idx) el.classList.add(acl);
+  });
+  alphaDrawGuideWithHighlight(idx);
+};
+
+function alphaUpdateUI() {
+  if(!alphaInited) return;
+  const letter=ALPHA_LETTERS[alphaCurrentIdx];
+  const display=alphaGetStrokeKey();
+  const bigEl=document.getElementById('alpha-big-letter');
+  bigEl.textContent=display; bigEl.className='alpha-big-letter '+alphaMode;
+  document.getElementById('alpha-letter-name').textContent=`${letter} / ${letter.toLowerCase()}`;
+  document.getElementById('alpha-letter-example').textContent=ALPHA_EXAMPLES[letter];
+  document.getElementById('alpha-canvas-label').textContent=`👆 "${display}" 을(를) 따라 써보세요`;
+  const hb=document.getElementById('alpha-hint-badge');
+  hb.textContent=ALPHA_HINTS[letter]; hb.className='alpha-hint-badge '+alphaMode;
+  document.getElementById('alpha-stroke-title').textContent=`✍️ "${display}" 획순 (${(alphaGetStrokeData()||[]).length}획)`;
+  const pf=document.getElementById('alpha-progress-fill');
+  pf.className='alpha-progress-fill '+alphaMode; pf.style.width=(alphaDone[alphaMode].size/26*100)+'%';
+  document.getElementById('alpha-progress-text').textContent=`${alphaDone[alphaMode].size} / 26 완료`;
+  const stars=Math.min(3,Math.floor(alphaDone[alphaMode].size/9));
+  document.getElementById('alpha-star-row').innerHTML='⭐'.repeat(stars)+'☆'.repeat(3-stars)+
+    `<span style="font-family:'Nunito';font-size:13px;color:#888;margin-left:10px;font-weight:700;">${alphaDone[alphaMode].size}/26 완료</span>`;
+  alphaBuildPills(); alphaBuildStrokeSteps(); alphaDrawGuide(); alphaClearCanvas();
+}
+
+window.alphaSetMode = function(m) {
+  alphaMode=m; alphaStopAnimation();
+  document.getElementById('alpha-tab-upper').className='alpha-mode-tab'+(m==='upper'?' active-upper':'');
+  document.getElementById('alpha-tab-lower').className='alpha-mode-tab'+(m==='lower'?' active-lower':'');
+  alphaUpdateUI();
+};
+window.alphaGoTo = function(idx) { alphaCurrentIdx=idx; alphaStopAnimation(); alphaUpdateUI(); };
+window.alphaPrevLetter = function() { alphaCurrentIdx=(alphaCurrentIdx+25)%26; alphaStopAnimation(); alphaUpdateUI(); };
+window.alphaNextLetter = function() { alphaCurrentIdx=(alphaCurrentIdx+1)%26; alphaStopAnimation(); alphaUpdateUI(); };
+
+function alphaGetPos(e) {
+  const r=alphaDrawCanvas.getBoundingClientRect();
+  const sx=alphaDrawCanvas.width/r.width, sy=alphaDrawCanvas.height/r.height;
+  if(e.touches) return [(e.touches[0].clientX-r.left)*sx,(e.touches[0].clientY-r.top)*sy];
+  return [(e.clientX-r.left)*sx,(e.clientY-r.top)*sy];
+}
+function alphaStartDraw(e) {
+  e.preventDefault(); alphaDrawing=true; [alphaLastX,alphaLastY]=alphaGetPos(e); alphaWriteStrokes++;
+  if(alphaWriteStrokes===6 && !alphaDone[alphaMode].has(alphaCurrentIdx)){
+    alphaDone[alphaMode].add(alphaCurrentIdx); alphaBuildPills();
+    const sz=alphaDone[alphaMode].size;
+    document.getElementById('alpha-progress-fill').style.width=(sz/26*100)+'%';
+    document.getElementById('alpha-progress-text').textContent=`${sz} / 26 완료`;
+    const stars=Math.min(3,Math.floor(sz/9));
+    document.getElementById('alpha-star-row').innerHTML='⭐'.repeat(stars)+'☆'.repeat(3-stars)+
+      `<span style="font-family:'Nunito';font-size:13px;color:#888;margin-left:10px;font-weight:700;">${sz}/26 완료</span>`;
+    alphaShowToast(`잘했어요! 🎉 "${alphaGetStrokeKey()}" 완성!`); alphaSpawnConfetti();
+  }
+}
+function alphaDrawMove(e) {
+  if(!alphaDrawing) return; e.preventDefault();
+  const [x,y]=alphaGetPos(e);
+  alphaDCtx.save(); alphaDCtx.beginPath(); alphaDCtx.moveTo(alphaLastX,alphaLastY); alphaDCtx.lineTo(x,y);
+  alphaDCtx.globalCompositeOperation=alphaIsEraser?'destination-out':'source-over';
+  alphaDCtx.strokeStyle=alphaIsEraser?'rgba(0,0,0,1)':alphaPenColor;
+  alphaDCtx.lineWidth=alphaIsEraser?alphaPenSize*3:alphaPenSize;
+  alphaDCtx.lineCap='round'; alphaDCtx.lineJoin='round'; alphaDCtx.stroke(); alphaDCtx.restore();
+  [alphaLastX,alphaLastY]=[x,y];
+}
+function alphaStopDraw() { alphaDrawing=false; }
+
+window.alphaPlayAnimation = function() {
+  const btn=document.getElementById('alpha-anim-btn');
+  if(alphaAnimPlaying){ alphaStopAnimation(); return; }
+  const strokeData=alphaGetStrokeData();
+  if(!strokeData) return;
+  alphaAnimPlaying=true;
+  const cl=alphaMode==='upper'?'playing-upper':'playing-lower';
+  btn.classList.add(cl); btn.textContent='⏹ 중지';
+  let si=0;
+  function nextStroke(){
+    if(!alphaAnimPlaying||si>=strokeData.length){ alphaStopAnimation(); return; }
+    alphaSelectStroke(si);
+    alphaAnimateDot(strokeData[si],()=>{ si++; alphaAnimTimer=setTimeout(nextStroke,300); });
+  }
+  nextStroke();
+};
+function alphaAnimateDot(pts,onDone){
+  let pi=0;
+  const speed=45;
+  function step(){
+    if(!alphaAnimPlaying) return;
+    if(pi>=pts.length){ onDone&&onDone(); return; }
+    let curIdx=0;
+    document.querySelectorAll('.alpha-stroke-step').forEach((el,i)=>{
+      if(el.classList.contains('active-upper')||el.classList.contains('active-lower')) curIdx=i;
+    });
+    alphaDrawGuideWithHighlight(curIdx);
+    const W=alphaGuideCanvas.width, H=alphaGuideCanvas.height;
+    const bbox=alphaGetLetterBBox(W,H);
+    const [tx,ty]=alphaStrokeToCanvas(pts[pi][0],pts[pi][1],bbox);
+    alphaGCtx.save();
+    alphaGCtx.beginPath(); alphaGCtx.arc(tx,ty,7,0,Math.PI*2);
+    alphaGCtx.fillStyle='#FF6B6B'; alphaGCtx.globalAlpha=0.9; alphaGCtx.fill();
+    alphaGCtx.beginPath(); alphaGCtx.arc(tx,ty,11,0,Math.PI*2);
+    alphaGCtx.strokeStyle='#FF6B6B'; alphaGCtx.lineWidth=2; alphaGCtx.globalAlpha=0.35; alphaGCtx.stroke();
+    alphaGCtx.restore();
+    pi++; alphaAnimTimer=setTimeout(step,speed);
+  }
+  step();
+}
+function alphaStopAnimation(){
+  alphaAnimPlaying=false; clearTimeout(alphaAnimTimer);
+  const btn=document.getElementById('alpha-anim-btn');
+  if(btn){ btn.classList.remove('playing-upper','playing-lower'); btn.textContent='▶ 애니메이션 보기'; }
+}
+window.alphaResetStrokePreview = function() { alphaStopAnimation(); alphaBuildStrokeSteps(); };
+
+let alphaToastTimer;
+function alphaShowToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(alphaToastTimer); alphaToastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+const ALPHA_CC=['#7F77DD','#1D9E75','#D4537E','#BA7517','#378ADD','#D85A30'];
+function alphaSpawnConfetti(){
+  for(let i=0;i<32;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${15+Math.random()*70}%;top:${25+Math.random()*25}%;background:${ALPHA_CC[Math.floor(Math.random()*ALPHA_CC.length)]};width:${8+Math.random()*8}px;height:${8+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${0.9+Math.random()*0.8}s;`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1800);
+  },i*40);
+}
+
+})();
+
+// ── 🎈 풍선 알파벳 JS ──
+
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const BALLOON_COLORS = [
+  '#FF6B6B','#FF9F43','#FECA57','#48DBFB','#1DD1A1',
+  '#A29BFE','#FD79A8','#6C5CE7','#00CEC9','#E17055',
+  '#0984E3','#55EFC4','#FDCB6E','#E84393','#2ECC71'
+];
+const NAMES = {
+  A:'에이',B:'비',C:'씨',D:'디',E:'이',F:'에프',G:'지',H:'에이치',
+  I:'아이',J:'제이',K:'케이',L:'엘',M:'엠',N:'엔',O:'오',P:'피',
+  Q:'큐',R:'아르',S:'에스',T:'티',U:'유',V:'브이',W:'더블유',
+  X:'엑스',Y:'와이',Z:'제트'
+};
+const DIFF_CFG = {
+  easy:   {count:5, speedMin:7, speedMax:10, delayMs:500},
+  normal: {count:6, speedMin:5, speedMax:8,  delayMs:400},
+  hard:   {count:8, speedMin:3, speedMax:5,  delayMs:280}
+};
+const TOTAL_Q = {ul:10, lu:10, mix:10, all:26};
+
+let AU = null;
+try { AU = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+
+function beep(freq, dur, type='sine', vol=0.2) {
+  if (!AU) return;
+  try {
+    const o = AU.createOscillator(), g = AU.createGain();
+    o.connect(g); g.connect(AU.destination);
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, AU.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AU.currentTime + dur);
+    o.start(); o.stop(AU.currentTime + dur);
+  } catch(e) {}
+}
+function sfxPop()    { beep(600,0.05); setTimeout(()=>beep(850,0.07),40); setTimeout(()=>beep(1100,0.1),85); }
+function sfxWrong()  { beep(160,0.22,'sawtooth',0.08); }
+function sfxStreak() { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,0.1),i*55)); }
+function sfxFinish() { [523,659,784,523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,0.14),i*75)); }
+function sfxMiss()   { beep(220,0.15,'sawtooth',0.07); }
+
+function speak(letter) {
+  if (!window.speechSynthesis) return;
+  const name = NAMES[letter.toUpperCase()] || letter;
+  const utter = new SpeechSynthesisUtterance(name);
+  utter.lang = 'ko-KR'; utter.rate = 0.85; utter.pitch = 1.15; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+function speakLetter(letter) {
+  if (!window.speechSynthesis) return;
+  const utter = new SpeechSynthesisUtterance(letter);
+  utter.lang = 'en-US'; utter.rate = 0.75; utter.pitch = 1.1; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+let gMode = 'ul', gDiff = 'easy', gTimeLimit = 60;
+let gScore = 0, gLives = 3, gStreak = 0, gTotal = 0, gCorrect = 0, gMaxQ = 10;
+let gQuestion = '', gAnswer = '', gLocked = false;
+let gRetryFn = null;
+let gUsedLetters = [];
+let floatTimers = [];
+let gTimerInt = null, gTimerLeft = 0;
+
+function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function selectMode(m) {
+  gMode = m;
+  ['ul','lu','mix','all'].forEach(x => {
+    const el = document.getElementById('mode' + x.toUpperCase());
+    if (el) el.classList.toggle('sel', x === m);
+  });
+}
+function selectDiff(d) {
+  gDiff = d;
+  const map = {easy:'E', normal:'N', hard:'H'};
+  ['E','N','H'].forEach(x => document.getElementById('diff'+x).classList.remove('sel'));
+  document.getElementById('diff'+map[d]).classList.add('sel');
+}
+function selectTime(t) {
+  gTimeLimit = t;
+  [30,60,120,0].forEach(v => document.getElementById('time'+v).classList.remove('sel'));
+  document.getElementById('time'+t).classList.add('sel');
+}
+
+function setScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goMenu() { clearAllTimers(); if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; } setScreen('menuScreen'); }
+
+function clearAllTimers() {
+  floatTimers.forEach(t => clearTimeout(t));
+  floatTimers = [];
+}
+
+function makeClouds() {
+  const layer = document.getElementById('cloudLayer');
+  layer.innerHTML = '';
+  [[8,5,100,38],[18,55,130,32],[45,20,90,36],[62,60,115,30],[78,10,105,40]].forEach(([t,l,w,h]) => {
+    const d = document.createElement('div');
+    d.className = 'cloud';
+    d.style.cssText = `top:${t}%;left:${l}%;width:${w}px;height:${h}px;`;
+    layer.appendChild(d);
+  });
+}
+
+function buildProgressDots(total, current) {
+  const cont = document.getElementById('qProgress');
+  cont.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i < current ? ' done' : i === current ? ' current' : '');
+    cont.appendChild(d);
+  }
+}
+
+function startGame() {
+  makeClouds();
+  gScore = 0; gLives = 3; gStreak = 0; gTotal = 0; gCorrect = 0; gLocked = false;
+  gUsedLetters = [];
+  gMaxQ = TOTAL_Q[gMode] || 10;
+  document.getElementById('scoreDisplay').textContent = '0';
+  renderLives();
+  document.getElementById('hudMode').textContent = {ul:'대→소문자', lu:'소→대문자', mix:'섞기', all:'전체 A~Z'}[gMode];
+  gRetryFn = startGame;
+  setScreen('gameScreen');
+  startGameTimer();
+  nextQuestion();
+}
+
+function renderLives() {
+  const el = document.getElementById('livesDisplay');
+  el.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const sp = document.createElement('span');
+    sp.textContent = i < gLives ? '❤️' : '🖤';
+    sp.style.fontSize = '16px';
+    el.appendChild(sp);
+  }
+}
+
+function getNextLetter() {
+  const pool = gMode === 'all' ? ALPHA : ALPHA.slice(0, 20);
+  const avail = pool.filter(l => !gUsedLetters.includes(l));
+  if (avail.length === 0) return null;
+  return avail[Math.floor(Math.random() * avail.length)];
+}
+
+function nextQuestion() {
+  clearAllTimers();
+  document.getElementById('balloonField').innerHTML = '';
+  gLocked = false;
+
+  const letter = getNextLetter();
+  if (!letter || gTotal >= gMaxQ) { endGame(); return; }
+  gUsedLetters.push(letter);
+
+  let dir;
+  if (gMode === 'ul') dir = 'ul';
+  else if (gMode === 'lu') dir = 'lu';
+  else dir = Math.random() < 0.5 ? 'ul' : 'lu';
+
+  gQuestion = letter;
+  const qShow = dir === 'ul' ? letter : letter.toLowerCase();
+  const aShow = dir === 'ul' ? letter.toLowerCase() : letter;
+  gAnswer = aShow;
+
+  document.getElementById('qLetter').textContent = qShow;
+  document.getElementById('qLabel').textContent = dir === 'ul'
+    ? '이 대문자와 짝꿍인 소문자 풍선을 터뜨려요!'
+    : '이 소문자와 짝꿍인 대문자 풍선을 터뜨려요!';
+  document.getElementById('qHint').textContent = NAMES[letter] + '  (' + letter + ' / ' + letter.toLowerCase() + ')';
+
+  buildProgressDots(gMaxQ, gTotal);
+  gTotal++;
+
+  speakLetter(qShow);
+
+  const cfg = DIFF_CFG[gDiff];
+  spawnBalloons(cfg, aShow);
+}
+
+function startGameTimer() {
+  if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; }
+  const wrap = document.getElementById('timerBarWrap');
+  if (!gTimeLimit) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  gTimerLeft = gTimeLimit;
+  updateTimerUI(gTimerLeft);
+  gTimerInt = setInterval(() => {
+    gTimerLeft--;
+    updateTimerUI(gTimerLeft);
+    if (gTimerLeft <= 5 && gTimerLeft > 0) beep(880, 0.04, 'square', 0.05);
+    if (gTimerLeft <= 0) {
+      clearInterval(gTimerInt); gTimerInt = null;
+      showFeedback('⏰ 시간 종료!', false);
+      setTimeout(endGame, 800);
+    }
+  }, 1000);
+}
+
+function updateTimerUI(t) {
+  const fill = document.getElementById('timerBarFill');
+  const num  = document.getElementById('timerBarNum');
+  if (!fill || !num) return;
+  const pct = gTimeLimit > 0 ? (t / gTimeLimit) * 100 : 100;
+  fill.style.width = pct + '%';
+  const ratio = gTimeLimit > 0 ? t / gTimeLimit : 1;
+  fill.style.background = ratio <= 0.15 ? '#FF6B6B' : ratio <= 0.35 ? '#FECA57' : '#4ADE80';
+  const m = Math.floor(t / 60), s = t % 60;
+  num.textContent = gTimeLimit >= 60 ? m + ':' + String(s).padStart(2,'0') : t + '초';
+}
+
+function spawnBalloons(cfg, answer) {
+  const field = document.getElementById('balloonField');
+  const fieldW = field.offsetWidth || 360;
+  const fieldH = field.offsetHeight || 350;
+  const allLetters = (gMode === 'all' ? ALPHA : ALPHA.slice(0, 20))
+    .map(l => answer === answer.toLowerCase() ? l : l.toLowerCase());
+  const wrongs = shuffle(allLetters.filter(l => l !== answer)).slice(0, cfg.count - 1);
+  const picks = shuffle([answer, ...wrongs]);
+
+  picks.forEach((letter, i) => {
+    const t = setTimeout(() => {
+      const x = 22 + Math.random() * (fieldW - 86);
+      const color = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+      const speedPx = (fieldH + 100) / ((cfg.speedMin + Math.random() * (cfg.speedMax - cfg.speedMin)) * 60);
+      const isAns = letter === answer;
+      const size = 68 + Math.floor(Math.random() * 18);
+      const el = document.createElement('div');
+      el.className = 'balloon';
+      let posY = -size * 1.28;
+      el.style.cssText = `left:${x}px;top:${fieldH}px;position:absolute;`;
+      el.innerHTML = `<svg width="${size}" height="${Math.round(size*1.28)}" viewBox="0 0 72 92">
+        <ellipse cx="36" cy="35" rx="30" ry="31" fill="${color}"/>
+        <polygon points="36,66 29,80 43,80" fill="${color}"/>
+        <line x1="36" y1="80" x2="36" y2="91" stroke="#bbb" stroke-width="1.5"/>
+        <ellipse cx="25" cy="23" rx="8" ry="10" fill="rgba(255,255,255,0.28)"/>
+        <text x="36" y="40" font-family="Nunito,'Noto Sans KR',sans-serif" font-size="28" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central">${letter}</text>
+      </svg>`;
+      el.addEventListener('click', () => handleClick(el, letter, isAns, color));
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); handleClick(el, letter, isAns, color); }, {passive:false});
+      field.appendChild(el);
+
+      let currentY = fieldH;
+      function rise() {
+        if (!el.parentNode || el.classList.contains('pop')) return;
+        currentY -= speedPx;
+        el.style.top = currentY + 'px';
+        if (currentY < posY) {
+          el.remove();
+          checkFieldEmpty();
+          return;
+        }
+        el._raf = requestAnimationFrame(rise);
+      }
+      el._raf = requestAnimationFrame(rise);
+    }, i * cfg.delayMs);
+    floatTimers.push(t);
+  });
+}
+
+function checkFieldEmpty() {
+  if (gLocked) return;
+  const remaining = document.querySelectorAll('#balloonField .balloon:not(.pop)');
+  if (remaining.length === 0) {
+    handleMissed();
+  }
+}
+
+function handleClick(el, letter, isAns, color) {
+  if (gLocked) return;
+  if (isAns) {
+    gLocked = true;
+    gCorrect++; gStreak++;
+    const bonus = gStreak >= 3 ? (gStreak - 2) * 5 : 0;
+    const pts = 10 + bonus;
+    gScore += pts;
+    document.getElementById('scoreDisplay').textContent = gScore;
+    sfxPop();
+    popBalloon(el, color);
+    if (gStreak >= 3) { sfxStreak(); showFeedback('🔥 ' + gStreak + '연속!'); }
+    else showFeedback('정답! +' + pts);
+    updateStreak();
+    const t = setTimeout(() => nextQuestion(), 950);
+    floatTimers.push(t);
+  } else {
+    gStreak = 0; updateStreak();
+    gLives--; renderLives(); sfxWrong();
+    el.classList.add('wrong-shake');
+    el.addEventListener('animationend', () => el.classList.remove('wrong-shake'), { once: true });
+    showFeedback('틀렸어요! 다시!', false);
+    if (gLives <= 0) { gLocked = true; const t = setTimeout(endGame, 700); floatTimers.push(t); }
+  }
+}
+
+function handleMissed() {
+  gStreak = 0; updateStreak();
+  gLives--; renderLives(); sfxMiss();
+  showFeedback('놓쳤어요!', false);
+  if (gLives <= 0) { setTimeout(endGame, 700); }
+  else { const t = setTimeout(nextQuestion, 900); floatTimers.push(t); }
+}
+
+function popBalloon(el, color) {
+  if (el._raf) cancelAnimationFrame(el._raf);
+  el.classList.add('pop');
+  const fieldEl = document.getElementById('balloonField');
+  const rect = el.getBoundingClientRect();
+  const fRect = fieldEl.getBoundingClientRect();
+  const cx = rect.left - fRect.left + rect.width / 2;
+  const cy = rect.top  - fRect.top  + rect.height / 2;
+  el.addEventListener('animationend', () => el.remove(), { once: true });
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'pop-particle';
+    const ang = (i / 12) * 360 + Math.random() * 20;
+    const dist = 28 + Math.random() * 52;
+    const dx = Math.cos(ang * Math.PI / 180) * dist + 'px';
+    const dy = Math.sin(ang * Math.PI / 180) * dist + 'px';
+    const sz = 5 + Math.random() * 9;
+    p.style.cssText = `left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;background:${color};--dx:${dx};--dy:${dy};z-index:20;`;
+    fieldEl.appendChild(p);
+    p.addEventListener('animationend', () => p.remove(), { once: true });
+  }
+}
+
+function showFeedback(msg, good = true) {
+  const el = document.getElementById('feedbackMsg');
+  el.textContent = msg;
+  el.style.color = good ? '#fff' : '#FFD93D';
+  el.style.fontSize = good ? '30px' : '22px';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 750);
+}
+
+function updateStreak() {
+  const el = document.getElementById('streakTxt');
+  el.textContent = gStreak >= 3 ? '🔥 ' + gStreak + '연속 콤보!' : '';
+}
+
+function endGame() {
+  clearAllTimers();
+  if (gTimerInt) { clearInterval(gTimerInt); gTimerInt = null; }
+  sfxFinish();
+  const pct = gMaxQ > 0 ? Math.round(gCorrect / gMaxQ * 100) : 0;
+  document.getElementById('resScore').textContent = gScore + '점';
+  document.getElementById('resDetail').textContent = `맞힌 개수: ${gCorrect} / ${gMaxQ}  (${pct}%)`;
+  const grades = [
+    [90,'🏆','완벽해요! 알파벳 마스터!','최고 점수예요! 대단해요!'],
+    [70,'🎉','정말 잘했어요!','조금만 더 연습하면 완벽!'],
+    [50,'👍','잘하고 있어요!','다시 도전해봐요!'],
+    [0, '💪','다시 도전해봐요!','연습하면 잘할 수 있어요!']
+  ];
+  const [,emoji,title,grade] = grades.find(([th])=>pct>=th);
+  document.getElementById('resEmoji').textContent = emoji;
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resGrade').textContent = grade;
+  document.getElementById('retryBtn').onclick = gRetryFn;
+  renderSaveTeamBtns();
+  setScreen('resultScreen');
+}
+
+const TEAM_COLORS = ['#FF6B6B','#3B82F6','#1DD1A1','#FECA57','#A29BFE','#FD79A8'];
+let gTeamCount = 3;
+let gTeams = [{name:'1모둠',score:0,lastSaved:0},{name:'2모둠',score:0,lastSaved:0},{name:'3모둠',score:0,lastSaved:0}];
+let gCurrentTeam = -1; // -1 = 모둠 없이 시작
+
+function setTeamCount(n) {
+  gTeamCount = n;
+  [2,3,4,5,6].forEach(v => document.getElementById('team'+v).classList.toggle('sel', v===n));
+  renderTeamNameInputs();
+}
+
+function renderTeamNameInputs() {
+  const cont = document.getElementById('teamNameInputs');
+  cont.innerHTML = '';
+  for (let i = 0; i < gTeamCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'team-name-row';
+    const dot = document.createElement('div');
+    dot.className = 'team-color-dot';
+    dot.style.background = TEAM_COLORS[i];
+    const inp = document.createElement('input');
+    inp.className = 'team-name-input';
+    inp.type = 'text';
+    inp.maxLength = 8;
+    inp.value = gTeams[i] ? gTeams[i].name : (i+1)+'모둠';
+    inp.placeholder = (i+1)+'모둠';
+    inp.dataset.idx = i;
+    row.appendChild(dot); row.appendChild(inp);
+    cont.appendChild(row);
+  }
+}
+
+function openScoreboard() {
+  const inputs = document.querySelectorAll('.team-name-input');
+  const prevScores = gTeams.map(t => t.score);
+  gTeams = [];
+  inputs.forEach((inp, i) => {
+    gTeams.push({ name: inp.value || (i+1)+'모둠', score: prevScores[i] || 0 });
+  });
+  while (gTeams.length < gTeamCount) gTeams.push({name:(gTeams.length+1)+'모둠', score:0, lastSaved:0});
+  gTeams = gTeams.slice(0, gTeamCount);
+  renderScoreboard();
+  setScreen('scoreboardScreen');
+}
+
+function renderScoreboard() {
+  const grid = document.getElementById('scoreboardGrid');
+  grid.innerHTML = '';
+  const maxScore = Math.max(...gTeams.map(t=>t.score), 1);
+  const sorted = gTeams.map((team,i)=>({...team,origIdx:i})).sort((a,b)=> b.score - a.score || b.lastSaved - a.lastSaved);
+  sorted.forEach((team, rank) => {
+    const i = team.origIdx;
+    const card = document.createElement('div');
+    card.className = 'sb-card';
+    const isTop = team.score === maxScore && team.score > 0;
+    if (isTop) card.style.border = '2px solid '+TEAM_COLORS[i];
+    const rankIcon = rank===0&&team.score>0?'🥇':rank===1&&team.score>0?'🥈':rank===2&&team.score>0?'🥉':'';
+    card.innerHTML = `
+      <div style="font-size:20px;min-width:24px;text-align:center;">${rankIcon||'<span style="font-size:13px;color:#9CA3AF;font-weight:800;">'+(rank+1)+'</span>'}</div>
+      <div class="sb-color" style="background:${TEAM_COLORS[i]};"></div>
+      <div class="sb-name">${team.name}</div>
+      <div class="sb-score" style="color:${TEAM_COLORS[i]};">${team.score}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function adjustTeam(idx, delta) {
+  gTeams[idx].score = Math.max(0, gTeams[idx].score + delta);
+  renderScoreboard();
+}
+
+function resetScoreboard() {
+  if (!confirm('점수를 모두 초기화할까요?')) return;
+  gTeams.forEach(t => { t.score = 0; t.lastSaved = 0; });
+  renderScoreboard();
+}
+
+function startGameFromScoreboard() {
+  gCurrentTeam = -1;
+  setScreen('menuScreen');
+}
+
+function renderSaveTeamBtns() {
+  const area = document.getElementById('saveTeamArea');
+  const cont = document.getElementById('saveTeamBtns');
+  if (!gTeams || gTeams.length === 0) { area.style.display='none'; return; }
+  area.style.display = 'block';
+  cont.innerHTML = '';
+  gTeams.forEach((team, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;';
+    const btn = document.createElement('button');
+    btn.className = 'save-team-btn';
+    btn.style.borderColor = TEAM_COLORS[i];
+    btn.style.color = TEAM_COLORS[i];
+    btn.textContent = team.name + '에 저장';
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'undo-team-btn';
+    undoBtn.textContent = '↩ 저장 취소';
+    undoBtn.style.display = 'none';
+    btn.onclick = () => {
+      gTeams[i].score += gScore;
+      gTeams[i].lastSaved = Date.now();
+      btn.textContent = '✓ 저장됨! ('+gTeams[i].score+'점)';
+      btn.style.background = TEAM_COLORS[i];
+      btn.style.color = '#fff';
+      btn.disabled = true;
+      undoBtn.style.display = 'inline-block';
+    };
+    undoBtn.onclick = () => {
+      gTeams[i].score = Math.max(0, gTeams[i].score - gScore);
+      gTeams[i].lastSaved = 0;
+      btn.textContent = team.name + '에 저장';
+      btn.style.background = '#fff';
+      btn.style.color = TEAM_COLORS[i];
+      btn.disabled = false;
+      undoBtn.style.display = 'none';
+    };
+    wrap.appendChild(btn);
+    wrap.appendChild(undoBtn);
+    cont.appendChild(wrap);
+  });
+}
+
+selectMode('ul');
+renderTeamNameInputs();
+
+</script>
 
 </body>
 </html>
