@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알파벳 따라쓰기 ✏️</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #FFF9F0; --card: #FFFFFF; --text: #2C2C2A; --text-sub: #888780; --border: rgba(0,0,0,0.1);
+    --purple-light: #EEEDFE; --purple: #7F77DD; --purple-dark: #534AB7; --purple-text: #3C3489;
+    --teal-light: #E1F5EE; --teal: #1D9E75; --teal-dark: #0F6E56; --teal-text: #085041;
+    --pink-light: #FBEAF0; --pink: #D4537E; --pink-text: #72243E;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08); --radius: 20px;
+  }
+  body {
+    font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh;
+    background-image: radial-gradient(circle at 20% 10%, #EEEDFE44 0%, transparent 40%),
+                      radial-gradient(circle at 80% 80%, #E1F5EE44 0%, transparent 40%),
+                      radial-gradient(circle at 60% 30%, #FBEAF044 0%, transparent 30%);
+  }
+  .app { max-width: 740px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  /* HEADER */
+  .header { text-align: center; padding: 24px 0 20px; animation: fadeDown 0.5s ease both; }
+  .header h1 { font-family: 'Fredoka One', cursive; font-size: 36px; color: var(--text); letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .header h1 .pencil { display: inline-block; animation: wiggle 2s infinite; }
+  .header p { font-size: 15px; color: var(--text-sub); margin-top: 6px; font-weight: 600; }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes wiggle { 0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg);} }
+
+  /* TABS */
+  .mode-tabs { display: flex; gap: 10px; justify-content: center; margin: 0 0 20px; animation: fadeDown 0.5s 0.1s ease both; }
+  .mode-tab { font-family: 'Fredoka One', cursive; font-size: 17px; padding: 10px 28px; border-radius: 999px; border: 2.5px solid transparent; cursor: pointer; transition: all 0.25s; background: var(--card); color: var(--text-sub); box-shadow: var(--shadow); }
+  .mode-tab:hover { transform: translateY(-2px); }
+  .mode-tab.active-upper { background: var(--purple-light); color: var(--purple-text); border-color: var(--purple); }
+  .mode-tab.active-lower { background: var(--teal-light); color: var(--teal-text); border-color: var(--teal); }
+
+  /* NAV */
+  .nav-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; animation: fadeDown 0.5s 0.15s ease both; }
+  .nav-btn { font-family: 'Fredoka One', cursive; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: var(--shadow); flex-shrink: 0; }
+  .nav-btn:hover { background: #f0f0f0; transform: scale(1.08); }
+  .nav-btn:active { transform: scale(0.92); }
+  .letter-pills { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; flex: 1; }
+  .letter-pill { font-family: 'Fredoka One', cursive; font-size: 13px; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card); color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.18s; user-select: none; }
+  .letter-pill:hover { transform: scale(1.15); }
+  .letter-pill.done-upper { background: var(--purple-light); color: var(--purple-text); border-color: var(--purple); }
+  .letter-pill.done-lower { background: var(--teal-light); color: var(--teal-text); border-color: var(--teal); }
+  .letter-pill.current-upper { background: var(--purple); color: #fff; border-color: var(--purple-dark); transform: scale(1.2); box-shadow: 0 2px 10px #7F77DD55; }
+  .letter-pill.current-lower { background: var(--teal); color: #fff; border-color: var(--teal-dark); transform: scale(1.2); box-shadow: 0 2px 10px #1D9E7555; }
+
+  /* MAIN CARD */
+  .tracing-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 24px 20px 20px; box-shadow: var(--shadow); animation: fadeDown 0.5s 0.2s ease both; }
+
+  /* STROKE ORDER PANEL */
+  .stroke-order-panel { background: #F8F7F2; border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 18px; }
+  .stroke-order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .stroke-order-title { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--text); }
+  .stroke-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .stroke-ctrl-btn { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; transition: all 0.15s; }
+  .stroke-ctrl-btn:hover { background: #eee; }
+  .stroke-ctrl-btn.playing-upper { background: var(--purple-light); color: var(--purple-text); border-color: var(--purple); }
+  .stroke-ctrl-btn.playing-lower { background: var(--teal-light); color: var(--teal-text); border-color: var(--teal); }
+
+  .stroke-steps { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+  .stroke-step { position: relative; background: var(--card); border-radius: 12px; border: 2.5px solid var(--border); overflow: hidden; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+  .stroke-step:hover { transform: scale(1.07); border-color: #bbb; }
+  .stroke-step.active-upper { border-color: var(--purple); box-shadow: 0 0 0 3px #7F77DD22; }
+  .stroke-step.active-lower { border-color: var(--teal); box-shadow: 0 0 0 3px #1D9E7522; }
+  .stroke-step canvas { display: block; }
+  .stroke-num { position: absolute; top: 4px; left: 5px; font-family: 'Fredoka One', cursive; font-size: 11px; color: #fff; border-radius: 999px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .stroke-num.upper-num { background: var(--purple); }
+  .stroke-num.lower-num { background: var(--teal); }
+
+  /* LETTER INFO */
+  .letter-info { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; }
+  .big-letter { font-family: 'Fredoka One', cursive; font-size: 80px; line-height: 1; width: 100px; height: 100px; border-radius: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; }
+  .big-letter.upper { background: var(--purple-light); color: var(--purple-dark); }
+  .big-letter.lower { background: var(--teal-light); color: var(--teal-dark); }
+  .letter-details { flex: 1; }
+  .letter-name { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--text); margin-bottom: 4px; }
+  .letter-example { font-size: 15px; color: var(--text-sub); font-weight: 600; }
+  .hint-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-top: 8px; }
+  .hint-badge.upper { background: var(--purple-light); color: var(--purple-text); }
+  .hint-badge.lower { background: var(--teal-light); color: var(--teal-text); }
+
+  /* CANVAS */
+  .canvas-section { position: relative; }
+  .canvas-label { font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+  .canvas-wrap { position: relative; border-radius: 14px; overflow: hidden; border: 2px dashed rgba(0,0,0,0.12); background: #FFFDF5; }
+  canvas { display: block; width: 100%; }
+  #guide-canvas { position: absolute; top: 0; left: 0; pointer-events: none; transition: opacity 0.3s; }
+  #draw-canvas { cursor: crosshair; }
+
+  /* TOOLBAR */
+  .toolbar { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+  .toolbar-section { display: flex; gap: 6px; align-items: center; padding: 6px 10px; background: #F8F7F2; border-radius: 999px; border: 1px solid var(--border); }
+  .color-dot { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid transparent; cursor: pointer; transition: transform 0.15s; flex-shrink: 0; }
+  .color-dot:hover { transform: scale(1.2); }
+  .color-dot.selected { border-color: #2C2C2A; transform: scale(1.15); box-shadow: 0 0 0 2px #fff inset; }
+  .pen-size-dot { border-radius: 50%; background: #2C2C2A; cursor: pointer; border: 2.5px solid transparent; transition: all 0.15s; flex-shrink: 0; }
+  .pen-size-dot.selected { border-color: #7F77DD; box-shadow: 0 0 0 2px #7F77DD44; }
+  .tool-btn { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+  .tool-btn:hover { background: #F1EFE8; transform: translateY(-1px); }
+  .tool-btn:active { transform: scale(0.95); }
+  .tool-btn.active { background: var(--teal-light); color: var(--teal-text); border-color: var(--teal); }
+  .tool-btn.erasing { background: #FAECE7; color: #D85A30; border-color: #F0997B; }
+  .tool-btn.clear-btn { background: var(--pink-light); color: var(--pink-text); border-color: var(--pink); }
+
+  /* PROGRESS */
+  .progress-section { margin-top: 16px; }
+  .star-row { display: flex; gap: 4px; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 22px; }
+  .progress-bar { height: 8px; background: #F1EFE8; border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 999px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+  .progress-fill.upper { background: linear-gradient(90deg, #AFA9EC, #7F77DD); }
+  .progress-fill.lower { background: linear-gradient(90deg, #5DCAA5, #1D9E75); }
+  .progress-text { font-size: 12px; font-weight: 700; color: var(--text-sub); text-align: right; margin-top: 4px; }
+
+  /* TOAST & CONFETTI */
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #2C2C2A; color: #fff; font-family: 'Fredoka One', cursive; font-size: 17px; padding: 12px 28px; border-radius: 999px; transition: transform 0.35s cubic-bezier(.4,0,.2,1); z-index: 9999; pointer-events: none; white-space: nowrap; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .confetti-piece { position: fixed; pointer-events: none; z-index: 9998; animation: confettiFall 1.2s ease-in forwards; }
+  @keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1;} 100%{transform:translateY(120px) rotate(360deg);opacity:0;} }
+
+  @media (max-width: 500px) {
+    .header h1 { font-size: 26px; }
+    .big-letter { width: 80px; height: 80px; font-size: 64px; }
+    .tool-btn { font-size: 12px; padding: 7px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1><span class="pencil">✏️</span> 알파벳 따라쓰기</h1>
+    <p>획순 애니메이션을 보고 따라 써봐요!</p>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active-upper" id="tab-upper" onclick="setMode('upper')">🅰 대문자</button>
+    <button class="mode-tab" id="tab-lower" onclick="setMode('lower')">🔡 소문자</button>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="prevLetter()">←</button>
+    <div class="letter-pills" id="pills"></div>
+    <button class="nav-btn" onclick="nextLetter()">→</button>
+  </div>
+
+  <div class="tracing-card">
+    <!-- STROKE ORDER PANEL -->
+    <div class="stroke-order-panel">
+      <div class="stroke-order-header">
+        <div class="stroke-order-title" id="stroke-title">✍️ 획순 보기</div>
+        <div class="stroke-controls">
+          <button class="stroke-ctrl-btn" id="anim-btn" onclick="playAnimation()">▶ 애니메이션 보기</button>
+          <button class="stroke-ctrl-btn" onclick="resetStrokePreview()">↺ 처음부터</button>
+        </div>
+      </div>
+      <div class="stroke-steps" id="stroke-steps"></div>
+    </div>
+
+    <div class="letter-info">
+      <div class="big-letter upper" id="big-letter">A</div>
+      <div class="letter-details">
+        <div class="letter-name" id="letter-name">A / a</div>
+        <div class="letter-example" id="letter-example">Apple 🍎</div>
+        <span class="hint-badge upper" id="hint-badge">위에서 아래로</span>
+      </div>
+    </div>
+
+    <div class="canvas-section">
+      <div class="canvas-label" id="canvas-label">👆 아래에 따라 써보세요</div>
+      <div class="canvas-wrap">
+        <canvas id="guide-canvas" width="700" height="240"></canvas>
+        <canvas id="draw-canvas"  width="700" height="240"></canvas>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-section" id="color-dots"></div>
+      <div class="toolbar-section" id="pen-sizes"></div>
+      <button class="tool-btn active" id="guide-btn" onclick="toggleGuide()">👁 가이드</button>
+      <button class="tool-btn" id="erase-btn" onclick="toggleEraser()">🧹 지우개</button>
+      <button class="tool-btn clear-btn" onclick="clearCanvas()">🗑 전체 지우기</button>
+    </div>
+
+    <div class="progress-section">
+      <div class="star-row" id="star-row"></div>
+      <div class="progress-bar"><div class="progress-fill upper" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-text" id="progress-text">0 / 26 완료</div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== DATA ===== */
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const EXAMPLES = {
+  A:'Apple 🍎',B:'Ball 🏀',C:'Cat 🐱',D:'Dog 🐶',E:'Elephant 🐘',
+  F:'Fish 🐟',G:'Grape 🍇',H:'Hat 🎩',I:'Ice cream 🍦',J:'Juice 🥤',
+  K:'Kite 🪁',L:'Lion 🦁',M:'Moon 🌙',N:'Nest 🪹',O:'Orange 🍊',
+  P:'Pig 🐷',Q:'Queen 👑',R:'Rainbow 🌈',S:'Sun ☀️',T:'Tree 🌳',
+  U:'Umbrella ☂️',V:'Violin 🎻',W:'Whale 🐋',X:'Xylophone 🎵',Y:'Yo-yo 🪀',
+  Z:'Zebra 🦓'
+};
+const HINTS = {
+  A:'위에서 아래로',B:'왼쪽 선 먼저',C:'왼쪽 둥글게',D:'왼쪽 선 먼저',E:'왼쪽 선 먼저',
+  F:'위에서 아래로',G:'왼쪽 둥글게',H:'두 선 그리기',I:'위에서 아래로',J:'위에서 아래로',
+  K:'왼쪽 선 먼저',L:'위에서 아래로',M:'위에서 아래로',N:'왼쪽부터 시작',O:'둥글게 한 번에',
+  P:'위에서 아래로',Q:'둥글게 그리기',R:'위에서 아래로',S:'위에서 S 모양',T:'가로 먼저',
+  U:'위에서 아래로',V:'왼쪽 아래 먼저',W:'왼쪽 아래 먼저',X:'왼쪽 위에서',Y:'위에서 아래로',
+  Z:'위에서 옆으로'
+};
+
+/*
+  Stroke data: each letter → array of strokes → each stroke = array of [x,y] in 0-80 grid.
+  Points are drawn in order as a polyline. The grid maps to thumbnail/guide canvas.
+*/
+const STROKES = {
+  upper: {
+    A:[ [[40,8],[12,72]], [[40,8],[68,72]], [[20,48],[60,48]] ],
+    B:[ [[16,8],[16,72]], [[16,8],[46,8],[58,14],[58,30],[46,38],[16,38]], [[16,38],[50,40],[62,50],[58,64],[44,72],[16,72]] ],
+    C:[ [[64,20],[52,10],[34,10],[18,22],[14,36],[14,52],[20,64],[34,72],[52,72],[64,60]] ],
+    D:[ [[16,8],[16,72]], [[16,8],[44,8],[62,20],[66,40],[58,62],[40,72],[16,72]] ],
+    E:[ [[16,8],[16,72]], [[16,8],[64,8]], [[16,40],[52,40]], [[16,72],[64,72]] ],
+    F:[ [[16,8],[16,72]], [[16,8],[64,8]], [[16,40],[54,40]] ],
+    G:[ [[64,20],[52,10],[32,10],[16,22],[12,40],[16,58],[30,70],[50,70],[64,58],[64,40]], [[40,40],[64,40],[64,52]] ],
+    H:[ [[16,8],[16,72]], [[64,8],[64,72]], [[16,40],[64,40]] ],
+    I:[ [[28,8],[52,8]], [[40,8],[40,72]], [[28,72],[52,72]] ],
+    J:[ [[28,8],[52,8]], [[44,8],[44,58],[34,70],[20,64]] ],
+    K:[ [[16,8],[16,72]], [[62,8],[16,40]], [[16,40],[64,72]] ],
+    L:[ [[16,8],[16,72]], [[16,72],[64,72]] ],
+    M:[ [[14,72],[14,8]], [[14,8],[40,48],[66,8]], [[66,8],[66,72]] ],
+    N:[ [[16,72],[16,8]], [[16,8],[64,72]], [[64,72],[64,8]] ],
+    O:[ [[40,8],[24,12],[12,26],[10,40],[12,54],[24,68],[40,72],[56,68],[68,54],[70,40],[68,26],[56,12],[40,8]] ],
+    P:[ [[16,8],[16,72]], [[16,8],[48,8],[60,16],[62,30],[54,42],[40,46],[16,46]] ],
+    Q:[ [[40,8],[24,12],[12,26],[10,40],[12,54],[24,68],[40,72],[56,68],[68,54],[70,40],[68,26],[56,12],[40,8]], [[54,58],[70,76]] ],
+    R:[ [[16,8],[16,72]], [[16,8],[48,8],[60,16],[62,30],[54,42],[40,46],[16,46]], [[40,46],[64,72]] ],
+    S:[ [[64,18],[54,8],[36,8],[20,18],[20,34],[34,42],[52,50],[64,60],[62,68],[46,74],[28,72],[16,64]] ],
+    T:[ [[14,8],[66,8]], [[40,8],[40,72]] ],
+    U:[ [[16,8],[16,54],[22,66],[40,72],[58,66],[64,54],[64,8]] ],
+    V:[ [[14,8],[40,72]], [[66,8],[40,72]] ],
+    W:[ [[10,8],[24,72]], [[24,72],[40,40]], [[40,40],[56,72]], [[56,72],[70,8]] ],
+    X:[ [[14,8],[66,72]], [[66,8],[14,72]] ],
+    Y:[ [[14,8],[40,42]], [[66,8],[40,42]], [[40,42],[40,72]] ],
+    Z:[ [[14,8],[66,8]], [[66,8],[14,72]], [[14,72],[66,72]] ]
+  },
+  lower: {
+    a:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,52],[30,62],[46,64],[58,58],[58,30]], [[58,28],[58,66]] ],
+    b:[ [[18,8],[18,66]], [[18,38],[28,28],[42,26],[54,32],[58,44],[54,56],[42,64],[28,64],[18,56]] ],
+    c:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,58]] ],
+    d:[ [[58,8],[58,66]], [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,56]] ],
+    e:[ [[20,42],[58,42],[60,32],[50,20],[34,20],[20,30],[18,46],[22,60],[34,66],[50,66],[62,58]] ],
+    f:[ [[56,14],[46,8],[36,12],[32,24],[32,70]], [[22,36],[48,36]] ],
+    g:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,56],[58,30]], [[58,28],[60,68],[50,76],[34,76],[22,68]] ],
+    h:[ [[18,8],[18,66]], [[18,38],[28,28],[44,26],[56,34],[58,66]] ],
+    i:[ [[40,20],[40,66]], [[38,10],[42,10]] ],
+    j:[ [[44,20],[44,70],[34,78],[22,72]], [[42,10],[46,10]] ],
+    k:[ [[18,8],[18,66]], [[50,26],[18,48]], [[18,48],[54,66]] ],
+    l:[ [[32,8],[32,60],[44,68]] ],
+    m:[ [[18,28],[18,66]], [[18,30],[26,22],[36,20],[46,26],[48,28]], [[48,28],[50,22],[60,20],[68,26],[70,28],[70,66]] ],
+    n:[ [[18,28],[18,66]], [[18,30],[28,22],[44,20],[56,28],[58,66]] ],
+    o:[ [[40,20],[26,24],[18,36],[18,52],[26,64],[40,68],[54,64],[62,52],[62,36],[54,24],[40,20]] ],
+    p:[ [[18,28],[18,80]], [[18,28],[34,20],[50,22],[58,34],[56,48],[44,58],[30,58],[18,52]] ],
+    q:[ [[58,28],[46,20],[32,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,58],[58,28]], [[58,28],[58,80]] ],
+    r:[ [[18,28],[18,66]], [[18,32],[26,22],[38,20],[50,24]] ],
+    s:[ [[58,30],[48,20],[32,20],[20,28],[20,40],[38,48],[52,56],[56,66],[46,72],[30,72],[18,64]] ],
+    t:[ [[32,10],[32,62],[40,68],[50,66]], [[20,28],[48,28]] ],
+    u:[ [[18,28],[18,58],[26,66],[40,68],[52,62],[58,52],[58,28]], [[58,52],[58,66]] ],
+    v:[ [[20,28],[38,66]], [[56,28],[38,66]] ],
+    w:[ [[14,28],[24,68]], [[24,68],[38,48]], [[38,48],[52,68]], [[52,68],[66,28]] ],
+    x:[ [[20,28],[58,68]], [[58,28],[20,68]] ],
+    y:[ [[18,28],[38,56]], [[58,28],[38,56],[28,70],[18,76]] ],
+    z:[ [[18,28],[58,28]], [[58,28],[18,68]], [[18,68],[58,68]] ]
+  }
+};
+
+const COLORS = ['#E24B4A','#D85A30','#BA7517','#1D9E75','#378ADD','#7F77DD','#D4537E','#2C2C2A'];
+const PEN_SIZES = [4,8,14];
+const THUMB = 70;
+
+let mode = 'upper', currentIdx = 0;
+let showGuide = true, isEraser = false;
+let penColor = COLORS[5], penSize = PEN_SIZES[1];
+let drawing = false, lastX = 0, lastY = 0;
+let done = { upper: new Set(), lower: new Set() };
+let writeStrokes = 0;
+let animTimer = null, animPlaying = false, animCurrentStroke = 0;
+
+const drawCanvas = document.getElementById('draw-canvas');
+const guideCanvas = document.getElementById('guide-canvas');
+const dCtx = drawCanvas.getContext('2d');
+const gCtx = guideCanvas.getContext('2d');
+
+/* ===== HELPERS ===== */
+function getStrokeKey() {
+  return mode === 'upper' ? LETTERS[currentIdx] : LETTERS[currentIdx].toLowerCase();
+}
+function getStrokeData() {
+  return STROKES[mode][getStrokeKey()] || null;
+}
+function accentColor() { return mode==='upper' ? '#7F77DD' : '#1D9E75'; }
+function lightColor()  { return mode==='upper' ? '#AFA9EC' : '#5DCAA5'; }
+
+/* ===== TOOLBAR ===== */
+function buildColorDots() {
+  document.getElementById('color-dots').innerHTML = COLORS.map(c =>
+    `<div class="color-dot${c===penColor?' selected':''}" style="background:${c}" onclick="setColor('${c}',this)"></div>`
+  ).join('');
+}
+function buildPenSizes() {
+  document.getElementById('pen-sizes').innerHTML = PEN_SIZES.map(s =>
+    `<div class="pen-size-dot${s===penSize?' selected':''}" style="width:${s+8}px;height:${s+8}px" onclick="setPenSize(${s},this)"></div>`
+  ).join('');
+}
+function setColor(c,el) {
+  penColor=c; isEraser=false;
+  document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('erase-btn').classList.remove('erasing');
+  drawCanvas.style.cursor='crosshair';
+}
+function setPenSize(s,el) {
+  penSize=s;
+  document.querySelectorAll('.pen-size-dot').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleEraser() {
+  isEraser=!isEraser;
+  document.getElementById('erase-btn').classList.toggle('erasing',isEraser);
+  drawCanvas.style.cursor=isEraser?'cell':'crosshair';
+}
+function toggleGuide() {
+  showGuide=!showGuide;
+  guideCanvas.style.opacity=showGuide?'1':'0';
+  const btn=document.getElementById('guide-btn');
+  btn.classList.toggle('active',showGuide);
+  btn.textContent=showGuide?'👁 가이드 숨기기':'👁 가이드 보기';
+}
+function clearCanvas() { dCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height); writeStrokes=0; }
+
+/* ===== ARROW HELPER ===== */
+function drawArrow(ctx, x1,y1,x2,y2,color,size) {
+  const angle=Math.atan2(y2-y1,x2-x1);
+  ctx.save();
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.translate(x2,y2);
+  ctx.rotate(angle);
+  ctx.moveTo(0,0);
+  ctx.lineTo(-size,-size*0.5);
+  ctx.lineTo(-size,size*0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ===== THUMBNAIL DRAWING ===== */
+function drawThumb(ctx, strokeData, upToIdx) {
+  const W=THUMB, H=THUMB;
+  ctx.clearRect(0,0,W,H);
+
+  // Dashed center line
+  ctx.save(); ctx.strokeStyle='rgba(0,0,0,0.1)'; ctx.lineWidth=0.8; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(4,H*0.5); ctx.lineTo(W-4,H*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(4,H*0.15); ctx.lineTo(W-4,H*0.15); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(4,H*0.85); ctx.lineTo(W-4,H*0.85); ctx.stroke();
+  ctx.restore();
+
+  // Ghost letter
+  ctx.save();
+  ctx.font=`bold ${H*0.8}px 'Fredoka One',cursive`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle=lightColor(); ctx.globalAlpha=0.13;
+  ctx.fillText(getStrokeKey(),W/2,H/2);
+  ctx.restore();
+
+  // Draw strokes up to upToIdx
+  const display2 = getStrokeKey();
+  // Measure letter bbox in thumbnail ctx
+  ctx.save();
+  ctx.font = `bold ${H*0.8}px 'Fredoka One',cursive`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const tm = ctx.measureText(display2);
+  ctx.restore();
+  const tbbox = {
+    left: W/2 - tm.actualBoundingBoxLeft,
+    top: H/2 - tm.actualBoundingBoxAscent,
+    width: tm.actualBoundingBoxLeft + tm.actualBoundingBoxRight,
+    height: tm.actualBoundingBoxAscent + tm.actualBoundingBoxDescent
+  };
+  function tsc(x,y) {
+    const pad=0.04;
+    return [tbbox.left+(x/80)*tbbox.width*(1-pad*2)+tbbox.width*pad,
+            tbbox.top +(y/80)*tbbox.height*(1-pad*2)+tbbox.height*pad];
+  }
+
+  strokeData.forEach((pts,si)=>{
+    if (si>upToIdx) return;
+    const isCurr = si===upToIdx;
+    ctx.save();
+    ctx.beginPath();
+    pts.forEach(([x,y],pi)=>{
+      const [tx,ty]=tsc(x,y);
+      pi===0?ctx.moveTo(tx,ty):ctx.lineTo(tx,ty);
+    });
+    ctx.strokeStyle = isCurr ? accentColor() : 'rgba(0,0,0,0.22)';
+    ctx.lineWidth = isCurr ? 3.5 : 2;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.stroke();
+
+    if (isCurr) {
+      // Arrow at end
+      if (pts.length>=2) {
+        const n=pts.length;
+        const [ax,ay]=tsc(pts[n-2][0],pts[n-2][1]);
+        const [bx,by]=tsc(pts[n-1][0],pts[n-1][1]);
+        drawArrow(ctx,ax,ay,bx,by,accentColor(),7);
+      }
+      // Start circle
+      const [sc0x,sc0y]=tsc(pts[0][0],pts[0][1]);
+      ctx.beginPath();
+      ctx.arc(sc0x,sc0y,3.5,0,Math.PI*2);
+      ctx.fillStyle='#FF6B6B'; ctx.fill();
+    }
+    ctx.restore();
+  });
+}
+
+/* ===== STROKE STEPS UI ===== */
+function buildStrokeSteps() {
+  stopAnimation();
+  const panel=document.getElementById('stroke-steps');
+  const strokeData=getStrokeData();
+  if (!strokeData) { panel.innerHTML='<span style="font-size:13px;color:#aaa;">데이터 없음</span>'; return; }
+
+  panel.innerHTML=strokeData.map((_,i)=>`
+    <div class="stroke-step" id="sstep-${i}" onclick="selectStroke(${i})">
+      <canvas id="sthumb-${i}" width="${THUMB}" height="${THUMB}" style="width:${THUMB}px;height:${THUMB}px;"></canvas>
+      <div class="stroke-num ${mode==='upper'?'upper-num':'lower-num'}">${i+1}</div>
+    </div>
+  `).join('');
+
+  // Draw all thumbnails
+  strokeData.forEach((_,i)=>{
+    const tc=document.getElementById(`sthumb-${i}`).getContext('2d');
+    drawThumb(tc,strokeData,i);
+  });
+  selectStroke(0);
+}
+
+function selectStroke(idx) {
+  const strokeData=getStrokeData();
+  if (!strokeData) return;
+  const acl=mode==='upper'?'active-upper':'active-lower';
+  document.querySelectorAll('.stroke-step').forEach((el,i)=>{
+    el.classList.remove('active-upper','active-lower');
+    if (i===idx) el.classList.add(acl);
+  });
+  drawGuideWithHighlight(idx);
+}
+
+/* ===== ANIMATION ===== */
+function playAnimation() {
+  const btn=document.getElementById('anim-btn');
+  if (animPlaying) { stopAnimation(); return; }
+  const strokeData=getStrokeData();
+  if (!strokeData) return;
+
+  animPlaying=true;
+  const cl=mode==='upper'?'playing-upper':'playing-lower';
+  btn.classList.add(cl); btn.textContent='⏹ 중지';
+
+  let si=0;
+  function nextStroke() {
+    if (!animPlaying||si>=strokeData.length) { stopAnimation(); return; }
+    selectStroke(si);
+    // Animate the guide canvas with a moving dot
+    animateDotOnGuide(strokeData[si], ()=>{
+      si++;
+      animTimer=setTimeout(nextStroke, 300);
+    });
+  }
+  nextStroke();
+}
+
+/* Get the bounding box of the letter as drawn on the guide canvas */
+function getLetterBBox(W, H) {
+  const display = getStrokeKey();
+  const fontSize = H * 0.75;
+  gCtx.save();
+  gCtx.font = `bold ${fontSize}px 'Fredoka One',cursive`;
+  gCtx.textAlign = 'center';
+  gCtx.textBaseline = 'middle';
+  const metrics = gCtx.measureText(display);
+  gCtx.restore();
+  const lw = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
+  const lh = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+  const cx = W / 2;
+  const cy = H / 2;
+  return {
+    left: cx - metrics.actualBoundingBoxLeft,
+    top: cy - metrics.actualBoundingBoxAscent,
+    width: lw,
+    height: lh
+  };
+}
+
+/* Map stroke coord (0-80 grid) to canvas pixel inside the letter bounding box */
+function strokeToCanvas(x, y, bbox) {
+  // Add small padding so strokes stay just inside the letter bounds
+  const pad = 0.04;
+  const tx = bbox.left + (x / 80) * bbox.width * (1 - pad*2) + bbox.width * pad;
+  const ty = bbox.top  + (y / 80) * bbox.height * (1 - pad*2) + bbox.height * pad;
+  return [tx, ty];
+}
+
+/* Animate a red dot traveling along a stroke on the guide canvas */
+function animateDotOnGuide(pts, onDone) {
+  let pi=0;
+  const speed=45; // ms per point
+
+  function step() {
+    if (!animPlaying) return;
+    if (pi>=pts.length) { onDone && onDone(); return; }
+    // Redraw guide with current highlight and overlay dot
+    let curIdx=0;
+    document.querySelectorAll('.stroke-step').forEach((el,i)=>{
+      if (el.classList.contains('active-upper')||el.classList.contains('active-lower')) curIdx=i;
+    });
+    drawGuideWithHighlight(curIdx);
+    // Draw dot mapped to letter bounding box
+    const W=guideCanvas.width, H=guideCanvas.height;
+    const bbox = getLetterBBox(W, H);
+    const [tx,ty] = strokeToCanvas(pts[pi][0], pts[pi][1], bbox);
+    gCtx.save();
+    gCtx.beginPath();
+    gCtx.arc(tx,ty,7,0,Math.PI*2);
+    gCtx.fillStyle='#FF6B6B';
+    gCtx.globalAlpha=0.9; gCtx.fill();
+    gCtx.beginPath();
+    gCtx.arc(tx,ty,11,0,Math.PI*2);
+    gCtx.strokeStyle='#FF6B6B'; gCtx.lineWidth=2; gCtx.globalAlpha=0.35; gCtx.stroke();
+    gCtx.restore();
+    pi++;
+    animTimer=setTimeout(step, speed);
+  }
+  step();
+}
+
+function stopAnimation() {
+  animPlaying=false;
+  clearTimeout(animTimer);
+  const btn=document.getElementById('anim-btn');
+  btn.classList.remove('playing-upper','playing-lower');
+  btn.textContent='▶ 애니메이션 보기';
+}
+
+function resetStrokePreview() {
+  stopAnimation(); buildStrokeSteps();
+}
+
+/* ===== GUIDE CANVAS ===== */
+function drawGuide() { drawGuideWithHighlight(-1); }
+
+function drawGuideWithHighlight(highlightIdx) {
+  const W=guideCanvas.width, H=guideCanvas.height;
+  gCtx.clearRect(0,0,W,H);
+  const display=getStrokeKey();
+
+  // Guide lines
+  [[H*0.12,4,4,0.07],[H*0.5,12,6,0.13],[H*0.88,4,4,0.07]].forEach(([y,d1,d2,a])=>{
+    gCtx.save(); gCtx.setLineDash([d1,d2]); gCtx.lineWidth=1;
+    gCtx.strokeStyle=`rgba(0,0,0,${a})`; gCtx.beginPath();
+    gCtx.moveTo(20,y); gCtx.lineTo(W-20,y); gCtx.stroke(); gCtx.restore();
+  });
+
+  // Ghost letter
+  gCtx.save();
+  gCtx.font=`bold ${H*0.75}px 'Fredoka One',cursive`;
+  gCtx.textAlign='center'; gCtx.textBaseline='middle';
+  gCtx.fillStyle=lightColor(); gCtx.globalAlpha=0.14;
+  gCtx.fillText(display,W/2,H/2); gCtx.restore();
+
+  // Dotted outline
+  gCtx.save();
+  gCtx.font=`bold ${H*0.75}px 'Fredoka One',cursive`;
+  gCtx.textAlign='center'; gCtx.textBaseline='middle';
+  gCtx.setLineDash([8,8]); gCtx.lineWidth=4;
+  gCtx.strokeStyle=accentColor(); gCtx.globalAlpha=0.22;
+  gCtx.strokeText(display,W/2,H/2); gCtx.restore();
+
+  // Draw strokes on guide
+  const strokeData=getStrokeData();
+  if (strokeData && highlightIdx>=0) {
+    const bbox = getLetterBBox(W, H);
+    strokeData.forEach((pts,si)=>{
+      if (si>highlightIdx) return;
+      const isCurr=si===highlightIdx;
+      gCtx.save();
+      gCtx.beginPath();
+      pts.forEach(([x,y],pi)=>{
+        const [tx,ty]=strokeToCanvas(x,y,bbox);
+        pi===0?gCtx.moveTo(tx,ty):gCtx.lineTo(tx,ty);
+      });
+      gCtx.strokeStyle=isCurr?accentColor():'rgba(0,0,0,0.2)';
+      gCtx.lineWidth=isCurr?7:3;
+      gCtx.lineCap='round'; gCtx.lineJoin='round';
+      gCtx.globalAlpha=isCurr?0.85:0.4;
+      gCtx.stroke();
+
+      if (isCurr && pts.length>=2) {
+        const n=pts.length;
+        const [ax,ay]=strokeToCanvas(pts[n-2][0],pts[n-2][1],bbox);
+        const [bx,by]=strokeToCanvas(pts[n-1][0],pts[n-1][1],bbox);
+        gCtx.globalAlpha=0.9;
+        drawArrow(gCtx,ax,ay,bx,by,accentColor(),14);
+
+        // Start dot (red)
+        const [s0x,s0y]=strokeToCanvas(pts[0][0],pts[0][1],bbox);
+        gCtx.beginPath();
+        gCtx.arc(s0x,s0y,6,0,Math.PI*2);
+        gCtx.fillStyle='#FF6B6B'; gCtx.globalAlpha=0.9; gCtx.fill();
+
+        // Number badge at midpoint
+        const mid=Math.floor(pts.length/2);
+        const [mx0,my0]=strokeToCanvas(pts[mid][0],pts[mid][1],bbox);
+        const mx=mx0, my=my0-18;
+        gCtx.beginPath(); gCtx.arc(mx,my,12,0,Math.PI*2);
+        gCtx.fillStyle=accentColor(); gCtx.globalAlpha=0.92; gCtx.fill();
+        gCtx.font='bold 13px Nunito'; gCtx.fillStyle='#fff'; gCtx.globalAlpha=1;
+        gCtx.textAlign='center'; gCtx.textBaseline='middle';
+        gCtx.fillText(si+1,mx,my);
+      }
+      gCtx.restore();
+    });
+  }
+
+  // Hint text
+  gCtx.save();
+  gCtx.font='700 13px Nunito'; gCtx.fillStyle='rgba(0,0,0,0.26)';
+  gCtx.textAlign='left'; gCtx.fillText('👉 점선을 따라 써보세요',16,H-12);
+  gCtx.restore();
+}
+
+/* ===== PILLS ===== */
+function buildPills() {
+  document.getElementById('pills').innerHTML=LETTERS.map((l,i)=>{
+    let cls='letter-pill';
+    if (done[mode].has(i)) cls+=mode==='upper'?' done-upper':' done-lower';
+    if (i===currentIdx) cls+=mode==='upper'?' current-upper':' current-lower';
+    return `<div class="${cls}" onclick="goTo(${i})">${mode==='upper'?l:l.toLowerCase()}</div>`;
+  }).join('');
+}
+
+/* ===== UI UPDATE ===== */
+function updateUI() {
+  const letter=LETTERS[currentIdx];
+  const display=getStrokeKey();
+  const bigEl=document.getElementById('big-letter');
+  bigEl.textContent=display; bigEl.className='big-letter '+mode;
+  document.getElementById('letter-name').textContent=`${letter} / ${letter.toLowerCase()}`;
+  document.getElementById('letter-example').textContent=EXAMPLES[letter];
+  document.getElementById('canvas-label').textContent=`👆 "${display}" 을(를) 따라 써보세요`;
+  const hb=document.getElementById('hint-badge');
+  hb.textContent=HINTS[letter]; hb.className='hint-badge '+mode;
+  document.getElementById('stroke-title').textContent=`✍️ "${display}" 획순 (${(getStrokeData()||[]).length}획)`;
+  const pf=document.getElementById('progress-fill');
+  pf.className='progress-fill '+mode; pf.style.width=(done[mode].size/26*100)+'%';
+  document.getElementById('progress-text').textContent=`${done[mode].size} / 26 완료`;
+  const stars=Math.min(3,Math.floor(done[mode].size/9));
+  document.getElementById('star-row').innerHTML='⭐'.repeat(stars)+'☆'.repeat(3-stars)+
+    `<span style="font-family:'Nunito';font-size:13px;color:#888;margin-left:10px;font-weight:700;">${done[mode].size}/26 완료</span>`;
+  buildPills(); buildStrokeSteps(); drawGuide(); clearCanvas();
+}
+
+function setMode(m) {
+  mode=m; stopAnimation();
+  document.getElementById('tab-upper').className='mode-tab'+(m==='upper'?' active-upper':'');
+  document.getElementById('tab-lower').className='mode-tab'+(m==='lower'?' active-lower':'');
+  updateUI();
+}
+function goTo(idx) { currentIdx=idx; stopAnimation(); updateUI(); }
+function prevLetter() { currentIdx=(currentIdx+25)%26; stopAnimation(); updateUI(); }
+function nextLetter() { currentIdx=(currentIdx+1)%26; stopAnimation(); updateUI(); }
+
+/* ===== DRAW ON CANVAS ===== */
+function getPos(e) {
+  const r=drawCanvas.getBoundingClientRect();
+  const sx=drawCanvas.width/r.width, sy=drawCanvas.height/r.height;
+  if (e.touches) return [(e.touches[0].clientX-r.left)*sx,(e.touches[0].clientY-r.top)*sy];
+  return [(e.clientX-r.left)*sx,(e.clientY-r.top)*sy];
+}
+function startDraw(e) {
+  e.preventDefault(); drawing=true; [lastX,lastY]=getPos(e); writeStrokes++;
+  if (writeStrokes===6 && !done[mode].has(currentIdx)) {
+    done[mode].add(currentIdx); buildPills();
+    const sz=done[mode].size;
+    document.getElementById('progress-fill').style.width=(sz/26*100)+'%';
+    document.getElementById('progress-text').textContent=`${sz} / 26 완료`;
+    const stars=Math.min(3,Math.floor(sz/9));
+    document.getElementById('star-row').innerHTML='⭐'.repeat(stars)+'☆'.repeat(3-stars)+
+      `<span style="font-family:'Nunito';font-size:13px;color:#888;margin-left:10px;font-weight:700;">${sz}/26 완료</span>`;
+    showToast(`잘했어요! 🎉 "${getStrokeKey()}" 완성!`); spawnConfetti();
+  }
+}
+function draw(e) {
+  if (!drawing) return; e.preventDefault();
+  const [x,y]=getPos(e);
+  dCtx.save(); dCtx.beginPath(); dCtx.moveTo(lastX,lastY); dCtx.lineTo(x,y);
+  dCtx.globalCompositeOperation=isEraser?'destination-out':'source-over';
+  dCtx.strokeStyle=isEraser?'rgba(0,0,0,1)':penColor;
+  dCtx.lineWidth=isEraser?penSize*3:penSize;
+  dCtx.lineCap='round'; dCtx.lineJoin='round'; dCtx.stroke(); dCtx.restore();
+  [lastX,lastY]=[x,y];
+}
+function stopDraw() { drawing=false; }
+drawCanvas.addEventListener('mousedown',startDraw);
+drawCanvas.addEventListener('mousemove',draw);
+drawCanvas.addEventListener('mouseup',stopDraw);
+drawCanvas.addEventListener('mouseleave',stopDraw);
+drawCanvas.addEventListener('touchstart',startDraw,{passive:false});
+drawCanvas.addEventListener('touchmove',draw,{passive:false});
+drawCanvas.addEventListener('touchend',stopDraw);
+
+/* ===== TOAST ===== */
+let toastTimer;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* ===== CONFETTI ===== */
+const CC=['#7F77DD','#1D9E75','#D4537E','#BA7517','#378ADD','#D85A30'];
+function spawnConfetti() {
+  for (let i=0;i<32;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${15+Math.random()*70}%;top:${25+Math.random()*25}%;background:${CC[Math.floor(Math.random()*CC.length)]};width:${8+Math.random()*8}px;height:${8+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${0.9+Math.random()*0.8}s;`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1800);
+  },i*40);
+}
+
+/* ===== KEYBOARD ===== */
+document.addEventListener('keydown',e=>{
+  if (e.key==='ArrowRight') nextLetter();
+  if (e.key==='ArrowLeft')  prevLetter();
+  if (e.key==='Delete'||e.key==='Backspace') clearCanvas();
+  if (e.key==='u'||e.key==='U') setMode('upper');
+  if (e.key==='l'||e.key==='L') setMode('lower');
+  if (e.key===' ') { e.preventDefault(); playAnimation(); }
+});
+
+/* ===== INIT ===== */
+buildColorDots(); buildPenSizes(); updateUI();
+</script>
+</body>
+</html>
