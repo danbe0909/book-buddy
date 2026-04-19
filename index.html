@@ -49,7 +49,7 @@
         .grade-row select { margin-bottom: 0; }
         .hidden { display: none !important; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(3px); }
-        #adminAuthModal { background: var(--bg) !important; backdrop-filter: none !important; align-items: flex-start; padding-top: 60px; overflow-y: auto; z-index: 2000 !important; }
+        #adminAuthModal { background: rgba(0,0,0,0.6) !important; backdrop-filter: blur(4px) !important; align-items: flex-start; padding-top: 60px; overflow-y: auto; z-index: 99999 !important; }
         #myChart { background-color: rgba(255,255,255,0.3); border-radius: 15px; padding: 5px; }
         .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .title-row h3 { font-size: 18px; margin: 0; color: var(--primary-dark); }
@@ -394,81 +394,7 @@
     .eng-team-count-btn { padding:8px 16px; border:2px solid #ffe082; border-radius:50px; font-size:13px; font-weight:800; cursor:pointer; background:#fffbe0; color:#4a4a4a; font-family:inherit; transition:all 0.15s; }
     .eng-team-count-btn.sel { background:var(--primary); border-color:var(--primary-dark); color:white; }
 
-    /* ── 알파벳 따라쓰기 CSS ── */
-    #alphaView .alpha-app { max-width: 500px; margin: 0 auto; padding: 0 0 40px; }
-    #alphaView .alpha-header { text-align: center; padding: 16px 0 14px; }
-    #alphaView .alpha-header h2 { font-family: 'Fredoka One', cursive; font-size: 26px; color: #2C2C2A; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; }
-    #alphaView .alpha-header h2 .alpha-pencil { display: inline-block; animation: alphawiggle 2s infinite; }
-    #alphaView .alpha-header p { font-size: 13px; color: #888780; margin-top: 4px; font-weight: 600; }
-    @keyframes alphawiggle { 0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg);} }
-    #alphaView .alpha-mode-tabs { display: flex; gap: 10px; justify-content: center; margin: 0 0 16px; }
-    #alphaView .alpha-mode-tab { font-family: 'Fredoka One', cursive; font-size: 16px; padding: 9px 24px; border-radius: 999px; border: 2.5px solid transparent; cursor: pointer; transition: all 0.25s; background: #fff; color: #888780; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-    #alphaView .alpha-mode-tab:hover { transform: translateY(-2px); }
-    #alphaView .alpha-mode-tab.active-upper { background: #EEEDFE; color: #3C3489; border-color: #7F77DD; }
-    #alphaView .alpha-mode-tab.active-lower { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
-    #alphaView .alpha-nav-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-    #alphaView .alpha-nav-btn { font-family: 'Fredoka One', cursive; font-size: 22px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); background: #fff; color: #2C2C2A; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: 0 4px 24px rgba(0,0,0,0.08); flex-shrink: 0; }
-    #alphaView .alpha-nav-btn:hover { background: #f0f0f0; transform: scale(1.08); }
-    #alphaView .alpha-letter-pills { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; flex: 1; }
-    #alphaView .alpha-letter-pill { font-family: 'Fredoka One', cursive; font-size: 12px; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.1); background: #fff; color: #888780; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.18s; user-select: none; }
-    #alphaView .alpha-letter-pill:hover { transform: scale(1.15); }
-    #alphaView .alpha-letter-pill.done-upper { background: #EEEDFE; color: #3C3489; border-color: #7F77DD; }
-    #alphaView .alpha-letter-pill.done-lower { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
-    #alphaView .alpha-letter-pill.current-upper { background: #7F77DD; color: #fff; border-color: #534AB7; transform: scale(1.2); box-shadow: 0 2px 10px #7F77DD55; }
-    #alphaView .alpha-letter-pill.current-lower { background: #1D9E75; color: #fff; border-color: #0F6E56; transform: scale(1.2); box-shadow: 0 2px 10px #1D9E7555; }
-    #alphaView .alpha-tracing-card { background: #fff; border-radius: 20px; border: 0.5px solid rgba(0,0,0,0.1); padding: 20px 16px 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-    #alphaView .alpha-stroke-order-panel { background: #F8F7F2; border-radius: 14px; border: 1px solid rgba(0,0,0,0.1); padding: 12px 14px; margin-bottom: 16px; }
-    #alphaView .alpha-stroke-order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
-    #alphaView .alpha-stroke-order-title { font-family: 'Fredoka One', cursive; font-size: 14px; color: #2C2C2A; }
-    #alphaView .alpha-stroke-controls { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    #alphaView .alpha-stroke-ctrl-btn { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 11px; padding: 5px 12px; border-radius: 999px; border: 1.5px solid rgba(0,0,0,0.1); background: #fff; color: #2C2C2A; cursor: pointer; transition: all 0.15s; }
-    #alphaView .alpha-stroke-ctrl-btn.playing-upper { background: #EEEDFE; color: #3C3489; border-color: #7F77DD; }
-    #alphaView .alpha-stroke-ctrl-btn.playing-lower { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
-    #alphaView .alpha-stroke-steps { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
-    #alphaView .alpha-stroke-step { position: relative; background: #fff; border-radius: 12px; border: 2.5px solid rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-    #alphaView .alpha-stroke-step:hover { transform: scale(1.07); border-color: #bbb; }
-    #alphaView .alpha-stroke-step.active-upper { border-color: #7F77DD; box-shadow: 0 0 0 3px #7F77DD22; }
-    #alphaView .alpha-stroke-step.active-lower { border-color: #1D9E75; box-shadow: 0 0 0 3px #1D9E7522; }
-    #alphaView .alpha-stroke-step canvas { display: block; }
-    #alphaView .alpha-stroke-num { position: absolute; top: 4px; left: 5px; font-family: 'Fredoka One', cursive; font-size: 10px; color: #fff; border-radius: 999px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; line-height: 1; }
-    #alphaView .alpha-stroke-num.upper-num { background: #7F77DD; }
-    #alphaView .alpha-stroke-num.lower-num { background: #1D9E75; }
-    #alphaView .alpha-letter-info { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
-    #alphaView .alpha-big-letter { font-family: 'Fredoka One', cursive; font-size: 72px; line-height: 1; width: 90px; height: 90px; border-radius: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; }
-    #alphaView .alpha-big-letter.upper { background: #EEEDFE; color: #534AB7; }
-    #alphaView .alpha-big-letter.lower { background: #E1F5EE; color: #0F6E56; }
-    #alphaView .alpha-letter-details { flex: 1; }
-    #alphaView .alpha-letter-name { font-family: 'Fredoka One', cursive; font-size: 20px; color: #2C2C2A; margin-bottom: 4px; }
-    #alphaView .alpha-letter-example { font-size: 14px; color: #888780; font-weight: 600; }
-    #alphaView .alpha-hint-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-top: 6px; }
-    #alphaView .alpha-hint-badge.upper { background: #EEEDFE; color: #3C3489; }
-    #alphaView .alpha-hint-badge.lower { background: #E1F5EE; color: #085041; }
-    #alphaView .alpha-canvas-section { position: relative; }
-    #alphaView .alpha-canvas-label { font-size: 12px; font-weight: 700; color: #888780; margin-bottom: 6px; }
-    #alphaView .alpha-canvas-wrap { position: relative; border-radius: 14px; overflow: hidden; border: 2px dashed rgba(0,0,0,0.12); background: #FFFDF5; }
-    #alphaView .alpha-canvas-wrap canvas { display: block; width: 100%; }
-    #alphaView #alpha-guide-canvas { position: absolute; top: 0; left: 0; pointer-events: none; transition: opacity 0.3s; }
-    #alphaView #alpha-draw-canvas { cursor: crosshair; }
-    #alphaView .alpha-toolbar { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
-    #alphaView .alpha-toolbar-section { display: flex; gap: 5px; align-items: center; padding: 5px 8px; background: #F8F7F2; border-radius: 999px; border: 1px solid rgba(0,0,0,0.1); }
-    #alphaView .alpha-color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid transparent; cursor: pointer; transition: transform 0.15s; flex-shrink: 0; }
-    #alphaView .alpha-color-dot:hover { transform: scale(1.2); }
-    #alphaView .alpha-color-dot.selected { border-color: #2C2C2A; transform: scale(1.15); box-shadow: 0 0 0 2px #fff inset; }
-    #alphaView .alpha-pen-size-dot { border-radius: 50%; background: #2C2C2A; cursor: pointer; border: 2.5px solid transparent; transition: all 0.15s; flex-shrink: 0; }
-    #alphaView .alpha-pen-size-dot.selected { border-color: #7F77DD; box-shadow: 0 0 0 2px #7F77DD44; }
-    #alphaView .alpha-tool-btn { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; padding: 7px 13px; border-radius: 999px; border: 1.5px solid rgba(0,0,0,0.1); background: #fff; color: #2C2C2A; cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-    #alphaView .alpha-tool-btn:hover { background: #F1EFE8; transform: translateY(-1px); }
-    #alphaView .alpha-tool-btn.active { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
-    #alphaView .alpha-tool-btn.erasing { background: #FAECE7; color: #D85A30; border-color: #F0997B; }
-    #alphaView .alpha-tool-btn.clear-btn { background: #FBEAF0; color: #72243E; border-color: #D4537E; }
-    #alphaView .alpha-progress-section { margin-top: 14px; }
-    #alphaView .alpha-star-row { display: flex; gap: 4px; align-items: center; justify-content: center; margin-bottom: 6px; font-size: 20px; }
-    #alphaView .alpha-progress-bar { height: 8px; background: #F1EFE8; border-radius: 999px; overflow: hidden; }
-    #alphaView .alpha-progress-fill { height: 100%; border-radius: 999px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
-    #alphaView .alpha-progress-fill.upper { background: linear-gradient(90deg, #AFA9EC, #7F77DD); }
-    #alphaView .alpha-progress-fill.lower { background: linear-gradient(90deg, #5DCAA5, #1D9E75); }
-    #alphaView .alpha-progress-text { font-size: 12px; font-weight: 700; color: #888780; text-align: right; margin-top: 4px; }
-    /* ── 🎈 풍선 알파벳 CSS ── */
+        /* ── 🎈 풍선 알파벳 CSS ── */
 
 
 #balloonView {
@@ -696,7 +622,6 @@
     <button id="mModeBtn" class="mode-btn" onclick="executeSwitch('math')">🔢 연산 드릴</button>
     <button id="wjModeBtn" class="mode-btn" onclick="executeSwitch('wordjang')">📖 문장제 드릴</button>
     <button id="engModeBtn" class="mode-btn" onclick="executeSwitch('english')">⭐ 영단어 드릴</button>
-    <button id="alphaModeBtn" class="mode-btn" onclick="executeSwitch('alpha')">✏️ 알파벳 쓰기</button>
     <button id="balloonModeBtn" class="mode-btn" onclick="executeSwitch('balloon')">🎈 풍선게임</button>
     <button id="tModeBtn" class="mode-btn" onclick="openTeacherModal()">👩‍🏫 교사 관리 🔒</button>
 </div>
@@ -1116,66 +1041,7 @@
     </div>
     <!-- ══ 영단어 별나라 뷰 끝 ══ -->
 
-    <!-- ══════════════════════════════════════
-         ✏️ 알파벳 따라쓰기 뷰
-    ══════════════════════════════════════ -->
-    <div id="alphaView" class="hidden">
-      <div class="alpha-app">
-        <div class="alpha-header">
-          <h2><span class="alpha-pencil">✏️</span> 알파벳 따라쓰기</h2>
-          <p>획순 애니메이션을 보고 따라 써봐요!</p>
-        </div>
-        <div class="alpha-mode-tabs">
-          <button class="alpha-mode-tab active-upper" id="alpha-tab-upper" onclick="alphaSetMode('upper')">🅰 대문자</button>
-          <button class="alpha-mode-tab" id="alpha-tab-lower" onclick="alphaSetMode('lower')">🔡 소문자</button>
-        </div>
-        <div class="alpha-nav-bar">
-          <button class="alpha-nav-btn" onclick="alphaPrevLetter()">←</button>
-          <div class="alpha-letter-pills" id="alpha-pills"></div>
-          <button class="alpha-nav-btn" onclick="alphaNextLetter()">→</button>
-        </div>
-        <div class="alpha-tracing-card">
-          <div class="alpha-stroke-order-panel">
-            <div class="alpha-stroke-order-header">
-              <div class="alpha-stroke-order-title" id="alpha-stroke-title">✍️ 획순 보기</div>
-              <div class="alpha-stroke-controls">
-                <button class="alpha-stroke-ctrl-btn" id="alpha-anim-btn" onclick="alphaPlayAnimation()">▶ 애니메이션 보기</button>
-                <button class="alpha-stroke-ctrl-btn" onclick="alphaResetStrokePreview()">↺ 처음부터</button>
-              </div>
-            </div>
-            <div class="alpha-stroke-steps" id="alpha-stroke-steps"></div>
-          </div>
-          <div class="alpha-letter-info">
-            <div class="alpha-big-letter upper" id="alpha-big-letter">A</div>
-            <div class="alpha-letter-details">
-              <div class="alpha-letter-name" id="alpha-letter-name">A / a</div>
-              <div class="alpha-letter-example" id="alpha-letter-example">Apple 🍎</div>
-              <span class="alpha-hint-badge upper" id="alpha-hint-badge">위에서 아래로</span>
-            </div>
-          </div>
-          <div class="alpha-canvas-section">
-            <div class="alpha-canvas-label" id="alpha-canvas-label">👆 아래에 따라 써보세요</div>
-            <div class="alpha-canvas-wrap">
-              <canvas id="alpha-guide-canvas" width="700" height="240"></canvas>
-              <canvas id="alpha-draw-canvas" width="700" height="240"></canvas>
-            </div>
-          </div>
-          <div class="alpha-toolbar">
-            <div class="alpha-toolbar-section" id="alpha-color-dots"></div>
-            <div class="alpha-toolbar-section" id="alpha-pen-sizes"></div>
-            <button class="alpha-tool-btn active" id="alpha-guide-btn" onclick="alphaToggleGuide()">👁 가이드</button>
-            <button class="alpha-tool-btn" id="alpha-erase-btn" onclick="alphaToggleEraser()">🧹 지우개</button>
-            <button class="alpha-tool-btn clear-btn" onclick="alphaClearCanvas()">🗑 전체 지우기</button>
-          </div>
-          <div class="alpha-progress-section">
-            <div class="alpha-star-row" id="alpha-star-row"></div>
-            <div class="alpha-progress-bar"><div class="alpha-progress-fill upper" id="alpha-progress-fill" style="width:0%"></div></div>
-            <div class="alpha-progress-text" id="alpha-progress-text">0 / 26 완료</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- ══ 알파벳 따라쓰기 뷰 끝 ══ -->
+
     <!-- ══════════════════════════════════════
          🎈 풍선 알파벳 게임 뷰
     ══════════════════════════════════════ -->
@@ -2234,7 +2100,7 @@ renderTeamNameInputs();
     </div>
 </div>
 
-<div id="adminDirectModal" class="modal hidden">
+<div id="adminDirectModal" class="modal hidden" style="z-index:99999;">
     <div class="card" style="text-align:center; min-width:300px; max-width:85vw; padding:28px 24px;">
         <div style="font-size:42px; margin-bottom:8px;">👑</div>
         <h4 style="margin:0 0 6px 0; color:#764ba2; font-size:20px;">관리자 접속</h4>
@@ -2963,6 +2829,12 @@ renderTeamNameInputs();
         if (teacherMenuIconClickCount >= 5) {
             teacherMenuIconClickCount = 0;
             document.getElementById('adminAuthModal').classList.add('hidden');
+            ['sModeBtn','mModeBtn','wjModeBtn','engModeBtn','balloonModeBtn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.disabled = false; el.style.opacity = ''; el.style.pointerEvents = ''; }
+            });
+            const modeSelector = document.querySelector('.mode-selector');
+            if (modeSelector) modeSelector.style.zIndex = '';
             openAdminDirectModal();
             return;
         }
@@ -2975,11 +2847,17 @@ renderTeamNameInputs();
     function openAdminDirectModal() {
         document.getElementById('adminDirectModal').classList.remove('hidden');
         document.getElementById('adminDirectInput').value = '';
+        // 탭 바를 모달 뒤로 숨김
+        const modeSelector = document.querySelector('.mode-selector');
+        if (modeSelector) modeSelector.style.zIndex = '0';
         setTimeout(() => document.getElementById('adminDirectInput').focus(), 100);
     }
 
     function closeAdminDirectModal() {
         document.getElementById('adminDirectModal').classList.add('hidden');
+        // 탭 바 z-index 복원
+        const modeSelector = document.querySelector('.mode-selector');
+        if (modeSelector) modeSelector.style.zIndex = '';
     }
 
     async function checkAdminDirectPw() {
@@ -3015,14 +2893,22 @@ renderTeamNameInputs();
 
     function openTeacherModal() {
         // 모달 뒤 배경이 겹치지 않도록 현재 활성 뷰를 모두 숨김
-        ['mathView','wordjangView','engView','alphaView','teacherView','studentView','balloonView'].forEach(id => {
+        ['mathView','wordjangView','engView','teacherView','studentView','balloonView'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
         });
-        ['tModeBtn','sModeBtn','mModeBtn','wjModeBtn','engModeBtn','alphaModeBtn'].forEach(id => {
+        ['tModeBtn','sModeBtn','mModeBtn','wjModeBtn','engModeBtn'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.remove('active');
         });
+        // 교사 관리 모달이 열려 있는 동안 다른 탭 버튼 비활성화
+        ['sModeBtn','mModeBtn','wjModeBtn','engModeBtn','balloonModeBtn'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.disabled = true; el.style.opacity = '0.4'; el.style.pointerEvents = 'none'; }
+        });
+        // 탭 바를 모달 뒤로 숨김
+        const modeSelector = document.querySelector('.mode-selector');
+        if (modeSelector) modeSelector.style.zIndex = '0';
         document.getElementById('tModeBtn').classList.add('active');
         switchTeacherTab('login');
         document.getElementById('adminAuthModal').classList.remove('hidden');
@@ -3795,16 +3681,13 @@ renderTeamNameInputs();
         document.getElementById('mathView').classList.toggle('hidden', mode !== 'math');
         document.getElementById('wordjangView').classList.toggle('hidden', mode !== 'wordjang');
         document.getElementById('engView').classList.toggle('hidden', mode !== 'english');
-        document.getElementById('alphaView').classList.toggle('hidden', mode !== 'alpha');
         document.getElementById('tModeBtn').classList.toggle('active', mode === 'teacher');
         document.getElementById('balloonModeBtn').classList.toggle('active', mode === 'balloon');
         document.getElementById('sModeBtn').classList.toggle('active', mode === 'student');
         document.getElementById('mModeBtn').classList.toggle('active', mode === 'math');
         document.getElementById('wjModeBtn').classList.toggle('active', mode === 'wordjang');
         document.getElementById('engModeBtn').classList.toggle('active', mode === 'english');
-        document.getElementById('alphaModeBtn').classList.toggle('active', mode === 'alpha');
         if (mode === 'english') { engShowHome(); }
-        if (mode === 'alpha') { alphaInitIfNeeded(); }
         document.getElementById('tModeBtn').classList.toggle('active', mode === 'teacher');
         document.getElementById('balloonModeBtn').classList.toggle('active', mode === 'balloon');
         document.getElementById('sModeBtn').classList.toggle('active', mode === 'student');
@@ -3814,7 +3697,17 @@ renderTeamNameInputs();
         syncHeaderAndStats();
     }
     function trySwitchMode(mode) { if(mode === 'teacher') document.getElementById('adminAuthModal').classList.remove('hidden'); }
-    function closeAdminModal() { document.getElementById('adminAuthModal').classList.add('hidden'); }
+    function closeAdminModal() {
+        document.getElementById('adminAuthModal').classList.add('hidden');
+        // 모달 닫힐 때 다른 탭 버튼 다시 활성화
+        ['sModeBtn','mModeBtn','wjModeBtn','engModeBtn','balloonModeBtn'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.disabled = false; el.style.opacity = ''; el.style.pointerEvents = ''; }
+        });
+        // 탭 바 z-index 복원
+        const modeSelector = document.querySelector('.mode-selector');
+        if (modeSelector) modeSelector.style.zIndex = '';
+    }
     function teacherLogout() {
         // 교사 로그아웃 시 학교 코드 유지 → 학생 화면 바로 보여줌
         executeSwitch('student');
@@ -7384,475 +7277,6 @@ function engShowQuizResult() {
 </div>
 
 <script>
-/* ===== 알파벳 따라쓰기 (네임스페이스 처리) ===== */
-(function() {
-
-const ALPHA_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const ALPHA_EXAMPLES = {
-  A:'Apple 🍎',B:'Ball 🏀',C:'Cat 🐱',D:'Dog 🐶',E:'Elephant 🐘',
-  F:'Fish 🐟',G:'Grape 🍇',H:'Hat 🎩',I:'Ice cream 🍦',J:'Juice 🥤',
-  K:'Kite 🪁',L:'Lion 🦁',M:'Moon 🌙',N:'Nest 🪹',O:'Orange 🍊',
-  P:'Pig 🐷',Q:'Queen 👑',R:'Rainbow 🌈',S:'Sun ☀️',T:'Tree 🌳',
-  U:'Umbrella ☂️',V:'Violin 🎻',W:'Whale 🐋',X:'Xylophone 🎵',Y:'Yo-yo 🪀',
-  Z:'Zebra 🦓'
-};
-const ALPHA_HINTS = {
-  A:'위에서 아래로',B:'왼쪽 선 먼저',C:'왼쪽 둥글게',D:'왼쪽 선 먼저',E:'왼쪽 선 먼저',
-  F:'위에서 아래로',G:'왼쪽 둥글게',H:'두 선 그리기',I:'위에서 아래로',J:'위에서 아래로',
-  K:'왼쪽 선 먼저',L:'위에서 아래로',M:'위에서 아래로',N:'왼쪽부터 시작',O:'둥글게 한 번에',
-  P:'위에서 아래로',Q:'둥글게 그리기',R:'위에서 아래로',S:'위에서 S 모양',T:'가로 먼저',
-  U:'위에서 아래로',V:'왼쪽 아래 먼저',W:'왼쪽 아래 먼저',X:'왼쪽 위에서',Y:'위에서 아래로',
-  Z:'위에서 옆으로'
-};
-const ALPHA_STROKES = {
-  upper: {
-    A:[ [[40,8],[12,72]], [[40,8],[68,72]], [[20,48],[60,48]] ],
-    B:[ [[16,8],[16,72]], [[16,8],[46,8],[58,14],[58,30],[46,38],[16,38]], [[16,38],[50,40],[62,50],[58,64],[44,72],[16,72]] ],
-    C:[ [[64,20],[52,10],[34,10],[18,22],[14,36],[14,52],[20,64],[34,72],[52,72],[64,60]] ],
-    D:[ [[16,8],[16,72]], [[16,8],[44,8],[62,20],[66,40],[58,62],[40,72],[16,72]] ],
-    E:[ [[16,8],[16,72]], [[16,8],[64,8]], [[16,40],[52,40]], [[16,72],[64,72]] ],
-    F:[ [[16,8],[16,72]], [[16,8],[64,8]], [[16,40],[54,40]] ],
-    G:[ [[64,20],[52,10],[32,10],[16,22],[12,40],[16,58],[30,70],[50,70],[64,58],[64,40]], [[40,40],[64,40],[64,52]] ],
-    H:[ [[16,8],[16,72]], [[64,8],[64,72]], [[16,40],[64,40]] ],
-    I:[ [[28,8],[52,8]], [[40,8],[40,72]], [[28,72],[52,72]] ],
-    J:[ [[28,8],[52,8]], [[44,8],[44,58],[34,70],[20,64]] ],
-    K:[ [[16,8],[16,72]], [[62,8],[16,40]], [[16,40],[64,72]] ],
-    L:[ [[16,8],[16,72]], [[16,72],[64,72]] ],
-    M:[ [[14,72],[14,8]], [[14,8],[40,48],[66,8]], [[66,8],[66,72]] ],
-    N:[ [[16,72],[16,8]], [[16,8],[64,72]], [[64,72],[64,8]] ],
-    O:[ [[40,8],[24,12],[12,26],[10,40],[12,54],[24,68],[40,72],[56,68],[68,54],[70,40],[68,26],[56,12],[40,8]] ],
-    P:[ [[16,8],[16,72]], [[16,8],[48,8],[60,16],[62,30],[54,42],[40,46],[16,46]] ],
-    Q:[ [[40,8],[24,12],[12,26],[10,40],[12,54],[24,68],[40,72],[56,68],[68,54],[70,40],[68,26],[56,12],[40,8]], [[54,58],[70,76]] ],
-    R:[ [[16,8],[16,72]], [[16,8],[48,8],[60,16],[62,30],[54,42],[40,46],[16,46]], [[40,46],[64,72]] ],
-    S:[ [[64,18],[54,8],[36,8],[20,18],[20,34],[34,42],[52,50],[64,60],[62,68],[46,74],[28,72],[16,64]] ],
-    T:[ [[14,8],[66,8]], [[40,8],[40,72]] ],
-    U:[ [[16,8],[16,54],[22,66],[40,72],[58,66],[64,54],[64,8]] ],
-    V:[ [[14,8],[40,72]], [[66,8],[40,72]] ],
-    W:[ [[10,8],[24,72]], [[24,72],[40,40]], [[40,40],[56,72]], [[56,72],[70,8]] ],
-    X:[ [[14,8],[66,72]], [[66,8],[14,72]] ],
-    Y:[ [[14,8],[40,42]], [[66,8],[40,42]], [[40,42],[40,72]] ],
-    Z:[ [[14,8],[66,8]], [[66,8],[14,72]], [[14,72],[66,72]] ]
-  },
-  lower: {
-    a:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,52],[30,62],[46,64],[58,58],[58,30]], [[58,28],[58,66]] ],
-    b:[ [[18,8],[18,66]], [[18,38],[28,28],[42,26],[54,32],[58,44],[54,56],[42,64],[28,64],[18,56]] ],
-    c:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,58]] ],
-    d:[ [[58,8],[58,66]], [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,56]] ],
-    e:[ [[20,42],[58,42],[60,32],[50,20],[34,20],[20,30],[18,46],[22,60],[34,66],[50,66],[62,58]] ],
-    f:[ [[56,14],[46,8],[36,12],[32,24],[32,70]], [[22,36],[48,36]] ],
-    g:[ [[58,30],[48,20],[34,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,56],[58,30]], [[58,28],[60,68],[50,76],[34,76],[22,68]] ],
-    h:[ [[18,8],[18,66]], [[18,38],[28,28],[44,26],[56,34],[58,66]] ],
-    i:[ [[40,20],[40,66]], [[38,10],[42,10]] ],
-    j:[ [[44,20],[44,70],[34,78],[22,72]], [[42,10],[46,10]] ],
-    k:[ [[18,8],[18,66]], [[50,26],[18,48]], [[18,48],[54,66]] ],
-    l:[ [[32,8],[32,60],[44,68]] ],
-    m:[ [[18,28],[18,66]], [[18,30],[26,22],[36,20],[46,26],[48,28]], [[48,28],[50,22],[60,20],[68,26],[70,28],[70,66]] ],
-    n:[ [[18,28],[18,66]], [[18,30],[28,22],[44,20],[56,28],[58,66]] ],
-    o:[ [[40,20],[26,24],[18,36],[18,52],[26,64],[40,68],[54,64],[62,52],[62,36],[54,24],[40,20]] ],
-    p:[ [[18,28],[18,80]], [[18,28],[34,20],[50,22],[58,34],[56,48],[44,58],[30,58],[18,52]] ],
-    q:[ [[58,28],[46,20],[32,20],[22,28],[18,40],[20,54],[30,64],[46,66],[58,58],[58,28]], [[58,28],[58,80]] ],
-    r:[ [[18,28],[18,66]], [[18,32],[26,22],[38,20],[50,24]] ],
-    s:[ [[58,30],[48,20],[32,20],[20,28],[20,40],[38,48],[52,56],[56,66],[46,72],[30,72],[18,64]] ],
-    t:[ [[32,10],[32,62],[40,68],[50,66]], [[20,28],[48,28]] ],
-    u:[ [[18,28],[18,58],[26,66],[40,68],[52,62],[58,52],[58,28]], [[58,52],[58,66]] ],
-    v:[ [[20,28],[38,66]], [[56,28],[38,66]] ],
-    w:[ [[14,28],[24,68]], [[24,68],[38,48]], [[38,48],[52,68]], [[52,68],[66,28]] ],
-    x:[ [[20,28],[58,68]], [[58,28],[20,68]] ],
-    y:[ [[18,28],[38,56]], [[58,28],[38,56],[28,70],[18,76]] ],
-    z:[ [[18,28],[58,28]], [[58,28],[18,68]], [[18,68],[58,68]] ]
-  }
-};
-
-const ALPHA_COLORS = ['#E24B4A','#D85A30','#BA7517','#1D9E75','#378ADD','#7F77DD','#D4537E','#2C2C2A'];
-const ALPHA_PEN_SIZES = [4,8,14];
-const ALPHA_THUMB = 70;
-
-let alphaMode = 'upper', alphaCurrentIdx = 0;
-let alphaShowGuide = true, alphaIsEraser = false;
-let alphaPenColor = ALPHA_COLORS[5], alphaPenSize = ALPHA_PEN_SIZES[1];
-let alphaDrawing = false, alphaLastX = 0, alphaLastY = 0;
-let alphaDone = { upper: new Set(), lower: new Set() };
-let alphaWriteStrokes = 0;
-let alphaAnimTimer = null, alphaAnimPlaying = false;
-let alphaInited = false;
-
-let alphaDrawCanvas, alphaGuideCanvas, alphaDCtx, alphaGCtx;
-
-window.alphaInitIfNeeded = function() {
-  if (alphaInited) return;
-  alphaInited = true;
-  alphaDrawCanvas = document.getElementById('alpha-draw-canvas');
-  alphaGuideCanvas = document.getElementById('alpha-guide-canvas');
-  alphaDCtx = alphaDrawCanvas.getContext('2d');
-  alphaGCtx = alphaGuideCanvas.getContext('2d');
-
-  alphaDrawCanvas.addEventListener('mousedown', alphaStartDraw);
-  alphaDrawCanvas.addEventListener('mousemove', alphaDrawMove);
-  alphaDrawCanvas.addEventListener('mouseup', alphaStopDraw);
-  alphaDrawCanvas.addEventListener('mouseleave', alphaStopDraw);
-  alphaDrawCanvas.addEventListener('touchstart', alphaStartDraw, {passive:false});
-  alphaDrawCanvas.addEventListener('touchmove', alphaDrawMove, {passive:false});
-  alphaDrawCanvas.addEventListener('touchend', alphaStopDraw);
-
-  alphaBuildColorDots();
-  alphaBuildPenSizes();
-  alphaUpdateUI();
-};
-
-function alphaGetStrokeKey() {
-  return alphaMode === 'upper' ? ALPHA_LETTERS[alphaCurrentIdx] : ALPHA_LETTERS[alphaCurrentIdx].toLowerCase();
-}
-function alphaGetStrokeData() {
-  return ALPHA_STROKES[alphaMode][alphaGetStrokeKey()] || null;
-}
-function alphaAccentColor() { return alphaMode==='upper' ? '#7F77DD' : '#1D9E75'; }
-function alphaLightColor()  { return alphaMode==='upper' ? '#AFA9EC' : '#5DCAA5'; }
-
-function alphaBuildColorDots() {
-  document.getElementById('alpha-color-dots').innerHTML = ALPHA_COLORS.map(c =>
-    `<div class="alpha-color-dot${c===alphaPenColor?' selected':''}" style="background:${c}" onclick="alphaSetColor('${c}',this)"></div>`
-  ).join('');
-}
-function alphaBuildPenSizes() {
-  document.getElementById('alpha-pen-sizes').innerHTML = ALPHA_PEN_SIZES.map(s =>
-    `<div class="alpha-pen-size-dot${s===alphaPenSize?' selected':''}" style="width:${s+8}px;height:${s+8}px" onclick="alphaSetPenSize(${s},this)"></div>`
-  ).join('');
-}
-window.alphaSetColor = function(c,el) {
-  alphaPenColor=c; alphaIsEraser=false;
-  document.querySelectorAll('.alpha-color-dot').forEach(d=>d.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('alpha-erase-btn').classList.remove('erasing');
-  alphaDrawCanvas.style.cursor='crosshair';
-};
-window.alphaSetPenSize = function(s,el) {
-  alphaPenSize=s;
-  document.querySelectorAll('.alpha-pen-size-dot').forEach(d=>d.classList.remove('selected'));
-  el.classList.add('selected');
-};
-window.alphaToggleEraser = function() {
-  alphaIsEraser=!alphaIsEraser;
-  document.getElementById('alpha-erase-btn').classList.toggle('erasing',alphaIsEraser);
-  alphaDrawCanvas.style.cursor=alphaIsEraser?'cell':'crosshair';
-};
-window.alphaToggleGuide = function() {
-  alphaShowGuide=!alphaShowGuide;
-  alphaGuideCanvas.style.opacity=alphaShowGuide?'1':'0';
-  const btn=document.getElementById('alpha-guide-btn');
-  btn.classList.toggle('active',alphaShowGuide);
-  btn.textContent=alphaShowGuide?'👁 가이드 숨기기':'👁 가이드 보기';
-};
-window.alphaClearCanvas = function() { alphaDCtx.clearRect(0,0,alphaDrawCanvas.width,alphaDrawCanvas.height); alphaWriteStrokes=0; };
-
-function alphaDrawArrow(ctx, x1,y1,x2,y2,color,size) {
-  const angle=Math.atan2(y2-y1,x2-x1);
-  ctx.save(); ctx.fillStyle=color; ctx.beginPath();
-  ctx.translate(x2,y2); ctx.rotate(angle);
-  ctx.moveTo(0,0); ctx.lineTo(-size,-size*0.5); ctx.lineTo(-size,size*0.5);
-  ctx.closePath(); ctx.fill(); ctx.restore();
-}
-
-function alphaDrawThumb(ctx, strokeData, upToIdx) {
-  const W=ALPHA_THUMB, H=ALPHA_THUMB;
-  ctx.clearRect(0,0,W,H);
-  ctx.save(); ctx.strokeStyle='rgba(0,0,0,0.1)'; ctx.lineWidth=0.8; ctx.setLineDash([3,3]);
-  ctx.beginPath(); ctx.moveTo(4,H*0.5); ctx.lineTo(W-4,H*0.5); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(4,H*0.15); ctx.lineTo(W-4,H*0.15); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(4,H*0.85); ctx.lineTo(W-4,H*0.85); ctx.stroke();
-  ctx.restore();
-  ctx.save();
-  ctx.font=`bold ${H*0.8}px 'Fredoka One',cursive`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle=alphaLightColor(); ctx.globalAlpha=0.13;
-  ctx.fillText(alphaGetStrokeKey(),W/2,H/2);
-  ctx.restore();
-  const display2=alphaGetStrokeKey();
-  ctx.save();
-  ctx.font=`bold ${H*0.8}px 'Fredoka One',cursive`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  const tm=ctx.measureText(display2);
-  ctx.restore();
-  const tbbox={
-    left:W/2-tm.actualBoundingBoxLeft, top:H/2-tm.actualBoundingBoxAscent,
-    width:tm.actualBoundingBoxLeft+tm.actualBoundingBoxRight,
-    height:tm.actualBoundingBoxAscent+tm.actualBoundingBoxDescent
-  };
-  function tsc(x,y){
-    const pad=0.04;
-    return [tbbox.left+(x/80)*tbbox.width*(1-pad*2)+tbbox.width*pad,
-            tbbox.top+(y/80)*tbbox.height*(1-pad*2)+tbbox.height*pad];
-  }
-  strokeData.forEach((pts,si)=>{
-    if(si>upToIdx) return;
-    const isCurr=si===upToIdx;
-    ctx.save(); ctx.beginPath();
-    pts.forEach(([x,y],pi)=>{ const [tx,ty]=tsc(x,y); pi===0?ctx.moveTo(tx,ty):ctx.lineTo(tx,ty); });
-    ctx.strokeStyle=isCurr?alphaAccentColor():'rgba(0,0,0,0.22)';
-    ctx.lineWidth=isCurr?3.5:2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
-    if(isCurr){
-      if(pts.length>=2){
-        const n=pts.length;
-        const [ax,ay]=tsc(pts[n-2][0],pts[n-2][1]);
-        const [bx,by]=tsc(pts[n-1][0],pts[n-1][1]);
-        alphaDrawArrow(ctx,ax,ay,bx,by,alphaAccentColor(),7);
-      }
-      const [sc0x,sc0y]=tsc(pts[0][0],pts[0][1]);
-      ctx.beginPath(); ctx.arc(sc0x,sc0y,3.5,0,Math.PI*2);
-      ctx.fillStyle='#FF6B6B'; ctx.fill();
-    }
-    ctx.restore();
-  });
-}
-
-function alphaBuildPills() {
-  document.getElementById('alpha-pills').innerHTML = ALPHA_LETTERS.map((l,i)=>{
-    let cls='alpha-letter-pill';
-    if(alphaDone[alphaMode].has(i)) cls+=alphaMode==='upper'?' done-upper':' done-lower';
-    if(i===alphaCurrentIdx) cls+=alphaMode==='upper'?' current-upper':' current-lower';
-    return `<div class="${cls}" onclick="alphaGoTo(${i})">${alphaMode==='upper'?l:l.toLowerCase()}</div>`;
-  }).join('');
-}
-
-function alphaGetLetterBBox(W,H) {
-  const display=alphaGetStrokeKey();
-  const fontSize=H*0.75;
-  alphaGCtx.save();
-  alphaGCtx.font=`bold ${fontSize}px 'Fredoka One',cursive`;
-  alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
-  const metrics=alphaGCtx.measureText(display);
-  alphaGCtx.restore();
-  const lw=metrics.actualBoundingBoxLeft+metrics.actualBoundingBoxRight;
-  const lh=metrics.actualBoundingBoxAscent+metrics.actualBoundingBoxDescent;
-  return {
-    left:W/2-metrics.actualBoundingBoxLeft, top:H/2-metrics.actualBoundingBoxAscent,
-    width:lw, height:lh
-  };
-}
-function alphaStrokeToCanvas(x,y,bbox) {
-  const pad=0.04;
-  return [bbox.left+(x/80)*bbox.width*(1-pad*2)+bbox.width*pad,
-          bbox.top+(y/80)*bbox.height*(1-pad*2)+bbox.height*pad];
-}
-
-function alphaDrawGuide() { alphaDrawGuideWithHighlight(-1); }
-function alphaDrawGuideWithHighlight(highlightIdx) {
-  const W=alphaGuideCanvas.width, H=alphaGuideCanvas.height;
-  alphaGCtx.clearRect(0,0,W,H);
-  const display=alphaGetStrokeKey();
-  [[H*0.12,4,4,0.07],[H*0.5,12,6,0.13],[H*0.88,4,4,0.07]].forEach(([y,d1,d2,a])=>{
-    alphaGCtx.save(); alphaGCtx.setLineDash([d1,d2]); alphaGCtx.lineWidth=1;
-    alphaGCtx.strokeStyle=`rgba(0,0,0,${a})`; alphaGCtx.beginPath();
-    alphaGCtx.moveTo(20,y); alphaGCtx.lineTo(W-20,y); alphaGCtx.stroke(); alphaGCtx.restore();
-  });
-  alphaGCtx.save();
-  alphaGCtx.font=`bold ${H*0.75}px 'Fredoka One',cursive`;
-  alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
-  alphaGCtx.fillStyle=alphaLightColor(); alphaGCtx.globalAlpha=0.14;
-  alphaGCtx.fillText(display,W/2,H/2); alphaGCtx.restore();
-  alphaGCtx.save();
-  alphaGCtx.font=`bold ${H*0.75}px 'Fredoka One',cursive`;
-  alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
-  alphaGCtx.setLineDash([8,8]); alphaGCtx.lineWidth=4;
-  alphaGCtx.strokeStyle=alphaAccentColor(); alphaGCtx.globalAlpha=0.22;
-  alphaGCtx.strokeText(display,W/2,H/2); alphaGCtx.restore();
-  const strokeData=alphaGetStrokeData();
-  if(strokeData && highlightIdx>=0){
-    const bbox=alphaGetLetterBBox(W,H);
-    strokeData.forEach((pts,si)=>{
-      if(si>highlightIdx) return;
-      const isCurr=si===highlightIdx;
-      alphaGCtx.save(); alphaGCtx.beginPath();
-      pts.forEach(([x,y],pi)=>{
-        const [tx,ty]=alphaStrokeToCanvas(x,y,bbox);
-        pi===0?alphaGCtx.moveTo(tx,ty):alphaGCtx.lineTo(tx,ty);
-      });
-      alphaGCtx.strokeStyle=isCurr?alphaAccentColor():'rgba(0,0,0,0.2)';
-      alphaGCtx.lineWidth=isCurr?7:3;
-      alphaGCtx.lineCap='round'; alphaGCtx.lineJoin='round';
-      alphaGCtx.globalAlpha=isCurr?0.85:0.4; alphaGCtx.stroke();
-      if(isCurr && pts.length>=2){
-        const n=pts.length;
-        const [ax,ay]=alphaStrokeToCanvas(pts[n-2][0],pts[n-2][1],bbox);
-        const [bx,by]=alphaStrokeToCanvas(pts[n-1][0],pts[n-1][1],bbox);
-        alphaGCtx.globalAlpha=0.9;
-        alphaDrawArrow(alphaGCtx,ax,ay,bx,by,alphaAccentColor(),14);
-        const [s0x,s0y]=alphaStrokeToCanvas(pts[0][0],pts[0][1],bbox);
-        alphaGCtx.beginPath(); alphaGCtx.arc(s0x,s0y,6,0,Math.PI*2);
-        alphaGCtx.fillStyle='#FF6B6B'; alphaGCtx.globalAlpha=0.9; alphaGCtx.fill();
-        const mid=Math.floor(pts.length/2);
-        const [mx0,my0]=alphaStrokeToCanvas(pts[mid][0],pts[mid][1],bbox);
-        const mx=mx0, my=my0-18;
-        alphaGCtx.beginPath(); alphaGCtx.arc(mx,my,12,0,Math.PI*2);
-        alphaGCtx.fillStyle=alphaAccentColor(); alphaGCtx.globalAlpha=0.92; alphaGCtx.fill();
-        alphaGCtx.font='bold 13px Nunito'; alphaGCtx.fillStyle='#fff'; alphaGCtx.globalAlpha=1;
-        alphaGCtx.textAlign='center'; alphaGCtx.textBaseline='middle';
-        alphaGCtx.fillText(si+1,mx,my);
-      }
-      alphaGCtx.restore();
-    });
-  }
-  alphaGCtx.save();
-  alphaGCtx.font='700 13px Nunito'; alphaGCtx.fillStyle='rgba(0,0,0,0.26)';
-  alphaGCtx.textAlign='left'; alphaGCtx.fillText('👉 점선을 따라 써보세요',16,H-12);
-  alphaGCtx.restore();
-}
-
-function alphaBuildStrokeSteps() {
-  alphaStopAnimation();
-  const panel=document.getElementById('alpha-stroke-steps');
-  const strokeData=alphaGetStrokeData();
-  if(!strokeData){ panel.innerHTML='<span style="font-size:13px;color:#aaa;">데이터 없음</span>'; return; }
-  panel.innerHTML=strokeData.map((_,i)=>`
-    <div class="alpha-stroke-step" id="alpha-sstep-${i}" onclick="alphaSelectStroke(${i})">
-      <canvas id="alpha-sthumb-${i}" width="${ALPHA_THUMB}" height="${ALPHA_THUMB}" style="width:${ALPHA_THUMB}px;height:${ALPHA_THUMB}px;"></canvas>
-      <div class="alpha-stroke-num ${alphaMode==='upper'?'upper-num':'lower-num'}">${i+1}</div>
-    </div>
-  `).join('');
-  strokeData.forEach((_,i)=>{
-    const tc=document.getElementById(`alpha-sthumb-${i}`).getContext('2d');
-    alphaDrawThumb(tc,strokeData,i);
-  });
-  alphaSelectStroke(0);
-}
-
-window.alphaSelectStroke = function(idx) {
-  const strokeData=alphaGetStrokeData();
-  if(!strokeData) return;
-  const acl=alphaMode==='upper'?'active-upper':'active-lower';
-  document.querySelectorAll('.alpha-stroke-step').forEach((el,i)=>{
-    el.classList.remove('active-upper','active-lower');
-    if(i===idx) el.classList.add(acl);
-  });
-  alphaDrawGuideWithHighlight(idx);
-};
-
-function alphaUpdateUI() {
-  if(!alphaInited) return;
-  const letter=ALPHA_LETTERS[alphaCurrentIdx];
-  const display=alphaGetStrokeKey();
-  const bigEl=document.getElementById('alpha-big-letter');
-  bigEl.textContent=display; bigEl.className='alpha-big-letter '+alphaMode;
-  document.getElementById('alpha-letter-name').textContent=`${letter} / ${letter.toLowerCase()}`;
-  document.getElementById('alpha-letter-example').textContent=ALPHA_EXAMPLES[letter];
-  document.getElementById('alpha-canvas-label').textContent=`👆 "${display}" 을(를) 따라 써보세요`;
-  const hb=document.getElementById('alpha-hint-badge');
-  hb.textContent=ALPHA_HINTS[letter]; hb.className='alpha-hint-badge '+alphaMode;
-  document.getElementById('alpha-stroke-title').textContent=`✍️ "${display}" 획순 (${(alphaGetStrokeData()||[]).length}획)`;
-  const pf=document.getElementById('alpha-progress-fill');
-  pf.className='alpha-progress-fill '+alphaMode; pf.style.width=(alphaDone[alphaMode].size/26*100)+'%';
-  document.getElementById('alpha-progress-text').textContent=`${alphaDone[alphaMode].size} / 26 완료`;
-  const stars=Math.min(3,Math.floor(alphaDone[alphaMode].size/9));
-  document.getElementById('alpha-star-row').innerHTML='⭐'.repeat(stars)+'☆'.repeat(3-stars)+
-    `<span style="font-family:'Nunito';font-size:13px;color:#888;margin-left:10px;font-weight:700;">${alphaDone[alphaMode].size}/26 완료</span>`;
-  alphaBuildPills(); alphaBuildStrokeSteps(); alphaDrawGuide(); alphaClearCanvas();
-}
-
-window.alphaSetMode = function(m) {
-  alphaMode=m; alphaStopAnimation();
-  document.getElementById('alpha-tab-upper').className='alpha-mode-tab'+(m==='upper'?' active-upper':'');
-  document.getElementById('alpha-tab-lower').className='alpha-mode-tab'+(m==='lower'?' active-lower':'');
-  alphaUpdateUI();
-};
-window.alphaGoTo = function(idx) { alphaCurrentIdx=idx; alphaStopAnimation(); alphaUpdateUI(); };
-window.alphaPrevLetter = function() { alphaCurrentIdx=(alphaCurrentIdx+25)%26; alphaStopAnimation(); alphaUpdateUI(); };
-window.alphaNextLetter = function() { alphaCurrentIdx=(alphaCurrentIdx+1)%26; alphaStopAnimation(); alphaUpdateUI(); };
-
-function alphaGetPos(e) {
-  const r=alphaDrawCanvas.getBoundingClientRect();
-  const sx=alphaDrawCanvas.width/r.width, sy=alphaDrawCanvas.height/r.height;
-  if(e.touches) return [(e.touches[0].clientX-r.left)*sx,(e.touches[0].clientY-r.top)*sy];
-  return [(e.clientX-r.left)*sx,(e.clientY-r.top)*sy];
-}
-function alphaStartDraw(e) {
-  e.preventDefault(); alphaDrawing=true; [alphaLastX,alphaLastY]=alphaGetPos(e); alphaWriteStrokes++;
-  if(alphaWriteStrokes===6 && !alphaDone[alphaMode].has(alphaCurrentIdx)){
-    alphaDone[alphaMode].add(alphaCurrentIdx); alphaBuildPills();
-    const sz=alphaDone[alphaMode].size;
-    document.getElementById('alpha-progress-fill').style.width=(sz/26*100)+'%';
-    document.getElementById('alpha-progress-text').textContent=`${sz} / 26 완료`;
-    const stars=Math.min(3,Math.floor(sz/9));
-    document.getElementById('alpha-star-row').innerHTML='⭐'.repeat(stars)+'☆'.repeat(3-stars)+
-      `<span style="font-family:'Nunito';font-size:13px;color:#888;margin-left:10px;font-weight:700;">${sz}/26 완료</span>`;
-    alphaShowToast(`잘했어요! 🎉 "${alphaGetStrokeKey()}" 완성!`); alphaSpawnConfetti();
-  }
-}
-function alphaDrawMove(e) {
-  if(!alphaDrawing) return; e.preventDefault();
-  const [x,y]=alphaGetPos(e);
-  alphaDCtx.save(); alphaDCtx.beginPath(); alphaDCtx.moveTo(alphaLastX,alphaLastY); alphaDCtx.lineTo(x,y);
-  alphaDCtx.globalCompositeOperation=alphaIsEraser?'destination-out':'source-over';
-  alphaDCtx.strokeStyle=alphaIsEraser?'rgba(0,0,0,1)':alphaPenColor;
-  alphaDCtx.lineWidth=alphaIsEraser?alphaPenSize*3:alphaPenSize;
-  alphaDCtx.lineCap='round'; alphaDCtx.lineJoin='round'; alphaDCtx.stroke(); alphaDCtx.restore();
-  [alphaLastX,alphaLastY]=[x,y];
-}
-function alphaStopDraw() { alphaDrawing=false; }
-
-window.alphaPlayAnimation = function() {
-  const btn=document.getElementById('alpha-anim-btn');
-  if(alphaAnimPlaying){ alphaStopAnimation(); return; }
-  const strokeData=alphaGetStrokeData();
-  if(!strokeData) return;
-  alphaAnimPlaying=true;
-  const cl=alphaMode==='upper'?'playing-upper':'playing-lower';
-  btn.classList.add(cl); btn.textContent='⏹ 중지';
-  let si=0;
-  function nextStroke(){
-    if(!alphaAnimPlaying||si>=strokeData.length){ alphaStopAnimation(); return; }
-    alphaSelectStroke(si);
-    alphaAnimateDot(strokeData[si],()=>{ si++; alphaAnimTimer=setTimeout(nextStroke,300); });
-  }
-  nextStroke();
-};
-function alphaAnimateDot(pts,onDone){
-  let pi=0;
-  const speed=45;
-  function step(){
-    if(!alphaAnimPlaying) return;
-    if(pi>=pts.length){ onDone&&onDone(); return; }
-    let curIdx=0;
-    document.querySelectorAll('.alpha-stroke-step').forEach((el,i)=>{
-      if(el.classList.contains('active-upper')||el.classList.contains('active-lower')) curIdx=i;
-    });
-    alphaDrawGuideWithHighlight(curIdx);
-    const W=alphaGuideCanvas.width, H=alphaGuideCanvas.height;
-    const bbox=alphaGetLetterBBox(W,H);
-    const [tx,ty]=alphaStrokeToCanvas(pts[pi][0],pts[pi][1],bbox);
-    alphaGCtx.save();
-    alphaGCtx.beginPath(); alphaGCtx.arc(tx,ty,7,0,Math.PI*2);
-    alphaGCtx.fillStyle='#FF6B6B'; alphaGCtx.globalAlpha=0.9; alphaGCtx.fill();
-    alphaGCtx.beginPath(); alphaGCtx.arc(tx,ty,11,0,Math.PI*2);
-    alphaGCtx.strokeStyle='#FF6B6B'; alphaGCtx.lineWidth=2; alphaGCtx.globalAlpha=0.35; alphaGCtx.stroke();
-    alphaGCtx.restore();
-    pi++; alphaAnimTimer=setTimeout(step,speed);
-  }
-  step();
-}
-function alphaStopAnimation(){
-  alphaAnimPlaying=false; clearTimeout(alphaAnimTimer);
-  const btn=document.getElementById('alpha-anim-btn');
-  if(btn){ btn.classList.remove('playing-upper','playing-lower'); btn.textContent='▶ 애니메이션 보기'; }
-}
-window.alphaResetStrokePreview = function() { alphaStopAnimation(); alphaBuildStrokeSteps(); };
-
-let alphaToastTimer;
-function alphaShowToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(alphaToastTimer); alphaToastTimer=setTimeout(()=>t.classList.remove('show'),2500);
-}
-const ALPHA_CC=['#7F77DD','#1D9E75','#D4537E','#BA7517','#378ADD','#D85A30'];
-function alphaSpawnConfetti(){
-  for(let i=0;i<32;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='confetti-piece';
-    el.style.cssText=`left:${15+Math.random()*70}%;top:${25+Math.random()*25}%;background:${ALPHA_CC[Math.floor(Math.random()*ALPHA_CC.length)]};width:${8+Math.random()*8}px;height:${8+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${0.9+Math.random()*0.8}s;`;
-    document.body.appendChild(el); setTimeout(()=>el.remove(),1800);
-  },i*40);
-}
-
-})();
-
 // ── 🎈 풍선 알파벳 JS ──
 
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
