@@ -1972,7 +1972,7 @@ renderTeamNameInputs();
         <input class="input" id="s-name" placeholder="이름을 입력하세요" maxlength="10">
         <input class="input" id="s-num"  placeholder="학번 (예: 15)" type="number" min="1" max="40">
         <input class="input" id="s-pw"   placeholder="비밀번호 (설정된 경우)" type="password">
-        <button class="btn btn-blue" onclick="studentLogin()">학습 시작! 🚀</button>
+        <button class="btn btn-blue" onclick="spellStudentLogin()">학습 시작! 🚀</button>
         <button type="button" style="background:none;border:none;color:var(--blue);font-size:.85rem;font-weight:800;font-family:'Nanum Gothic',sans-serif;cursor:pointer;padding:2px 0;margin-top:-4px;" onclick="showStudentPwForm()">🔑 비밀번호 설정/변경</button>
     </div>
 
@@ -8830,7 +8830,7 @@ window.switchTab=(tab,btn)=>{
     document.getElementById('login-error').innerText='';
 };
 
-window.studentLogin=async()=>{
+window.spellStudentLogin=async()=>{
     const name=document.getElementById('s-name').value.trim();
     const num=document.getElementById('s-num').value.trim();
     const pw=document.getElementById('s-pw').value;
