@@ -610,6 +610,8 @@
     --spell-yellow-light:#fef9c3; --spell-green:#22c55e; --spell-red:#ef4444;
     --spell-purple:#a855f7; --spell-orange:#f97316;
     --spell-bg:#f0f9ff; --spell-text:#1e3a5f;
+    --blue:#3b82f6; --blue-dark:#1d4ed8; --red:#ef4444;
+    --orange:#f97316; --green:#22c55e; --text:#1e3a5f;
     background: #f0f9ff;
     min-height: 100vh;
     padding: 20px;
@@ -618,6 +620,8 @@
 
         
 #spellView * {box-sizing:border-box;margin:0;padding:0;}
+#spellView label {writing-mode:horizontal-tb;unicode-bidi:normal;}
+#spellView label div {writing-mode:horizontal-tb;}
         
 #spellView .spell-screen {display:none;background:#fff;border-radius:28px;padding:32px 28px;width:100%;max-width:720px;box-shadow:var(--spell-shadow);border:3px solid #bfdbfe;animation:fadeUp .35s ease;margin:0 auto;}
         @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
@@ -2189,21 +2193,29 @@ renderTeamNameInputs();
     <!-- 게임 방식 선택 (모든 카테고리) -->
     <div id="spacing-mode-box" style="margin-top:20px;text-align:left;">
         <p style="font-weight:800;color:var(--text);margin-bottom:12px;">✏️ 게임 방식을 골라보세요!</p>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-            <label id="mode-card-1" style="display:flex;align-items:flex-start;gap:12px;background:#f0f9ff;border:2.5px solid var(--blue);border-radius:16px;padding:14px 16px;cursor:pointer;">
-                <input type="radio" name="spacing-mode" value="type" checked style="margin-top:3px;accent-color:var(--blue);">
-                <div>
-                    <div style="font-weight:800;color:var(--text);">① 직접 띄어쓰기</div>
-                    <div style="font-size:.82rem;color:#64748b;margin-top:2px;">붙여진 문장을 보고 띄어쓰기를 직접 입력해요</div>
-                </div>
+        <div style="display:block;">
+            <label id="mode-card-1" for="mode-radio-1" style="display:block;background:#f0f9ff;border:2.5px solid var(--blue);border-radius:16px;padding:14px 16px;cursor:pointer;width:100%;box-sizing:border-box;margin-bottom:10px;">
+                <table style="width:100%;border-collapse:collapse;"><tr>
+                    <td style="width:20px;vertical-align:top;padding-top:2px;">
+                        <input id="mode-radio-1" type="radio" name="spacing-mode" value="type" checked style="accent-color:var(--blue);">
+                    </td>
+                    <td style="padding-left:12px;vertical-align:top;">
+                        <div style="font-weight:800;color:var(--text);">① 직접 띄어쓰기</div>
+                        <div style="font-size:.82rem;color:#64748b;margin-top:2px;">붙여진 문장을 보고 띄어쓰기를 직접 입력해요</div>
+                    </td>
+                </tr></table>
             </label>
-            <label id="mode-card-2" style="display:flex;align-items:flex-start;gap:12px;background:#f8fbff;border:2.5px solid #bfdbfe;border-radius:16px;padding:14px 16px;cursor:pointer;">
-                <input type="radio" name="spacing-mode" value="order" style="margin-top:3px;accent-color:var(--blue);">
-                <div>
-                    <div style="font-weight:800;color:var(--text);">② 낱말 카드 순서 맞추기</div>
-                    <div style="font-size:.82rem;color:#64748b;margin-top:2px;">낱말 카드를 올바른 순서로 나열해요</div>
-                    <div id="mode2-lock-msg" style="font-size:.8rem;color:var(--orange);margin-top:4px;display:none;">🔒 ①번을 먼저 완료해야 선택할 수 있어요!</div>
-                </div>
+            <label id="mode-card-2" for="mode-radio-2" style="display:block;background:#f8fbff;border:2.5px solid #bfdbfe;border-radius:16px;padding:14px 16px;cursor:pointer;width:100%;box-sizing:border-box;">
+                <table style="width:100%;border-collapse:collapse;"><tr>
+                    <td style="width:20px;vertical-align:top;padding-top:2px;">
+                        <input id="mode-radio-2" type="radio" name="spacing-mode" value="order" style="accent-color:var(--blue);">
+                    </td>
+                    <td style="padding-left:12px;vertical-align:top;">
+                        <div style="font-weight:800;color:var(--text);">② 낱말 카드 순서 맞추기</div>
+                        <div style="font-size:.82rem;color:#64748b;margin-top:2px;">낱말 카드를 올바른 순서로 나열해요</div>
+                        <div id="mode2-lock-msg" style="font-size:.8rem;color:var(--orange);margin-top:4px;display:none;">🔒 ①번을 먼저 완료해야 선택할 수 있어요!</div>
+                    </td>
+                </tr></table>
             </label>
         </div>
     </div>
@@ -9023,7 +9035,15 @@ function enterStudentMode(){
     document.getElementById('student-greeting').innerText=`안녕하세요, ${spellCurrentUser.name}!`;
     refreshStudentStat();
     // 최신 quizData 반영 + ①번 완료 기록 로드 후 카테고리 렌더
-    Promise.all([loadCustomQuizData(), loadMode1Completed()]).then(()=>{renderCategories();checkDailyDoneBadge();});
+    Promise.all([loadCustomQuizData(), loadMode1Completed()]).then(()=>{
+        renderCategories();
+        checkDailyDoneBadge();
+        // quizData 로드 완료 후 speed-screen이 열려있으면 카테고리 버튼 재생성
+        const speedScreen = document.getElementById('speed-screen');
+        if(speedScreen && speedScreen.style.display !== 'none'){
+            renderSpeedCatList();
+        }
+    });
 }
 
 async function refreshStudentStat(){
@@ -9788,7 +9808,7 @@ window.moveCat=async(key, idx, dir, total)=>{
         if(i === newIdx) order = idx;
         updates[`quizData/${k}/order`] = order;
     });
-    await Promise.all(Object.entries(updates).map(([path,val])=>set(spell_ref(spellDb,path),val)));
+    await Promise.all(Object.entries(updates).map(([path,val])=>spell_set(spell_ref(spellDb,path),val)));
     // catOrderMap 메모리 갱신
     entries.forEach(([k, v], i)=>{
         let order = i;
@@ -10107,33 +10127,40 @@ let speedTimeLeft = 60;
 let speedTimerInterval = null;
 let speedTotalTime = 60;
 
+// 스피드게임 카테고리 버튼 렌더 (별도 함수로 분리 - 비동기 quizData 갱신 후 재호출 가능)
+function renderSpeedCatList(){
+    const catList = document.getElementById('speed-cat-list');
+    if(!catList) return;
+    catList.innerHTML = '';
+    speedCat = '';
+    document.getElementById('speed-start-btn').disabled = true;
+
+    const cats = Object.keys(quizData).filter(c => !hiddenCats[c]);
+    cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.style.cssText = 'border-radius:20px;border:2px solid #bfdbfe;background:#fff;font-weight:800;font-family:inherit;cursor:pointer;font-size:.88rem;color:#4a4a4a;transition:.15s;display:inline-block;white-space:nowrap;';
+        btn.style.setProperty('padding', '8px 16px', 'important');
+        btn.innerText = cat;
+        btn.onclick = () => {
+            catList.querySelectorAll('button').forEach(b => {
+                b.style.background = '#fff'; b.style.color = '#4a4a4a'; b.style.borderColor = '#bfdbfe';
+            });
+            btn.style.background = '#ef4444'; btn.style.color = '#fff'; btn.style.borderColor = '#ef4444';
+            speedCat = cat;
+            document.getElementById('speed-start-btn').disabled = false;
+        };
+        catList.appendChild(btn);
+    });
+}
+
 window.enterSpeed = () => {
     spellShowScreen('speed-screen');
     document.getElementById('speed-setup').style.display = 'block';
     document.getElementById('speed-game').style.display = 'none';
     document.getElementById('speed-result').style.display = 'none';
 
-    // 카테고리 버튼 생성
-    const catList = document.getElementById('speed-cat-list');
-    catList.innerHTML = '';
-    speedCat = '';
-    document.getElementById('speed-start-btn').disabled = true;
-
-    const cats = Object.keys(quizData);
-    cats.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.style.cssText = 'padding:8px 16px;border-radius:20px;border:2px solid #bfdbfe;background:#fff;font-weight:800;font-family:inherit;cursor:pointer;font-size:.88rem;color:var(--text);transition:.15s;';
-        btn.innerText = cat;
-        btn.onclick = () => {
-            catList.querySelectorAll('button').forEach(b => {
-                b.style.background = '#fff'; b.style.color = 'var(--text)'; b.style.borderColor = '#bfdbfe';
-            });
-            btn.style.background = 'var(--red)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--red)';
-            speedCat = cat;
-            document.getElementById('speed-start-btn').disabled = false;
-        };
-        catList.appendChild(btn);
-    });
+    renderSpeedCatList();
 };
 
 window.startSpeed = () => {
@@ -10314,7 +10341,7 @@ window.finishGame = finishGame;
 window.checkReview = checkReview;
 window.nextReview = nextReview;
 window.loadReviewQuestion = loadReviewQuestion;
-window.enterSpeed = enterSpeed;
+window.renderSpeedCatList = renderSpeedCatList;
 window.startSpeed = startSpeed;
 window.checkSpeed = checkSpeed;
 window.skipSpeed = skipSpeed;
