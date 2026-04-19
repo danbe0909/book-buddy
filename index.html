@@ -48,7 +48,7 @@
         .grade-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
         .grade-row select { margin-bottom: 0; }
         .hidden { display: none !important; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(3px); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(3px); }
         #adminAuthModal { background: rgba(0,0,0,0.6) !important; backdrop-filter: blur(4px) !important; align-items: flex-start; padding-top: 60px; overflow-y: auto; z-index: 99999 !important; }
         #myChart { background-color: rgba(255,255,255,0.3); border-radius: 15px; padding: 5px; }
         .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -4560,11 +4560,13 @@ renderTeamNameInputs();
             }).join('');
 
         document.getElementById('pvModal').classList.remove('hidden');
+        document.querySelector('.mode-selector').style.zIndex = '0';
         document.getElementById('pvScroll').scrollTop = 0;
     }
 
     function closePvModal() {
         document.getElementById('pvModal').classList.add('hidden');
+        document.querySelector('.mode-selector').style.zIndex = '';
         _pvSid = null;
         if (_pvChart) { _pvChart.destroy(); _pvChart = null; }
     }
@@ -7770,6 +7772,35 @@ function renderSaveTeamBtns() {
 selectMode('ul');
 renderTeamNameInputs();
 
+</script>
+
+
+<script>
+// ── 모달 열릴 때 탭바 숨김 / 닫힐 때 복원 공통 처리 ──
+(function() {
+    function hideTabBar() {
+        var ms = document.querySelector('.mode-selector');
+        if (ms) ms.style.zIndex = '0';
+    }
+    function showTabBar() {
+        var ms = document.querySelector('.mode-selector');
+        if (ms) ms.style.zIndex = '';
+    }
+
+    // MutationObserver로 모든 .modal의 hidden 클래스 변화 감지
+    document.addEventListener('DOMContentLoaded', function() {
+        var modals = document.querySelectorAll('.modal');
+        var observer = new MutationObserver(function() {
+            var anyVisible = Array.from(modals).some(function(m) {
+                return !m.classList.contains('hidden');
+            });
+            anyVisible ? hideTabBar() : showTabBar();
+        });
+        modals.forEach(function(m) {
+            observer.observe(m, { attributes: true, attributeFilter: ['class'] });
+        });
+    });
+})();
 </script>
 
 </body>
