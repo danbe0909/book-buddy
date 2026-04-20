@@ -1967,42 +1967,12 @@ renderTeamNameInputs();
 <!-- ① 로그인 -->
 <div id="login-screen" class="spell-screen" style="display:block;">
     <h1>✏️ 한글 맞춤법 대탐험</h1>
-    <p style="text-align:center">로그인하고 학습을 시작해요!</p>
-    <div class="login-tabs">
-        <button class="tab-btn active" onclick="switchTab('student',this)">🎒 학생</button>
-        <button class="tab-btn"        onclick="switchTab('teacher',this)">👩‍🏫 선생님</button>
-    </div>
-    <div id="student-login" class="login-form">
-        <input class="input" id="s-name" placeholder="이름을 입력하세요" maxlength="10">
-        <input class="input" id="s-num"  placeholder="학번 (예: 15)" type="number" min="1" max="40">
-        <input class="input" id="s-pw"   placeholder="비밀번호 (설정된 경우)" type="password">
-        <button class="btn btn-blue" onclick="spellStudentLogin()">학습 시작! 🚀</button>
-        <button type="button" style="background:none;border:none;color:var(--blue);font-size:.85rem;font-weight:800;font-family:'Nanum Gothic',sans-serif;cursor:pointer;padding:2px 0;margin-top:-4px;" onclick="showStudentPwForm()">🔑 비밀번호 설정/변경</button>
-    </div>
-
-    <!-- 학생 비밀번호 설정/변경 폼 -->
-    <div id="student-pw-form" style="display:none;background:#f0f9ff;border:2px solid #bfdbfe;border-radius:16px;padding:16px;margin-top:10px;max-width:300px;margin-left:auto;margin-right:auto;">
-        <h3 style="margin-bottom:10px;font-size:.98rem;">🔑 비밀번호 설정/변경</h3>
-        <p style="font-size:.8rem;color:#64748b;margin-bottom:10px;">이름과 학번으로 본인 확인 후 비밀번호를 설정해요.</p>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-            <input class="input" id="spw-name" placeholder="이름" maxlength="10">
-            <input class="input" id="spw-num"  placeholder="학번 (예: 15)" type="number" min="1" max="40">
-            <div id="spw-current-wrap" style="display:none;">
-                <input class="input" id="spw-current" type="password" placeholder="현재 비밀번호">
-            </div>
-            <input class="input" id="spw-new"     type="password" placeholder="새 비밀번호">
-            <input class="input" id="spw-confirm" type="password" placeholder="새 비밀번호 확인">
-            <div id="spw-msg" style="font-size:.83rem;font-weight:800;min-height:16px;"></div>
-            <div style="display:flex;gap:8px;">
-                <button class="btn btn-blue btn-sm" onclick="changeStudentPwSelf()">확인</button>
-                <button class="btn btn-gray btn-sm" onclick="hideStudentPwForm()">취소</button>
-            </div>
-        </div>
-    </div>
-    <div id="teacher-login" class="login-form" style="display:none;">
-        <input class="input" id="t-pw" placeholder="선생님 비밀번호" type="password">
-        <button class="btn btn-orange" onclick="teacherLogin()">관리자 입장 👩‍🏫</button>
-        <p style="font-size:.78rem;text-align:center;color:#94a3b8;">초기 비밀번호: 1234</p>
+    <div style="text-align:center;padding:24px 0 8px;">
+        <div style="font-size:3rem;margin-bottom:12px;">👈</div>
+        <p style="font-size:1.05rem;color:#475569;font-weight:800;line-height:1.7;">
+            먼저 <strong style="color:var(--spell-blue);">학생 접속</strong> 탭에서<br>로그인한 뒤 이 탭을 눌러주세요!
+        </p>
+        <p style="font-size:.85rem;color:#94a3b8;margin-top:10px;">선생님은 교사 관리 탭에서 로그인하면<br>자동으로 선생님 모드로 입장됩니다.</p>
     </div>
     <div id="login-error" style="color:var(--red);text-align:center;font-weight:800;margin-top:10px;font-size:.88rem;"></div>
 </div>
@@ -2013,30 +1983,15 @@ renderTeamNameInputs();
         <div><h2>👩‍🏫 선생님 대시보드</h2><p id="t-count" style="font-size:.85rem;"></p></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn btn-orange btn-sm" onclick="spellShowScreen('quiz-manage-screen');loadQuizManage()">📝 주제·문제 관리</button>
-            <button class="btn btn-purple btn-sm" onclick="showChangePw()">🔑 비밀번호 변경</button>
             <button class="btn btn-gray btn-sm" onclick="spellLogout()">로그아웃</button>
         </div>
     </div>
-    <!-- 선생님 비밀번호 변경 폼 (숨김) -->
-    <div id="teacher-pw-form" style="display:none;background:#f0f9ff;border:2px solid #bfdbfe;border-radius:16px;padding:16px;margin-bottom:14px;">
-        <h3 style="margin-bottom:10px;">🔑 선생님 비밀번호 변경</h3>
-        <div style="display:flex;flex-direction:column;gap:10px;max-width:320px;">
-            <input class="input" id="pw-current" type="password" placeholder="현재 비밀번호">
-            <input class="input" id="pw-new"     type="password" placeholder="새 비밀번호">
-            <input class="input" id="pw-confirm" type="password" placeholder="새 비밀번호 확인">
-            <div id="pw-change-msg" style="font-size:.85rem;font-weight:800;min-height:18px;"></div>
-            <div style="display:flex;gap:8px;">
-                <button class="btn btn-blue btn-sm" onclick="changeTeacherPw()">변경하기</button>
-                <button class="btn btn-gray btn-sm" onclick="hideChangePw()">취소</button>
-            </div>
-        </div>
-    </div>
-    <hr class="divider">
-    <h3>➕ 학생 등록</h3>
-    <div class="add-student-form">
-        <input class="input" id="new-num"  placeholder="학번" type="number" min="1" max="40" style="max-width:80px;">
-        <input class="input" id="new-name" placeholder="이름" maxlength="10" style="flex:1;">
-        <button class="btn btn-green btn-sm" onclick="addStudent()">등록</button>
+    <!-- 반 필터 (슈퍼관리자 전용) -->
+    <div id="spell-class-filter-wrap" style="display:none;margin-bottom:14px;">
+        <label style="font-size:.85rem;font-weight:800;color:#64748b;">반 필터:</label>
+        <select id="spell-class-filter" class="input" style="max-width:180px;margin:4px 0 0 0;" onchange="loadStudentList()">
+            <option value="">전체 보기</option>
+        </select>
     </div>
     <hr class="divider">
     <h3>📋 학생 목록</h3>
@@ -8801,12 +8756,36 @@ async function loadCustomQuizData(){
 
 let spellInitialized = false;
 async function spellInitApp(){
-    if(spellInitialized) { spellShowScreen('login-screen'); return; }
-    spellInitialized = true;
-    spellShowScreen('login-screen');  // 즉시 표시
-    if(!spellDb) return; // 맞춤법 Firebase 없으면 화면만 표시
-    await loadTeacherPw();
-    await loadCustomQuizData();
+    if(!spellInitialized){
+        spellInitialized = true;
+        if(spellDb) {
+            await loadCustomQuizData();
+        }
+    }
+    // ── 통합 로그인: 현재 접속 상태에 따라 자동 진입 ──
+    // 교사로 로그인된 경우
+    if(currentTeacher){
+        spellCurrentUser={role:'teacher', gradeClass: currentTeacher};
+        enterTeacherMode();
+        return;
+    }
+    // 학생으로 로그인된 경우
+    if(currentSid && rawData[currentSid]){
+        const st = rawData[currentSid];
+        spellCurrentUser={
+            role:'student',
+            key: currentSid,
+            name: st.name,
+            num: st.classNum,   // 학번 대신 출석번호 없으면 classNum 활용
+            grade: st.grade,
+            classNum: st.classNum,
+        };
+        enterStudentMode();
+        return;
+    }
+    // 미로그인 상태 → 안내 화면
+    spellCurrentUser = null;
+    spellShowScreen('login-screen');
 }
 // spellInitApp()은 DOMContentLoaded에서 호출
 let selectedCat = "";
@@ -8832,201 +8811,128 @@ function spellShowScreen(id){
 }
 window.spellShowScreen=spellShowScreen;
 
-// ── 로그인 ──
-window.switchTab=(tab,btn)=>{
-    console.log('switchTab 호출됨:', tab);
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('student-login').style.display=tab==='student'?'flex':'none';
-    document.getElementById('teacher-login').style.display=tab==='teacher'?'flex':'none';
-    document.getElementById('login-error').innerText='';
+// ── 통합 로그인: 별도 로그인 함수 불필요 (spellInitApp에서 처리) ──
+// 구 switchTab / spellStudentLogin / teacherLogin 은 제거됨
+window.spellLogout=()=>{
+    // 학생 접속 탭으로 이동 안내
+    spellCurrentUser=null;
+    spellShowScreen('login-screen');
+    executeSwitch('student');
 };
 
-window.spellStudentLogin=async()=>{
-    const name=document.getElementById('s-name').value.trim();
-    const num=document.getElementById('s-num').value.trim();
-    const pw=document.getElementById('s-pw').value;
-    const err=document.getElementById('login-error');
-    if(!name||!num){err.innerText='이름과 학번을 모두 입력해주세요!';return;}
-    err.innerText='확인 중...';
-    const snap=await spell_get(spell_ref(spellDb,'students'));
-    const all=snap.val()||{};
-    let found=null;
-    for(const[k,v]of Object.entries(all)){
-        if(v.name===name&&String(v.num)===String(num)){found={key:k,...v};break;}
-    }
-    if(!found){err.innerText='등록된 학생이 아니에요. 선생님께 문의하세요!';return;}
-    // 비밀번호가 설정된 경우 검증
-    if(found.pw){
-        if(pw!==found.pw){err.innerText='비밀번호가 틀렸어요!';return;}
-    }
-    err.innerText='';
-    spellCurrentUser={role:'student',...found};
-    enterStudentMode();
-};
+// ── 학생 기록 경로 헬퍼 (classData_v2 통합 저장) ──
+function spellStudentRef(key, subPath){
+    // classData_v2/students/{key}/spellData/{subPath}
+    return schoolRef(`classData_v2/students/${key}/spellData${subPath?'/'+subPath:''}`);
+}
 
-window.teacherLogin=()=>{
-    const pw=document.getElementById('t-pw').value;
-    const err=document.getElementById('login-error');
-    if(pw!==TEACHER_PW){err.innerText='비밀번호가 틀렸어요!';return;}
-    spellCurrentUser={role:'teacher'};
-    enterTeacherMode();
-};
-
-window.spellLogout=()=>{spellCurrentUser=null;spellShowScreen('login-screen');};
-
-// ── 학생 본인 비밀번호 설정/변경 ──
-window.showStudentPwForm=()=>{
-    document.getElementById('student-pw-form').style.display='block';
-    document.getElementById('spw-name').value='';
-    document.getElementById('spw-num').value='';
-    document.getElementById('spw-current').value='';
-    document.getElementById('spw-new').value='';
-    document.getElementById('spw-confirm').value='';
-    document.getElementById('spw-msg').innerText='';
-    document.getElementById('spw-current-wrap').style.display='none';
-    const n=document.getElementById('s-name').value.trim();
-    const num=document.getElementById('s-num').value.trim();
-    if(n) document.getElementById('spw-name').value=n;
-    if(num) document.getElementById('spw-num').value=num;
-};
-window.hideStudentPwForm=()=>{
-    document.getElementById('student-pw-form').style.display='none';
-};
-
-window.changeStudentPwSelf=async()=>{
-    const name=document.getElementById('spw-name').value.trim();
-    const num=document.getElementById('spw-num').value.trim();
-    const curPw=document.getElementById('spw-current').value;
-    const newPw=document.getElementById('spw-new').value;
-    const cfPw=document.getElementById('spw-confirm').value;
-    const msg=document.getElementById('spw-msg');
-    if(!name||!num){msg.style.color='var(--red)';msg.innerText='이름과 학번을 입력해주세요!';return;}
-    msg.style.color='#64748b';msg.innerText='확인 중...';
-    const snap=await spell_get(spell_ref(spellDb,'students'));
-    const all=snap.val()||{};
-    let found=null;
-    for(const[k,v]of Object.entries(all)){
-        if(v.name===name&&String(v.num)===String(num)){found={key:k,...v};break;}
-    }
-    if(!found){msg.style.color='var(--red)';msg.innerText='등록된 학생을 찾을 수 없어요!';return;}
-    if(found.pw){
-        document.getElementById('spw-current-wrap').style.display='block';
-        if(!curPw){msg.style.color='var(--red)';msg.innerText='현재 비밀번호를 입력해주세요!';return;}
-        if(curPw!==found.pw){msg.style.color='var(--red)';msg.innerText='현재 비밀번호가 틀렸어요!';return;}
-    }
-    if(!newPw){msg.style.color='var(--red)';msg.innerText='새 비밀번호를 입력해주세요!';return;}
-    if(newPw!==cfPw){msg.style.color='var(--red)';msg.innerText='새 비밀번호가 일치하지 않아요!';return;}
-    if(newPw.length<2){msg.style.color='var(--red)';msg.innerText='비밀번호는 2자리 이상으로 설정해주세요!';return;}
-    await spell_set(spell_ref(spellDb,`students/${found.key}/pw`),newPw);
-    msg.style.color='var(--green)';
-    msg.innerText=`✅ ${name} 학생의 비밀번호가 ${found.pw?'변경':'설정'}됐어요!`;
-    setTimeout(()=>hideStudentPwForm(),1800);
-};
-
-// ── 선생님 비밀번호 변경 ──
-window.showChangePw=()=>{
-    document.getElementById('teacher-pw-form').style.display='block';
-    document.getElementById('pw-current').value='';
-    document.getElementById('pw-new').value='';
-    document.getElementById('pw-confirm').value='';
-    document.getElementById('pw-change-msg').innerText='';
-};
-window.hideChangePw=()=>{document.getElementById('teacher-pw-form').style.display='none';};
-
-window.changeTeacherPw=async()=>{
-    const cur=document.getElementById('pw-current').value;
-    const nw=document.getElementById('pw-new').value;
-    const cf=document.getElementById('pw-confirm').value;
-    const msg=document.getElementById('pw-change-msg');
-    if(cur!==TEACHER_PW){msg.style.color='var(--red)';msg.innerText='현재 비밀번호가 틀렸어요!';return;}
-    if(!nw){msg.style.color='var(--red)';msg.innerText='새 비밀번호를 입력해주세요!';return;}
-    if(nw!==cf){msg.style.color='var(--red)';msg.innerText='새 비밀번호가 일치하지 않아요!';return;}
-    await spell_set(spell_ref(spellDb,'config/teacherPw'),nw);
-    TEACHER_PW=nw;
-    msg.style.color='var(--green)';msg.innerText='✅ 비밀번호가 변경됐어요!';
-    setTimeout(()=>hideChangePw(),1500);
-};
-
-// ── 학생 비밀번호 설정 ──
+// ── 선생님: 학생 비밀번호 설정 (classData_v2 기준) ──
 window.setStudentPw=async(key,name)=>{
-    const snap=await spell_get(spell_ref(spellDb,`students/${key}`));
-    const st=snap.val();if(!st)return;
+    const st=rawData[key];if(!st)return;
     const hasPw=!!st.pw;
-    const msg=hasPw?`${name} 학생의 비밀번호를 변경할게요.\n새 비밀번호를 입력하세요 (비워두면 비밀번호 삭제):`
+    const msg=hasPw?`${name} 학생의 비밀번호를 변경할게요.\n새 비밀번호를 입력하세요 (비워두면 삭제):`
                     :`${name} 학생의 비밀번호를 설정할게요.\n비밀번호를 입력하세요 (비워두면 설정 안 함):`;
     const newPw=prompt(msg);
-    if(newPw===null)return; // 취소
+    if(newPw===null)return;
     if(newPw===''){
-        await spell_set(spell_ref(spellDb,`students/${key}/pw`),null);
+        schoolRef(`classData_v2/students/${key}/pw`).remove();
         alert(`${name} 학생의 비밀번호가 삭제됐어요.`);
     }else{
-        await spell_set(spell_ref(spellDb,`students/${key}/pw`),newPw);
+        const h=await hashPassword(newPw);
+        schoolRef(`classData_v2/students/${key}/pw`).set(h);
         alert(`${name} 학생의 비밀번호가 설정됐어요.`);
     }
     loadStudentList();
 };
 
-// ── 선생님 ──
-function enterTeacherMode(){spellShowScreen('teacher-screen');loadStudentList();}
+// ── 선생님 모드 진입 ──
+function enterTeacherMode(){
+    spellShowScreen('teacher-screen');
+    // 슈퍼관리자면 반 필터 표시
+    const filterWrap=document.getElementById('spell-class-filter-wrap');
+    if(currentTeacher==='super'){
+        filterWrap.style.display='block';
+        // 필터 옵션 구성
+        const sel=document.getElementById('spell-class-filter');
+        sel.innerHTML='<option value="">전체 보기</option>';
+        // rawData에서 학년/반 조합 수집
+        const classSet=new Set();
+        Object.values(rawData).forEach(s=>{if(s.grade&&s.classNum)classSet.add(`${s.grade}-${s.classNum}`);});
+        [...classSet].sort().forEach(gc=>{
+            const [g,c]=gc.split('-');
+            const opt=document.createElement('option');
+            opt.value=gc; opt.innerText=`${g}학년 ${c}반`;
+            sel.appendChild(opt);
+        });
+    } else {
+        filterWrap.style.display='none';
+    }
+    loadStudentList();
+}
 
+// ── 학생 목록 (classData_v2 기반, 반별 필터) ──
 async function loadStudentList(){
-    const snap=await spell_get(spell_ref(spellDb,'students'));
-    const all=snap.val()||{};
-    const list=Object.entries(all).sort((a,b)=>a[1].num-b[1].num);
-    document.getElementById('t-count').innerText=`총 ${list.length}명 등록됨`;
+    if(!currentSchoolCode){
+        document.getElementById('student-list').innerHTML='<div class="empty">학교 코드로 입장 후 이용하세요.</div>';
+        return;
+    }
+    const all=rawData; // attachSchoolListeners()로 실시간 동기화된 데이터
+    // 반 필터 결정
+    let filterGC='';
+    if(currentTeacher==='super'){
+        filterGC=document.getElementById('spell-class-filter')?.value||'';
+    } else if(currentTeacher){
+        filterGC=currentTeacher; // "grade-classNum"
+    }
+    let list=Object.entries(all).filter(([,s])=>!s.isPending);
+    if(filterGC){
+        const [fg,fc]=filterGC.split('-');
+        list=list.filter(([,s])=>String(s.grade)===String(fg)&&String(s.classNum)===String(fc));
+    }
+    list.sort((a,b)=>{
+        const gc=(s)=>`${s.grade}-${String(s.classNum).padStart(2,'0')}`;
+        return gc(a[1]).localeCompare(gc(b[1]))||a[1].name.localeCompare(b[1].name,'ko');
+    });
+    document.getElementById('t-count').innerText=`총 ${list.length}명`;
     const cont=document.getElementById('student-list');
-    if(!list.length){cont.innerHTML='<div class="empty">등록된 학생이 없어요!<br>위에서 추가해주세요.</div>';return;}
+    if(!list.length){cont.innerHTML='<div class="empty">해당 반 학생이 없어요.</div>';return;}
     cont.innerHTML='';
-    list.forEach(([key,st])=>{
-        const s=calcStats(st.records||{});
+    await Promise.all(list.map(async([key,st])=>{
+        let records={};
+        try{
+            const snap=await spellStudentRef(key,'records').once('value');
+            records=snap.val()||{};
+        }catch(e){}
+        const s=calcStats(records);
         const row=document.createElement('div');
         row.className='student-row';
+        const classLabel=`${st.grade}학년 ${st.classNum}반`;
         row.innerHTML=`
             <div>
-                <div class="student-name">${st.num}번 ${st.name}</div>
-                <div style="font-size:.78rem;color:#94a3b8;margin-top:2px;">최근: ${s.lastDate||'없음'}</div>
+                <div class="student-name">${st.name}</div>
+                <div style="font-size:.78rem;color:#94a3b8;margin-top:2px;">${classLabel} · 최근: ${s.lastDate||'없음'}</div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <span class="stat-chip" style="background:var(--blue);">총 ${s.total}문제</span>
                 <span class="stat-chip" style="background:var(--green);">정답률 ${s.rate}%</span>
-                <span class="stat-chip" style="background:${st.pw?'var(--purple)':'#cbd5e1'};">${st.pw?'🔑 비번설정':'비번없음'}</span>
             </div>
             <div style="display:flex;gap:6px;">
                 <button class="btn btn-blue btn-sm"   onclick="viewDetail('${key}')">📊 상세</button>
-                <button class="btn btn-purple btn-sm" onclick="setStudentPw('${key}','${st.name}')">🔑 비번</button>
-                <button class="btn btn-red btn-sm"    onclick="deleteStudent('${key}','${st.name}')">삭제</button>
             </div>`;
         cont.appendChild(row);
-    });
+    }));
 }
 
-window.addStudent=async()=>{
-    const num=document.getElementById('new-num').value.trim();
-    const name=document.getElementById('new-name').value.trim();
-    if(!num||!name){alert('학번과 이름을 모두 입력해주세요!');return;}
-    const snap=await spell_get(spell_ref(spellDb,'students'));
-    const all=snap.val()||{};
-    if(Object.values(all).find(s=>String(s.num)===String(num))){alert(`${num}번은 이미 등록된 학번이에요!`);return;}
-    const nr=await spell_push(spell_ref(spellDb,'students'));
-    await spell_set(nr,{num:parseInt(num),name,records:{}});
-    document.getElementById('new-num').value='';
-    document.getElementById('new-name').value='';
-    loadStudentList();
-};
-
-window.deleteStudent=async(key,name)=>{
-    if(!confirm(`${name} 학생을 삭제할까요? 기록도 모두 사라져요.`))return;
-    await spell_remove(spell_ref(spellDb,`students/${key}`));
-    loadStudentList();
-};
-
 window.viewDetail=async(key)=>{
-    const snap=await spell_get(spell_ref(spellDb,`students/${key}`));
-    const st=snap.val();if(!st)return;
-    document.getElementById('detail-title').innerText=`${st.num}번 ${st.name} 통계`;
+    const st=rawData[key];if(!st)return;
+    document.getElementById('detail-title').innerText=`${st.name} (${st.grade}학년 ${st.classNum}반) 통계`;
     spellShowScreen('detail-screen');
-    renderStat('detail',st.records||{});
+    let records={};
+    try{
+        const snap=await spellStudentRef(key,'records').once('value');
+        records=snap.val()||{};
+    }catch(e){}
+    renderStat('detail',records);
 };
 
 // ── 학생 ──
@@ -9047,16 +8953,24 @@ function enterStudentMode(){
 }
 
 async function refreshStudentStat(){
-    const snap=await spell_get(spell_ref(spellDb,`students/${spellCurrentUser.key}/records`));
-    const s=calcStats(snap.val()||{});
-    document.getElementById('student-stat').innerText=`총 ${s.total}문제 · 정답률 ${s.rate}%`;
+    if(!spellCurrentUser?.key)return;
+    try{
+        const snap=await spellStudentRef(spellCurrentUser.key,'records').once('value');
+        const s=calcStats(snap.val()||{});
+        document.getElementById('student-stat').innerText=`총 ${s.total}문제 · 정답률 ${s.rate}%`;
+    }catch(e){}
 }
 
 window.showMyStats=async()=>{
-    const snap=await spell_get(spell_ref(spellDb,`students/${spellCurrentUser.key}/records`));
+    if(!spellCurrentUser?.key)return;
+    let records={};
+    try{
+        const snap=await spellStudentRef(spellCurrentUser.key,'records').once('value');
+        records=snap.val()||{};
+    }catch(e){}
     document.getElementById('my-stat-title').innerText=`${spellCurrentUser.name}의 학습 통계`;
     spellShowScreen('my-stat-screen');
-    renderStat('my',snap.val()||{});
+    renderStat('my',records);
 };
 
 // ── 통계 공통 ──
@@ -9163,14 +9077,16 @@ function catSafeKey(cat){ return cat.replace(/[.#$[\]/\s]/g,'_'); }
 function isMode1Completed(cat){ return !!mode1CompletedMap[catSafeKey(cat)]; }
 async function loadMode1Completed(){
     if(!spellCurrentUser?.key) return;
-    const snap=await spell_get(spell_ref(spellDb,`students/${spellCurrentUser.key}/mode1Completed`));
-    mode1CompletedMap=snap.val()||{};
+    try{
+        const snap=await spellStudentRef(spellCurrentUser.key,'mode1Completed').once('value');
+        mode1CompletedMap=snap.val()||{};
+    }catch(e){ mode1CompletedMap={}; }
 }
 async function saveMode1Completed(cat){
     if(!spellCurrentUser?.key) return;
     const safeKey=catSafeKey(cat);
     mode1CompletedMap[safeKey]=true;
-    await spell_set(spell_ref(spellDb,`students/${spellCurrentUser.key}/mode1Completed/${safeKey}`),true);
+    await spellStudentRef(spellCurrentUser.key,'mode1Completed/'+safeKey).set(true);
 }
 
 function selectCat(cat){
@@ -9409,8 +9325,9 @@ window.nextQuiz=()=>{playClick();currentIdx++;if(currentIdx<gameQueue.length)loa
 async function finishGame(){
     if(spellCurrentUser?.role==='student'){
         const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\.\s*/g,'-').replace(/-$/,'');
-        const nr=await spell_push(spell_ref(spellDb,`students/${spellCurrentUser.key}/records`));
-        await spell_set(nr,{category:selectedCat,score:sessionScore,total:sessionTotal,date:today,ts:Date.now()});
+        const nr=spellStudentRef(spellCurrentUser.key,'records').push();
+        await nr.set({category:selectedCat,score:sessionScore,total:sessionTotal,date:today,ts:Date.now()});
+        refreshStudentStat();
     }
     spellShowScreen('result-screen');
     const pct=Math.round(sessionScore/sessionTotal*100);
@@ -9547,8 +9464,9 @@ window.nextDictation=async()=>{
         // 결과 저장 후 메인 결과 화면으로
         if(spellCurrentUser?.role==='student'){
             const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\.\s*/g,'-').replace(/-$/,'');
-            const nr=await spell_push(spell_ref(spellDb,`students/${spellCurrentUser.key}/records`));
-            await spell_set(nr,{category:'✏️ 받아쓰기('+dictSelectedCat+')',score:dictScore,total:dictQueue.length,date:today,ts:Date.now()});
+            const nr=spellStudentRef(spellCurrentUser.key,'records').push();
+            await nr.set({category:'✏️ 받아쓰기('+dictSelectedCat+')',score:dictScore,total:dictQueue.length,date:today,ts:Date.now()});
+            refreshStudentStat();
         }
         spellShowScreen('result-screen');
         const pct=Math.round(dictScore/dictQueue.length*100);
@@ -9605,15 +9523,16 @@ window.enterDailyChallenge=async()=>{
 
     // 오늘 이미 완료했는지 확인
     if(spellCurrentUser?.key){
-        const snap=await spell_get(spell_ref(spellDb,`students/${spellCurrentUser.key}/dailyDone`));
-        const done=snap.val()||{};
-        const safeToday=today.replace(/[.\-]/g,'_');
-        if(done[safeToday]){
-            document.getElementById('daily-game').style.display='none';
-            document.getElementById('daily-done-screen').style.display='block';
-            document.getElementById('daily-done-score-msg').innerText=`오늘 점수: ${done[safeToday].score}/5 문제 정답!`;
-            return;
-        }
+        try{
+            const safeToday=today.replace(/[.\-]/g,'_');
+            const snap=await spellStudentRef(spellCurrentUser.key,`dailyDone/${safeToday}`).once('value');
+            if(snap.val()){
+                document.getElementById('daily-game').style.display='none';
+                document.getElementById('daily-done-screen').style.display='block';
+                document.getElementById('daily-done-score-msg').innerText=`오늘 점수: ${snap.val().score}/5 문제 정답!`;
+                return;
+            }
+        }catch(e){}
     }
 
     dailyQueue=getDailyQuestions();
@@ -9692,7 +9611,7 @@ window.nextDaily=async()=>{
         const today=todayStr();
         const safeToday=today.replace(/[.\-]/g,'_');
         if(spellCurrentUser?.key){
-            await spell_set(spell_ref(spellDb,`students/${spellCurrentUser.key}/dailyDone/${safeToday}`),{score:dailyScore,ts:Date.now()});
+            await spellStudentRef(spellCurrentUser.key,`dailyDone/${safeToday}`).set({score:dailyScore,ts:Date.now()});
             // 완료 배지 표시
             document.getElementById('daily-done-badge').style.display='block';
         }
@@ -9718,10 +9637,10 @@ async function checkDailyDoneBadge(){
     if(!spellCurrentUser?.key) return;
     const today=todayStr();
     const safeToday=today.replace(/[.\-]/g,'_');
-    const snap=await spell_get(spell_ref(spellDb,`students/${spellCurrentUser.key}/dailyDone/${safeToday}`));
-    if(snap.val()){
-        document.getElementById('daily-done-badge').style.display='block';
-    }
+    try{
+        const snap=await spellStudentRef(spellCurrentUser.key,`dailyDone/${safeToday}`).once('value');
+        if(snap.val()) document.getElementById('daily-done-badge').style.display='block';
+    }catch(e){}
 }
 
 
@@ -9985,14 +9904,15 @@ window.deleteQuiz=async(catKey,idx)=>{
 
 
 
-// 오답 Firebase에 저장
+// 오답 저장 (classData_v2 통합)
 async function saveWrongAnswer(quiz){
     if(!spellCurrentUser||spellCurrentUser.role!=='student')return;
     const key=quiz.correct.join('|').replace(/[.#$[\]/]/g,'_');
-    const snap=await spell_get(spell_ref(spellDb,`students/${spellCurrentUser.key}/wrongAnswers/${key}`));
+    const ref=spellStudentRef(spellCurrentUser.key,`wrongAnswers/${key}`);
+    const snap=await ref.once('value');
     const existing=snap.val()||{correct:quiz.correct,shuffled:quiz.shuffled,count:0};
     existing.count=(existing.count||0)+1;
-    await spell_set(spell_ref(spellDb,`students/${spellCurrentUser.key}/wrongAnswers/${key}`),existing);
+    await ref.set(existing);
 }
 
 // ── 복습하기 ────────────────────────────────────────────────────
@@ -10006,7 +9926,7 @@ window.enterReview=async()=>{
     document.getElementById('review-game').style.display='none';
     document.getElementById('review-done').style.display='none';
 
-    const snap=await spell_get(spell_ref(spellDb,`students/${spellCurrentUser.key}/wrongAnswers`));
+    const snap=await spellStudentRef(spellCurrentUser.key,'wrongAnswers').once('value');
     const wrongData=snap.val()||{};
     // wrongAnswers: { "카테고리명|correct joined": {correct:[...], shuffled:[...], count:N} }
     const wrongs=Object.values(wrongData);
@@ -10095,7 +10015,7 @@ window.checkReview=()=>{
 async function removeWrongAnswer(q){
     if(!spellCurrentUser||spellCurrentUser.role!=='student')return;
     const key=q.correct.join('|').replace(/[.#$[\]/]/g,'_');
-    await spell_remove(spell_ref(spellDb,`students/${spellCurrentUser.key}/wrongAnswers/${key}`));
+    await spellStudentRef(spellCurrentUser.key,`wrongAnswers/${key}`).remove();
 }
 
 window.nextReview=()=>{
@@ -10298,22 +10218,21 @@ async function endSpeed() {
     document.getElementById('speed-result-detail').innerText = `${speedTotalTime}초 동안 ${speedScore}문제 정답`;
 
     // 최고 기록 저장/비교
-    if (spellCurrentUser && spellCurrentUser.role === 'student' && spellDb) {
-        const bestRef = spell_ref(spellDb, `students/${spellCurrentUser.key}/speedBest/${speedCat.replace(/[.#$[\]/\s]/g,'_')}_${speedTotalTime}`);
-        const snap = await spell_get(bestRef);
+    if (spellCurrentUser && spellCurrentUser.role === 'student' && currentSchoolCode) {
+        const bestRef = spellStudentRef(spellCurrentUser.key, `speedBest/${speedCat.replace(/[.#$[\]/\s]/g,'_')}_${speedTotalTime}`);
+        const snap = await bestRef.once('value');
         const prev = snap.val() || 0;
         const bestWrap = document.getElementById('speed-best-wrap');
         if (speedScore > prev) {
-            await spell_set(bestRef, speedScore);
+            await bestRef.set(speedScore);
             bestWrap.innerHTML = `<span style="color:var(--orange);">🎖️ 최고 기록 갱신! ${prev > 0 ? prev + '점 → ' : ''}${speedScore}점</span>`;
         } else {
             bestWrap.innerHTML = `<span style="color:#64748b;">🏅 최고 기록: ${prev}점</span>`;
         }
         // 학습 기록 저장
         const today = new Date().toISOString().slice(0,10);
-        const hr = spell_ref(spellDb, `students/${spellCurrentUser.key}/history`);
-        const nr = spell_push(hr);
-        await spell_set(nr, {category:`⏱️ 스피드(${speedCat})`, score:speedScore, total:speedScore, date:today, ts:Date.now()});
+        const nr = spellStudentRef(spellCurrentUser.key, 'records').push();
+        await nr.set({category:`⏱️ 스피드(${speedCat})`, score:speedScore, total:speedScore, date:today, ts:Date.now()});
     }
     playOk();
 }
