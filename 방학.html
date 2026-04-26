@@ -926,7 +926,7 @@
         </div>
 
         <!-- 📋 메뉴 탭 노출 설정 카드 -->
-        <div class="card" style="border-color:#a5d6a7;">
+        <div class="card" id="menuTabVisibleCard" style="border-color:#a5d6a7;">
             <h4 style="margin:0 0 6px 0; color:#2e7d32; font-size:18px;">📋 메뉴 탭 노출 설정</h4>
             <p style="font-size:13px; color:#888; margin:0 0 12px 0;">학생 화면 상단에 표시할 탭을 선택합니다. 끄면 즉시 숨겨집니다.</p>
             <div style="display:flex; flex-direction:column; gap:8px;">
@@ -1010,7 +1010,7 @@
           </div>
           <div id="svSubmitList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;"></div>
         </div>
-        <div class="card" style="border-color:#6BCFFF;">
+        <div class="card" id="summerEditCard" style="border-color:#6BCFFF;">
             <h4 style="margin:0 0 6px 0; color:#0077AA; font-size:18px;">🌻 여름방학 계획표 편집</h4>
             <p style="font-size:13px; color:#888; margin:0 0 14px 0;">수정 후 저장하면 모든 학생에게 즉시 반영됩니다.</p>
 
@@ -1057,8 +1057,8 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
                     <div><label style="font-size:11px;color:#888;">시작일</label><input type="text" id="sv_edit_start" placeholder="예: 7월 24일(금)" style="width:100%;box-sizing:border-box;border:1.5px solid #b3e5fc;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;margin:4px 0 0;"></div>
                     <div><label style="font-size:11px;color:#888;">종료일</label><input type="text" id="sv_edit_end" placeholder="예: 8월 23일(일)" style="width:100%;box-sizing:border-box;border:1.5px solid #b3e5fc;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;margin:4px 0 0;"></div>
-                    <div><label style="font-size:11px;color:#888;">총 일수</label><input type="number" id="sv_edit_days" placeholder="28" style="width:100%;box-sizing:border-box;border:1.5px solid #b3e5fc;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;margin:4px 0 0;"></div>
-                    <div><label style="font-size:11px;color:#888;">개학일</label><input type="text" id="sv_edit_open" placeholder="예: 8월 18일(월)" style="width:100%;box-sizing:border-box;border:1.5px solid #b3e5fc;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;margin:4px 0 0;"></div>
+                    <div><label style="font-size:11px;color:#888;">총 일수</label><input type="number" id="sv_edit_days" placeholder="31" style="width:100%;box-sizing:border-box;border:1.5px solid #b3e5fc;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;margin:4px 0 0;"></div>
+                    <div><label style="font-size:11px;color:#888;">개학일</label><input type="text" id="sv_edit_open" placeholder="예: 8월 23일(월)" style="width:100%;box-sizing:border-box;border:1.5px solid #b3e5fc;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;margin:4px 0 0;"></div>
                 </div>
                 <div style="font-size:13px; font-weight:bold; color:#555; margin-bottom:8px;">🎯 방학 목표</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -1246,7 +1246,7 @@
           <span class="sv-title-emoji">🌻</span>
           <div class="sv-title-main">2026 여름방학 계획표</div>
           <div class="sv-title-sub">즐겁고 알찬 여름방학을 보내자! 🏖️</div>
-          <div class="sv-school-badge">영동초등학교 3학년 하늘반</div>
+          <div class="sv-school-badge" id="svSchoolBadge">학년/반을 선택해주세요</div>
         </div>
 
         <div class="sv-name-area">
@@ -1281,8 +1281,11 @@
 
         <!-- ① 하루 계획 -->
         <div class="sv-tab-section active" id="sv-tab-daily">
-          <div class="sv-section-title">⏰ 하루 계획표 (평일 기준)</div>
-          <div class="sv-schedule-table">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <div class="sv-section-title" style="margin-bottom:0;">⏰ 하루 계획표 (평일 기준)</div>
+            <button id="svScheduleEditBtn" onclick="svOpenScheduleEdit()" style="display:none; background:linear-gradient(135deg,#ff8e72,#ff6b4a); color:white; border:none; border-radius:20px; padding:7px 14px; font-size:12px; font-weight:bold; cursor:pointer; box-shadow:0 3px 0 #cc4a2a;">✏️ 내 계획 수정</button>
+          </div>
+          <div class="sv-schedule-table" id="svScheduleTable">
             <div class="sv-schedule-row"><div class="sv-schedule-time" style="color:#8B5CF6"><span>😴</span><span>06:30</span><span class="sv-time-label">~07:00</span></div><div class="sv-schedule-content"><span class="sv-activity-badge sv-badge-sleep">🌅 기상 & 이불 정리</span><span class="sv-activity-note">일찍 일어나는 습관 만들기!</span></div></div>
             <div class="sv-schedule-row"><div class="sv-schedule-time" style="color:#F59E0B"><span>🍳</span><span>07:00</span><span class="sv-time-label">~07:30</span></div><div class="sv-schedule-content"><span class="sv-activity-badge sv-badge-morning">🧼 씻기 & 아침 식사</span><span class="sv-activity-note">꼭꼭 씹어 건강하게!</span></div></div>
             <div class="sv-schedule-row"><div class="sv-schedule-time" style="color:#3B82F6"><span>📖</span><span>07:30</span><span class="sv-time-label">~08:30</span></div><div class="sv-schedule-content"><span class="sv-activity-badge sv-badge-study">📝 오전 공부 (1시간)</span><span class="sv-activity-note">국어·수학 방학 숙제 or 복습</span></div></div>
@@ -1299,18 +1302,34 @@
           </div>
         </div>
 
+        <!-- 🗓️ 하루 계획 수정 모달 -->
+        <div id="svScheduleEditModal" class="modal hidden">
+          <div class="card" style="min-width:300px; max-width:92vw; max-height:85vh; overflow-y:auto; position:relative; padding:20px 16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+              <h4 style="margin:0; font-size:17px; color:#ff6b4a;">✏️ 나만의 하루 계획표</h4>
+              <button onclick="svCloseScheduleEdit()" style="background:#eee; border:none; border-radius:50%; width:32px; height:32px; font-size:16px; cursor:pointer;">✕</button>
+            </div>
+            <p style="font-size:12px; color:#aaa; margin:0 0 12px 0;">각 시간대의 활동과 메모를 내 계획에 맞게 바꿔보세요!</p>
+            <div id="svScheduleEditList" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <div style="display:flex; gap:8px; margin-top:14px;">
+              <button onclick="svAddScheduleRow()" style="flex:1; background:#e8f5e9; color:#2e7d32; border:2px solid #a5d6a7; border-radius:12px; padding:9px; font-size:13px; font-weight:bold; cursor:pointer;">+ 항목 추가</button>
+              <button onclick="svSaveSchedule()" style="flex:1; background:linear-gradient(135deg,#ff8e72,#ff6b4a); color:white; border:none; border-radius:12px; padding:9px; font-size:13px; font-weight:bold; cursor:pointer; box-shadow:0 3px 0 #cc4a2a;">💾 저장</button>
+            </div>
+          </div>
+        </div>
+
         <!-- ② 주간 활동 -->
         <div class="sv-tab-section" id="sv-tab-weekly">
           <div class="sv-section-title">🗓️ 방학 특별 행사 계획</div>
           <div class="sv-checklist-box">
             <div class="sv-check-grid" id="eventList">
               <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_0"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🎡 놀이공원 or 수영장</span></div><div class="sv-event-badges"></div></div>
-              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_1"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🏕️ 캠핑 (별 보기!)</span></div><div class="sv-event-badges"></div></div>
+              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_1"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🏕️ 캠핑(별 보기!)</span></div><div class="sv-event-badges"></div></div>
               <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_2"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🎭 공연·연극 관람</span></div><div class="sv-event-badges"></div></div>
               <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_3"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🏛️ 박물관·과학관</span></div><div class="sv-event-badges"></div></div>
-              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_4"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🌸 친척 방문</span></div><div class="sv-event-badges"></div></div>
-              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_5"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🎪 체험 학습 프로그램</span></div><div class="sv-event-badges"></div></div>
-              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_6"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🌻 도서관·미술관</span></div><div class="sv-event-badges"></div></div>
+              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_4"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🚗 친척 방문</span></div><div class="sv-event-badges"></div></div>
+              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_5"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🎪 체험학습 프로그램</span></div><div class="sv-event-badges"></div></div>
+              <div class="sv-check-item sv-event-item" onclick="svOpenEventRecord(this)" data-event-key="event_6"><div class="sv-event-item-top"><div class="sv-check-box"></div><span class="sv-event-item-text">🤫 도서관·미술관</span></div><div class="sv-event-badges"></div></div>
             </div>
           </div>
         </div>
@@ -1319,12 +1338,12 @@
         <div class="sv-tab-section" id="sv-tab-mission">
           <div class="sv-section-title">🎯 방학 미션 달성하기</div>
           <div class="sv-mission-grid">
-            <div class="sv-mission-card" style="border-top:3px solid #3B82F6"><div class="sv-mission-header"><span class="sv-mission-icon">📚</span><span class="sv-mission-title">독서 미션</span></div><ul class="sv-mission-items"><li>방학 동안 책 5권 읽기</li><li>독서 감상문 2편 쓰기</li><li>도서관 5번 방문하기</li><li>친구에게 책 추천하기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:20%;background:#3B82F6"></div></div></div>
-            <div class="sv-mission-card" style="border-top:3px solid #10B981"><div class="sv-mission-header"><span class="sv-mission-icon">💪</span><span class="sv-mission-title">운동 미션</span></div><ul class="sv-mission-items"><li>줄넘기 100개 3일 연속</li><li>수영 10번 가기</li><li>가족과 등산 1번</li><li>매일 30분 걷기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:30%;background:#10B981"></div></div></div>
-            <div class="sv-mission-card" style="border-top:3px solid #F59E0B"><div class="sv-mission-header"><span class="sv-mission-icon">✏️</span><span class="sv-mission-title">공부 미션</span></div><ul class="sv-mission-items"><li>방학 숙제 7월 중 완성!</li><li>구구단 완벽하게 외우기</li><li>받아쓰기 100점 맞기</li><li>영어 단어 50개 외우기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:10%;background:#F59E0B"></div></div></div>
-            <div class="sv-mission-card" style="border-top:3px solid #EC4899"><div class="sv-mission-header"><span class="sv-mission-icon">🎨</span><span class="sv-mission-title">창의 미션</span></div><ul class="sv-mission-items"><li>그림 일기 10편 쓰기</li><li>만들기 작품 3개 완성</li><li>사진 찍어 앨범 만들기</li><li>새로운 취미 1개 도전</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:0%;background:#EC4899"></div></div></div>
-            <div class="sv-mission-card" style="border-top:3px solid #8B5CF6"><div class="sv-mission-header"><span class="sv-mission-icon">🤝</span><span class="sv-mission-title">생활 미션</span></div><ul class="sv-mission-items"><li>매일 이불 개기</li><li>일기 20편 이상 쓰기</li><li>9시 전에 자기 (주 5일)</li><li>집안일 도움 10번 하기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:5%;background:#8B5CF6"></div></div></div>
-            <div class="sv-mission-card" style="border-top:3px solid #F97316"><div class="sv-mission-header"><span class="sv-mission-icon">🌱</span><span class="sv-mission-title">자연 미션</span></div><ul class="sv-mission-items"><li>식물 키우기 (물 주기)</li><li>곤충·동물 관찰 일지</li><li>날씨 매일 기록하기</li><li>쓰레기 줍기 봉사</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:0%;background:#F97316"></div></div></div>
+            <div class="sv-mission-card" style="border-top:3px solid #3B82F6"><div class="sv-mission-header"><span class="sv-mission-icon">📚</span><span class="sv-mission-title">독서 미션</span></div><ul class="sv-mission-items"><li>방학 동안 책 5권 읽기</li><li>독서 감상문 2편 쓰기</li><li>도서관 5번 방문하기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:20%;background:#3B82F6"></div></div></div>
+            <div class="sv-mission-card" style="border-top:3px solid #10B981"><div class="sv-mission-header"><span class="sv-mission-icon">💪</span><span class="sv-mission-title">운동 미션</span></div><ul class="sv-mission-items"><li>매일 줄넘기 100개 넘기</li><li>가족과 등산 1번</li><li>매일 30분 걷기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:30%;background:#10B981"></div></div></div>
+            <div class="sv-mission-card" style="border-top:3px solid #F59E0B"><div class="sv-mission-header"><span class="sv-mission-icon">✏️</span><span class="sv-mission-title">공부 미션</span></div><ul class="sv-mission-items"><li>구구단 외우기</li><li>받아쓰기 100점 맞기</li><li>영어 단어 50개 외우기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:10%;background:#F59E0B"></div></div></div>
+            <div class="sv-mission-card" style="border-top:3px solid #EC4899"><div class="sv-mission-header"><span class="sv-mission-icon">🎨</span><span class="sv-mission-title">창의 미션</span></div><ul class="sv-mission-items"><li>큐브 기록 단축하기</li><li>만들기 작품 1개 완성</li><li>새로운 취미 1개 도전</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:0%;background:#EC4899"></div></div></div>
+            <div class="sv-mission-card" style="border-top:3px solid #8B5CF6"><div class="sv-mission-header"><span class="sv-mission-icon">🤝</span><span class="sv-mission-title">생활 미션</span></div><ul class="sv-mission-items"><li>일기 주 3편 이상 쓰기</li><li>밤 9시 전에 자기 (주 5일)</li><li>집안일 도움 5번 하기</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:5%;background:#8B5CF6"></div></div></div>
+            <div class="sv-mission-card" style="border-top:3px solid #F97316"><div class="sv-mission-header"><span class="sv-mission-icon">🌱</span><span class="sv-mission-title">자연 미션</span></div><ul class="sv-mission-items"><li>식물 키우기 (물 주기)</li><li>곤충·동물 관찰 일지</li><li>쓰레기 줍기 봉사 활동</li></ul><div class="sv-mission-progress"><div class="sv-mission-bar" style="width:0%;background:#F97316"></div></div></div>
           </div>
         </div>
 
@@ -1334,14 +1353,14 @@
           <div class="sv-book-grid">
             <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🦁</div><div class="sv-book-title">어린왕자</div><span class="sv-book-genre" style="background:#FFF0E6;color:#CC5500">명작동화</span></div>
             <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🔬</div><div class="sv-book-title">why? 과학탐구</div><span class="sv-book-genre" style="background:#E3F5FF;color:#0077AA">과학</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🧙</div><div class="sv-book-title">마법의 시간여행</div><span class="sv-book-genre" style="background:#F0E6FF;color:#7700AA">판타지</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🌍</div><div class="sv-book-title">세계 여러 나라</div><span class="sv-book-genre" style="background:#E8FFE8;color:#007700">사회</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🐾</div><div class="sv-book-title">동물의 왕국</div><span class="sv-book-genre" style="background:#FFF3C4;color:#AA7700">자연</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🏅</div><div class="sv-book-title">위인전 시리즈</div><span class="sv-book-genre" style="background:#FFE4F0;color:#AA0044">역사</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🎭</div><div class="sv-book-title">전래동화 모음</div><span class="sv-book-genre" style="background:#E3F5FF;color:#0077AA">문학</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🚀</div><div class="sv-book-title">우주 탐험대</div><span class="sv-book-genre" style="background:#E6E6FF;color:#4400AA">과학</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🌊</div><div class="sv-book-title">바다 친구들</div><span class="sv-book-genre" style="background:#E3F5FF;color:#0055AA">자연</span></div>
-            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🍎</div><div class="sv-book-title">건강한 먹거리</div><span class="sv-book-genre" style="background:#E8FFE8;color:#007700">건강</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🧙</div><div class="sv-book-title">이상한 과자 가게 전천당</div><span class="sv-book-genre" style="background:#F0E6FF;color:#7700AA">판타지</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🌍</div><div class="sv-book-title">동네 한 바퀴</div><span class="sv-book-genre" style="background:#E8FFE8;color:#007700">사회</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🐾</div><div class="sv-book-title">북극곰에게 냉장고를 부탁해</div><span class="sv-book-genre" style="background:#FFF3C4;color:#AA7700">자연</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🏅</div><div class="sv-book-title">물 한 방울의 여행</div><span class="sv-book-genre" style="background:#FFE4F0;color:#AA0044">과학</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🎭</div><div class="sv-book-title">숲 속의 어느 날</div><span class="sv-book-genre" style="background:#E3F5FF;color:#0077AA">자연</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🚀</div><div class="sv-book-title">걱정 세탁소</div><span class="sv-book-genre" style="background:#E6E6FF;color:#4400AA">건강</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🌊</div><div class="sv-book-title">괴물딱지</div><span class="sv-book-genre" style="background:#E3F5FF;color:#0055AA">창작 동화</span></div>
+            <div class="sv-book-card" onclick="svToggleBook(this)"><div class="sv-book-emoji">🍎</div><div class="sv-book-title">수상한 우리 엄마</div><span class="sv-book-genre" style="background:#E8FFE8;color:#007700">가족</span></div>
           </div>
           <div style="text-align:center;background:rgba(255,255,255,.9);color:#0077AA;font-size:.92rem;font-weight:700;margin-top:8px;padding:8px 16px;border-radius:20px;border:2px dashed #6BCFFF;display:inline-block;width:fit-content;margin-left:auto;margin-right:auto;display:flex;justify-content:center;">📖 책 표지를 누르면 읽은 책으로 표시돼요!</div>
           <div class="sv-section-title" style="margin-top:24px">✍️ 독서 감상문 체크리스트</div>
@@ -2660,6 +2679,12 @@
             if (el) el.classList.toggle('hidden', isSuper);
         });
 
+        // 관리자는 메뉴 탭 노출 설정 & 방학계획표 제출 현황 & 여름방학 계획표 편집 숨김
+        ['menuTabVisibleCard', 'svSubmitCard', 'summerEditCard'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden', isSuper);
+        });
+
         document.getElementById('editNameGrade').disabled = !isSuper;
         document.getElementById('editNameClass').disabled = !isSuper;
 
@@ -3231,6 +3256,13 @@
         document.getElementById('writeSection').classList.remove('hidden');
         updateWelcomeMsg(sid);
         document.getElementById('welcomeClass').innerText = `${rawData[sid].grade}학년 ${rawData[sid].classNum}반`;
+        // ✅ 헤더 학년/반 업데이트
+        const _g = String(rawData[sid].grade), _c = String(rawData[sid].classNum);
+        const _cnVal = allClassNames[`${_g}-${_c}`];
+        document.getElementById('headerClassName').innerText = (_cnVal && typeof _cnVal === 'string') ? _cnVal : `${_g}학년 ${_c}반`;
+        // 🏫 방학생활 학교 배지 즉시 업데이트
+        const _badge = document.getElementById('svSchoolBadge');
+        if (_badge) _badge.textContent = (_cnVal && typeof _cnVal === 'string') ? _cnVal : `${_g}학년 ${_c}반`;
         renderHistory(); renderChart(sid); renderStudentNotice();
         renderTop7ForStudent();
         calYear = new Date().getFullYear();
@@ -3250,7 +3282,11 @@
         document.getElementById('loginSection').classList.remove('hidden');
         document.getElementById('writeSection').classList.add('hidden');
         renderTop7FromFilter();
-        // 🌻 방학생활 탭 - 로그아웃 시 화면 초기화
+        // 🌻 방학생활 탭 - 로그아웃 시 이름 초기화
+        const _nd = document.getElementById('svStudentNameDisplay');
+        if (_nd) _nd.textContent = '학생';
+        const _badge = document.getElementById('svSchoolBadge');
+        if (_badge) _badge.textContent = '학년/반을 선택해주세요';
         if (typeof svInitSummer === 'function') svInitSummer();
         if (!document.getElementById('summerView').classList.contains('hidden')) {
             executeSwitch('student');
@@ -4598,27 +4634,27 @@ let svInitialized = false;
 
 // ── 기본값 ──────────────────────────────────────────────
 const SV_DEFAULTS = {
-  info: { start:'7월 21일(월)', end:'8월 17일(일)', days:'28', open:'8월 18일(월)', g_book:5, g_study:30, g_exercise:3, g_learn:1, g_diary:'매일' },
-  events: ['🏖️ 바다 또는 계곡 여행','🎡 놀이공원 or 수영장','🏕️ 캠핑 (별 보기!)','🎭 공연·연극 관람','🏛️ 박물관·과학관','🌸 할머니·할아버지 방문','🎪 체험 학습 프로그램','🌻 해바라기 농장 방문'],
+  info: { start:'7월 24일(금)', end:'8월 23일(일)', days:'31', open:'8월 24일(월)', g_book:5, g_study:30, g_exercise:3, g_learn:1, g_diary:'매일' },
+  events: ['🏖️ 바다 또는 계곡 여행','🎡 놀이공원 or 수영장','🏕️ 캠핑 (별 보기!)','🎭 공연·연극 관람','🏛️ 박물관·과학관','🚗 친척 방문','🎪 체험 학습 프로그램','🤫 도서관·미술관'],
   missions: [
-    { title:'📚 독서 미션', items:['방학 동안 책 5권 읽기','독서 감상문 2편 쓰기','도서관 5번 방문하기','친구에게 책 추천하기'] },
-    { title:'💪 운동 미션', items:['줄넘기 100개 3일 연속','수영 10번 가기','가족과 등산 1번','매일 30분 걷기'] },
-    { title:'✏️ 공부 미션', items:['방학 숙제 7월 중 완성!','구구단 완벽하게 외우기','받아쓰기 100점 맞기','영어 단어 50개 외우기'] },
-    { title:'🎨 창의 미션', items:['그림 일기 10편 쓰기','만들기 작품 3개 완성','사진 찍어 앨범 만들기','새로운 취미 1개 도전'] },
+    { title:'📚 독서 미션', items:['방학 동안 책 5권 읽기','독서 감상문 2편 쓰기','도서관 5번 방문하기'] },
+    { title:'💪 운동 미션', items:['매일 줄넘기 100개 넘기','가족과 등산 1번','매일 30분 걷기'] },
+    { title:'✏️ 공부 미션', items:['구구단 외우기','받아쓰기 100점 맞기','영어 단어 50개 외우기'] },
+    { title:'🎨 창의 미션', items:['큐브 기록 단축하기','만들기 작품 1개 완성','새로운 취미 1개 도전'] },
     { title:'🤝 생활 미션', items:['매일 이불 개기','일기 20편 이상 쓰기','9시 전에 자기 (주 5일)','집안일 도움 10번 하기'] },
     { title:'🌱 자연 미션', items:['식물 키우기 (물 주기)','곤충·동물 관찰 일지','날씨 매일 기록하기','쓰레기 줍기 봉사'] }
   ],
   books: [
     { emoji:'🦁', title:'어린왕자', genre:'명작동화' },
     { emoji:'🔬', title:'why? 과학탐구', genre:'과학' },
-    { emoji:'🧙', title:'마법의 시간여행', genre:'판타지' },
-    { emoji:'🌍', title:'세계 여러 나라', genre:'사회' },
-    { emoji:'🐾', title:'동물의 왕국', genre:'자연' },
-    { emoji:'🏅', title:'위인전 시리즈', genre:'역사' },
-    { emoji:'🎭', title:'전래동화 모음', genre:'문학' },
-    { emoji:'🚀', title:'우주 탐험대', genre:'과학' },
-    { emoji:'🌊', title:'바다 친구들', genre:'자연' },
-    { emoji:'🍎', title:'건강한 먹거리', genre:'건강' }
+    { emoji:'🧙', title:'이상한 과자가게 전천당', genre:'판타지' },
+    { emoji:'🌍', title:'동네 한 바퀴', genre:'사회' },
+    { emoji:'🐾', title:'북극곰에게 냉장고를 부탁해', genre:'자연' },
+    { emoji:'🏅', title:'물 한 방울의 여행', genre:'과학' },
+    { emoji:'🎭', title:'숲 속의 어느 날', genre:'자연' },
+    { emoji:'🚀', title:'걱정 세탁소', genre:'건강' },
+    { emoji:'🌊', title:'괴물딱지', genre:'창작동화' },
+    { emoji:'🍎', title:'수상한 우리 엄마', genre:'가족' }
   ],
   rules: ['매일 밤 9시 이전에 잠자기','스마트폰·TV는 하루 1시간만','밥 먹을 때 스마트폰 안 보기','매일 30분 이상 공부하기','방 청소는 주 1회 스스로 하기','밖에 나갈 땐 부모님께 말하기','매일 10분 이상 독서하기','운동·독서 먼저, 놀이는 나중에']
 };
@@ -4932,6 +4968,19 @@ function svInitSummer() {
   const nameDisplay = document.getElementById('svStudentNameDisplay');
   if (nameDisplay && typeof currentSid !== 'undefined' && currentSid && typeof rawData !== 'undefined' && rawData[currentSid]) {
     nameDisplay.textContent = rawData[currentSid].name || '학생';
+  }
+  // 🏫 학교 배지: 로그인한 학생의 학년/반으로 동적 업데이트
+  const badgeEl = document.getElementById('svSchoolBadge');
+  if (badgeEl) {
+    if (typeof currentSid !== 'undefined' && currentSid && typeof rawData !== 'undefined' && rawData[currentSid]) {
+      const _g = String(rawData[currentSid].grade);
+      const _c = String(rawData[currentSid].classNum);
+      const _cnVal = (typeof allClassNames !== 'undefined') ? allClassNames[`${_g}-${_c}`] : null;
+      const className = (_cnVal && typeof _cnVal === 'string') ? _cnVal : `${_g}학년 ${_c}반`;
+      badgeEl.textContent = className;
+    } else {
+      badgeEl.textContent = '학년/반을 선택해주세요';
+    }
   }
   // Firebase 설정 불러와서 학생 화면 반영
   svLoadFirebaseSettings(data => {
@@ -6808,6 +6857,452 @@ if (document.readyState === 'loading') {
 })();
 // ===== 📚 독서 기록 기능 끝 =====
 
+// ===== ✏️ 도서 카드 인라인 편집 기능 =====
+(function() {
+
+  /* ── 저장/로드 키 ──────────────────────────────── */
+  function bookEditKey() {
+    const code = window.currentSchoolCode || 'default';
+    return 'svBookEdit_' + code;
+  }
+
+  function loadBookEdits() {
+    try { return JSON.parse(localStorage.getItem(bookEditKey()) || '{}'); } catch(e) { return {}; }
+  }
+
+  function saveBookEdits(data) {
+    try { localStorage.setItem(bookEditKey(), JSON.stringify(data)); } catch(e) {}
+  }
+
+  /* ── 편집 모달 HTML 삽입 ────────────────────────── */
+  const editModalHTML = `
+<style>
+  #svBookEditModal {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.55); z-index:999999; align-items:center; justify-content:center;
+    backdrop-filter:blur(3px);
+  }
+  #svBookEditModal.open { display:flex; }
+  .bce-sheet {
+    background:#fff; border-radius:24px; padding:0;
+    max-width:360px; width:92%; box-shadow:0 16px 48px rgba(0,0,0,0.22);
+    overflow:hidden;
+  }
+  .bce-header {
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .bce-header-title { color:#fff; font-size:1rem; font-weight:800; }
+  .bce-header-sub { color:rgba(255,255,255,.75); font-size:.75rem; margin-top:2px; }
+  .bce-close { background:rgba(255,255,255,.2); border:none; color:#fff; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; }
+  .bce-body { padding:20px; }
+  .bce-field { margin-bottom:14px; }
+  .bce-label { font-size:.75rem; font-weight:700; color:#888; display:block; margin-bottom:5px; }
+  .bce-input {
+    width:100%; box-sizing:border-box; padding:11px 13px;
+    border:1.5px solid #E0E8FF; border-radius:12px; font-size:.95rem;
+    color:#333; outline:none; font-family:inherit; transition:border-color .2s;
+  }
+  .bce-input:focus { border-color:#667eea; }
+  .bce-emoji-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .bce-emoji-btn {
+    width:38px; height:38px; border:2px solid #eee; border-radius:10px;
+    background:#f8f9ff; font-size:1.3rem; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; transition:all .15s;
+  }
+  .bce-emoji-btn:hover { border-color:#667eea; background:#ede9fe; }
+  .bce-emoji-btn.selected { border-color:#667eea; background:#ede9fe; }
+  .bce-footer { display:flex; gap:8px; padding:0 20px 20px; }
+  .bce-save-btn {
+    flex:1; padding:13px; border:none; border-radius:14px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:#fff; font-size:.95rem; font-weight:800; cursor:pointer;
+  }
+  .bce-cancel-btn {
+    padding:13px 18px; border:1.5px solid #eee; border-radius:14px;
+    background:#fff; color:#888; font-size:.95rem; font-weight:700; cursor:pointer;
+  }
+  .bce-reset-btn {
+    padding:13px 12px; border:1.5px solid #ffd6d6; border-radius:14px;
+    background:#fff8f8; color:#e57373; font-size:.82rem; font-weight:700; cursor:pointer;
+  }
+  /* 카드에 편집 힌트 표시 */
+  #summerView .sv-book-card .bce-edit-hint {
+    position:absolute; top:6px; right:6px;
+    background:rgba(102,126,234,.15); color:#667eea;
+    border-radius:6px; font-size:.6rem; font-weight:700;
+    padding:2px 5px; opacity:0; transition:opacity .2s;
+    pointer-events:none;
+  }
+  #summerView .sv-book-card:hover .bce-edit-hint { opacity:1; }
+</style>
+
+<div id="svBookEditModal">
+  <div class="bce-sheet">
+    <div class="bce-header">
+      <div>
+        <div class="bce-header-title">✏️ 도서 정보 수정</div>
+        <div class="bce-header-sub">내 마음대로 도서 이름을 바꿔봐요!</div>
+      </div>
+      <button class="bce-close" onclick="svBceClose()">✕</button>
+    </div>
+    <div class="bce-body">
+      <div class="bce-field">
+        <label class="bce-label">📖 책 제목</label>
+        <input class="bce-input" id="bceTitle" placeholder="책 제목을 입력하세요">
+      </div>
+      <div class="bce-field">
+        <label class="bce-label">🏷️ 장르</label>
+        <input class="bce-input" id="bceGenre" placeholder="예: 과학, 판타지, 역사...">
+      </div>
+      <div class="bce-field">
+        <label class="bce-label">😊 이모지 선택</label>
+        <input class="bce-input" id="bceEmoji" placeholder="직접 입력하거나 아래서 골라요" style="max-width:120px; display:inline-block;">
+        <div class="bce-emoji-row" id="bceEmojiRow">
+          🦁 📖 🔬 🧙 🌍 🐾 🏅 🎭 🚀 🌊 🍎 🏰 🎨 🦋 🌸 🐬 🦊 🌈 ⭐ 🎯
+        </div>
+      </div>
+    </div>
+    <div class="bce-footer">
+      <button class="bce-cancel-btn" onclick="svBceClose()">취소</button>
+      <button class="bce-reset-btn" onclick="svBceReset()">원래대로</button>
+      <button class="bce-save-btn" onclick="svBceSave()">저장하기 ✓</button>
+    </div>
+  </div>
+</div>`;
+
+  document.body.insertAdjacentHTML('beforeend', editModalHTML);
+
+  /* ── 이모지 버튼 생성 ──────────────────────────── */
+  const EMOJIS = ['🦁','📖','🔬','🧙','🌍','🐾','🏅','🎭','🚀','🌊','🍎','🏰','🎨','🦋','🌸','🐬','🦊','🌈','⭐','🎯','🍀','🐉','🎪','🌻','🦄'];
+  const emojiRow = document.getElementById('bceEmojiRow');
+  if (emojiRow) {
+    emojiRow.innerHTML = EMOJIS.map(e =>
+      `<button class="bce-emoji-btn" onclick="svBcePickEmoji('${e}')">${e}</button>`
+    ).join('');
+  }
+
+  let _bceCurrentCard = null;
+  let _bceCurrentIdx = -1;
+
+  window.svBcePickEmoji = function(emoji) {
+    document.getElementById('bceEmoji').value = emoji;
+    document.querySelectorAll('.bce-emoji-btn').forEach(b => b.classList.toggle('selected', b.textContent === emoji));
+  };
+
+  window.svBceClose = function() {
+    document.getElementById('svBookEditModal').classList.remove('open');
+    _bceCurrentCard = null;
+    _bceCurrentIdx = -1;
+  };
+
+  window.svBceSave = function() {
+    if (!_bceCurrentCard) return;
+    const title = document.getElementById('bceTitle').value.trim();
+    const genre = document.getElementById('bceGenre').value.trim();
+    const emoji = document.getElementById('bceEmoji').value.trim() || '📖';
+    if (!title) { document.getElementById('bceTitle').focus(); return; }
+
+    // 카드 UI 업데이트
+    const titleEl = _bceCurrentCard.querySelector('.sv-book-title');
+    const genreEl = _bceCurrentCard.querySelector('.sv-book-genre');
+    const emojiEl = _bceCurrentCard.querySelector('.sv-book-emoji');
+    if (titleEl) titleEl.textContent = title;
+    if (genreEl) genreEl.textContent = genre;
+    if (emojiEl && !_bceCurrentCard.classList.contains('sv-done')) {
+      emojiEl.textContent = emoji;
+      _bceCurrentCard.dataset.origEmoji = emoji;
+    } else if (emojiEl) {
+      _bceCurrentCard.dataset.origEmoji = emoji; // done 상태면 origEmoji만 업데이트
+    }
+
+    // localStorage 저장
+    const edits = loadBookEdits();
+    edits[_bceCurrentIdx] = { title, genre, emoji };
+    saveBookEdits(edits);
+
+    svBceClose();
+  };
+
+  window.svBceReset = function() {
+    if (_bceCurrentIdx < 0) return;
+    const edits = loadBookEdits();
+    delete edits[_bceCurrentIdx];
+    saveBookEdits(edits);
+
+    // 원본 카드 데이터 복원 (Firebase 기반 또는 HTML 기본값)
+    svBceApplySaved();
+    svBceClose();
+  };
+
+  /* ── 더블클릭 이벤트 연결 ────────────────────────── */
+  function svBceOpenModal(card, idx) {
+    _bceCurrentCard = card;
+    _bceCurrentIdx = idx;
+
+    const titleEl = card.querySelector('.sv-book-title');
+    const genreEl = card.querySelector('.sv-book-genre');
+    const origEmoji = card.dataset.origEmoji || card.querySelector('.sv-book-emoji')?.textContent || '📖';
+
+    document.getElementById('bceTitle').value = titleEl?.textContent || '';
+    document.getElementById('bceGenre').value = genreEl?.textContent || '';
+    document.getElementById('bceEmoji').value = origEmoji;
+
+    // 이모지 버튼 선택 표시
+    document.querySelectorAll('.bce-emoji-btn').forEach(b => b.classList.toggle('selected', b.textContent === origEmoji));
+
+    document.getElementById('svBookEditModal').classList.add('open');
+    setTimeout(() => document.getElementById('bceTitle').focus(), 100);
+  }
+
+  function attachBookEditListeners() {
+    document.querySelectorAll('#summerView .sv-book-card').forEach((card, idx) => {
+      // 이미 붙어있으면 중복 방지
+      if (card.dataset.bceReady) return;
+      card.dataset.bceReady = '1';
+
+      // 편집 힌트 배지 추가
+      if (!card.querySelector('.bce-edit-hint')) {
+        const hint = document.createElement('div');
+        hint.className = 'bce-edit-hint';
+        hint.textContent = '✏️ 수정';
+        card.appendChild(hint);
+      }
+
+      // 더블클릭 → 편집 모달
+      card.addEventListener('dblclick', function(e) {
+        e.stopPropagation();
+        const cards = [...document.querySelectorAll('#summerView .sv-book-card')];
+        svBceOpenModal(card, cards.indexOf(card));
+      });
+    });
+  }
+
+  /* ── 저장된 편집 데이터 복원 ──────────────────────── */
+  window.svBceApplySaved = function() {
+    const edits = loadBookEdits();
+    document.querySelectorAll('#summerView .sv-book-card').forEach((card, idx) => {
+      const e = edits[idx];
+      if (!e) return;
+      const titleEl = card.querySelector('.sv-book-title');
+      const genreEl = card.querySelector('.sv-book-genre');
+      if (titleEl) titleEl.textContent = e.title;
+      if (genreEl) genreEl.textContent = e.genre;
+      card.dataset.origEmoji = e.emoji;
+      const emojiEl = card.querySelector('.sv-book-emoji');
+      if (emojiEl && !card.classList.contains('sv-done')) emojiEl.textContent = e.emoji;
+    });
+  };
+
+  /* ── 모달 닫기 (배경 클릭) ──────────────────────── */
+  document.getElementById('svBookEditModal').addEventListener('click', function(e) {
+    if (e.target === this) svBceClose();
+  });
+
+  /* ── 초기화 및 동적 렌더 후 재연결 ──────────────── */
+  function init() {
+    attachBookEditListeners();
+    svBceApplySaved();
+  }
+
+  // svApplySettings 훅 (Firebase 데이터 적용 후)
+  const _bceApplyOrig = window.svApplySettings;
+  window.svApplySettings = function(s) {
+    if (typeof _bceApplyOrig === 'function') _bceApplyOrig.apply(this, arguments);
+    setTimeout(() => { attachBookEditListeners(); svBceApplySaved(); }, 400);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 800));
+  } else {
+    setTimeout(init, 800);
+  }
+
+})();
+// ===== ✏️ 도서 카드 인라인 편집 기능 끝 =====
+
+</script>
+
+
+<script>
+// ===== ⏰ 학생 하루 계획표 수정 기능 =====
+(function() {
+
+  // 기본 계획표 데이터 (HTML에 표시된 것과 동일)
+  const SV_DEFAULT_SCHEDULE = [
+    { emoji:'😴', time:'06:30', end:'07:00', activity:'🌅 기상 & 이불 정리',  note:'일찍 일어나는 습관 만들기!' },
+    { emoji:'🍳', time:'07:00', end:'07:30', activity:'🧼 씻기 & 아침 식사',  note:'꼭꼭 씹어 건강하게!' },
+    { emoji:'📖', time:'07:30', end:'08:30', activity:'📝 오전 공부 (1시간)',  note:'국어·수학 방학 숙제 or 복습' },
+    { emoji:'🏃', time:'08:30', end:'09:30', activity:'🌳 아침 운동 & 산책',  note:'줄넘기, 자전거, 공원 걷기' },
+    { emoji:'🎨', time:'09:30', end:'11:30', activity:'✨ 자유 활동 & 취미',  note:'그림 그리기, 만들기, 악기 연습 등' },
+    { emoji:'🍱', time:'11:30', end:'12:30', activity:'🥢 점심 식사 & 휴식',  note:'설거지 도움도 OK! 🫶' },
+    { emoji:'😴', time:'12:30', end:'13:30', activity:'💤 낮잠 또는 독서',    note:'30분 낮잠도 뇌에 좋아요!' },
+    { emoji:'📚', time:'13:30', end:'14:30', activity:'📗 독서 시간 (1시간)', note:'도서관 가거나 집에서 조용히' },
+    { emoji:'🎮', time:'14:30', end:'16:30', activity:'🎈 놀이 & 친구 만나기',note:'밖에서 실컷 뛰어놀아요!' },
+    { emoji:'🍽️',time:'18:00', end:'19:00', activity:'👨‍👩‍👧 저녁 식사 & 가족 시간', note:'오늘 있었던 일 이야기하기' },
+    { emoji:'📝', time:'19:00', end:'20:00', activity:'📓 일기 쓰기 & 내일 준비', note:'오늘 하루를 정리해요!' },
+    { emoji:'🛁', time:'20:00', end:'20:30', activity:'🚿 씻기 & 자유 시간',  note:'TV, 영상은 30분까지!' },
+    { emoji:'🌙', time:'21:00', end:'',      activity:'💜 잠자리 들기',       note:'9시에 자야 키가 자라요! 🌱' },
+  ];
+
+  let svStudentSchedule = null; // 현재 편집 중인 계획 배열
+
+  // Firebase 경로
+  function svScheduleRef() {
+    const sid = window.currentSid;
+    const sc  = window.currentSchoolCode;
+    if (!sid || !sc || typeof db === 'undefined') return null;
+    return db.ref(`schools/${sc}/studentSchedule/${sid}`);
+  }
+
+  // 학생 로그인 후 계획표 불러오기 + 수정 버튼 표시
+  function svScheduleOnLogin() {
+    const btn = document.getElementById('svScheduleEditBtn');
+    if (btn) btn.style.display = 'inline-block';
+    const ref = svScheduleRef();
+    if (!ref) return;
+    ref.once('value', snap => {
+      const data = snap.val();
+      if (data && Array.isArray(data)) {
+        svRenderScheduleTable(data);
+      }
+      // 데이터 없으면 기본 HTML 그대로 유지
+    });
+  }
+
+  // 로그아웃 시 초기화
+  function svScheduleOnLogout() {
+    const btn = document.getElementById('svScheduleEditBtn');
+    if (btn) btn.style.display = 'none';
+    svRenderScheduleTable(SV_DEFAULT_SCHEDULE);
+  }
+
+  // 계획표 테이블 렌더링
+  function svRenderScheduleTable(rows) {
+    const el = document.getElementById('svScheduleTable');
+    if (!el) return;
+    el.innerHTML = rows.map((r, i) => {
+      const isLast = i === rows.length - 1;
+      return `<div class="sv-schedule-row"${isLast ? ' style="background:#F0F4FF"' : ''}>
+        <div class="sv-schedule-time" style="color:#8B5CF6">
+          <span>${r.emoji}</span><span>${r.time}</span>
+          ${r.end ? `<span class="sv-time-label">~${r.end}</span>` : `<span class="sv-time-label">취침!</span>`}
+        </div>
+        <div class="sv-schedule-content">
+          <span class="sv-activity-badge sv-badge-sleep">${r.activity}</span>
+          <span class="sv-activity-note">${r.note}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // 편집 모달 열기
+  window.svOpenScheduleEdit = function() {
+    // 현재 테이블 행 파싱
+    const rows = document.querySelectorAll('#svScheduleTable .sv-schedule-row');
+    svStudentSchedule = Array.from(rows).map(row => {
+      const spans = row.querySelectorAll('.sv-schedule-time span');
+      const emoji    = spans[0] ? spans[0].textContent.trim() : '⭐';
+      const time     = spans[1] ? spans[1].textContent.trim() : '';
+      const endLabel = spans[2] ? spans[2].textContent.replace('~','').replace('취침!','').trim() : '';
+      const activity = row.querySelector('.sv-activity-badge') ? row.querySelector('.sv-activity-badge').textContent.trim() : '';
+      const note     = row.querySelector('.sv-activity-note') ? row.querySelector('.sv-activity-note').textContent.trim() : '';
+      return { emoji, time, end: endLabel, activity, note };
+    });
+    svRenderEditList();
+    document.getElementById('svScheduleEditModal').classList.remove('hidden');
+  };
+
+  window.svCloseScheduleEdit = function() {
+    document.getElementById('svScheduleEditModal').classList.add('hidden');
+  };
+
+  // 편집 목록 렌더링
+  function svRenderEditList() {
+    const container = document.getElementById('svScheduleEditList');
+    container.innerHTML = svStudentSchedule.map((r, i) => `
+      <div style="background:#f8fafc; border:1.5px solid #e0eeff; border-radius:12px; padding:10px 12px;">
+        <div style="display:flex; gap:6px; margin-bottom:6px; align-items:center;">
+          <input value="${r.emoji}" oninput="svSchedulePatch(${i},'emoji',this.value)"
+            style="width:48px; text-align:center; font-size:18px; border:1.5px solid #ddd; border-radius:8px; padding:4px; margin:0;">
+          <input value="${r.time}" placeholder="시작 시각" oninput="svSchedulePatch(${i},'time',this.value)"
+            style="width:72px; border:1.5px solid #ddd; border-radius:8px; padding:6px 8px; font-size:13px; margin:0;">
+          <span style="color:#aaa; font-size:12px;">~</span>
+          <input value="${r.end}" placeholder="종료 시각" oninput="svSchedulePatch(${i},'end',this.value)"
+            style="width:72px; border:1.5px solid #ddd; border-radius:8px; padding:6px 8px; font-size:13px; margin:0;">
+          <button onclick="svScheduleRemove(${i})" style="margin-left:auto; background:#ffcfcf; color:#ff5e5e; border:none; border-radius:8px; padding:4px 10px; font-size:12px; cursor:pointer; font-weight:bold;">삭제</button>
+        </div>
+        <input value="${r.activity}" placeholder="활동 이름" oninput="svSchedulePatch(${i},'activity',this.value)"
+          style="width:100%; box-sizing:border-box; border:1.5px solid #ddd; border-radius:8px; padding:7px 10px; font-size:13px; margin:0 0 5px;">
+        <input value="${r.note}" placeholder="메모 (선택)" oninput="svSchedulePatch(${i},'note',this.value)"
+          style="width:100%; box-sizing:border-box; border:1.5px solid #ddd; border-radius:8px; padding:7px 10px; font-size:13px; color:#888; margin:0;">
+      </div>
+    `).join('');
+  }
+
+  window.svSchedulePatch = function(i, key, val) {
+    if (svStudentSchedule && svStudentSchedule[i]) svStudentSchedule[i][key] = val;
+  };
+
+  window.svScheduleRemove = function(i) {
+    svStudentSchedule.splice(i, 1);
+    svRenderEditList();
+  };
+
+  window.svAddScheduleRow = function() {
+    svStudentSchedule.push({ emoji:'⭐', time:'', end:'', activity:'새 활동', note:'' });
+    svRenderEditList();
+    // 스크롤 아래로
+    const container = document.getElementById('svScheduleEditList');
+    setTimeout(() => container.scrollIntoView({ behavior:'smooth', block:'end' }), 100);
+  };
+
+  window.svSaveSchedule = function() {
+    if (!svStudentSchedule) return;
+    // 테이블 즉시 반영
+    svRenderScheduleTable(svStudentSchedule);
+    // Firebase 저장
+    const ref = svScheduleRef();
+    if (ref) {
+      ref.set(svStudentSchedule).then(() => {
+        svCloseScheduleEdit();
+        // 저장 완료 토스트
+        const toast = document.createElement('div');
+        toast.textContent = '✅ 나만의 계획표 저장 완료!';
+        Object.assign(toast.style, {
+          position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)',
+          background:'#4CAF50', color:'white', padding:'10px 20px', borderRadius:'20px',
+          fontWeight:'bold', fontSize:'14px', zIndex:'99999', boxShadow:'0 4px 12px rgba(0,0,0,.2)'
+        });
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+      });
+    } else {
+      svCloseScheduleEdit();
+    }
+  };
+
+  // studentLogin / studentLogout 훅
+  const _origLogin = window.studentLogin;
+  window.studentLogin = async function() {
+    if (typeof _origLogin === 'function') await _origLogin.apply(this, arguments);
+    setTimeout(svScheduleOnLogin, 600);
+  };
+
+  const _origLogout = window.studentLogout;
+  window.studentLogout = function() {
+    if (typeof _origLogout === 'function') _origLogout.apply(this, arguments);
+    svScheduleOnLogout();
+  };
+
+  // 모달 바깥 클릭 닫기
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('svScheduleEditModal');
+    if (modal && e.target === modal) svCloseScheduleEdit();
+  });
+
+})();
+// ===== ⏰ 학생 하루 계획표 수정 기능 끝 =====
 </script>
 
 <script>
