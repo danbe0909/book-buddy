@@ -5037,17 +5037,33 @@ function svBuildStamps() {
 
 // 스탬프 메모 저장소
 let svStampMemos = {}; // { stampIndex: "메모 내용" }
+let svStampDates = {}; // { stampIndex: "YYYY-MM-DD" }
+
+function svGetTodayKST() {
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().slice(0, 10);
+}
+
+function svFormatDateKR(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+}
 
 function svLoadStampMemos() {
   try {
     const m = localStorage.getItem(svGetKey('stampMemos'));
     svStampMemos = m ? JSON.parse(m) : {};
-  } catch(e) { svStampMemos = {}; }
+    const dt = localStorage.getItem(svGetKey('stampDates'));
+    svStampDates = dt ? JSON.parse(dt) : {};
+  } catch(e) { svStampMemos = {}; svStampDates = {}; }
 }
 
 function svSaveStampMemos() {
   try {
     localStorage.setItem(svGetKey('stampMemos'), JSON.stringify(svStampMemos));
+    localStorage.setItem(svGetKey('stampDates'), JSON.stringify(svStampDates));
   } catch(e) {}
 }
 
@@ -5075,6 +5091,7 @@ function svShowLoginNeedToast() {
 
 function svOpenStampModal(i, emoji, el, isEdit) {
   const existingMemo = svStampMemos[i] || '';
+  const existingDate = svStampDates[i] || svGetTodayKST();
   const stampNum = svEarned.indexOf(i) + 1 || (svEarned.length + 1);
 
   const modalHtml = `
@@ -5089,14 +5106,26 @@ function svOpenStampModal(i, emoji, el, isEdit) {
       font-family:'Nanum Gothic',-apple-system,sans-serif;
     ">
       <div style="text-align:center;font-size:2.4rem;margin-bottom:4px;">${emoji}</div>
-      <div style="text-align:center;font-size:1rem;font-weight:bold;color:#FF9F43;margin-bottom:16px;">
+      <div style="text-align:center;font-size:1rem;font-weight:bold;color:#FF9F43;margin-bottom:12px;">
         ${isEdit ? '스탬프 메모 보기 / 수정' : '🎉 스탬프 획득! 어떤 일이 있었나요?'}
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:.82rem;font-weight:bold;color:#888;display:block;margin-bottom:5px;">📅 날짜</label>
+        <input type="date" id="svStampDateInput" value="${existingDate}"
+          style="
+            width:100%;box-sizing:border-box;
+            border:2px solid #FFD54F;border-radius:14px;
+            padding:10px 12px;font-size:.95rem;outline:none;
+            font-family:'Nanum Gothic',-apple-system,sans-serif;
+            color:#4a4a4a;margin:0;
+          ">
       </div>
 
       <textarea id="svStampMemoInput"
         placeholder="잘한 일을 기록해봐요! ✏️&#10;(예: 오늘 방을 깨끗이 청소했어요 🧹)"
         style="
-          width:100%;box-sizing:border-box;height:110px;
+          width:100%;box-sizing:border-box;height:100px;
           border:2px solid #FFD54F;border-radius:14px;
           padding:12px;font-size:.95rem;resize:none;outline:none;
           font-family:'Nanum Gothic',-apple-system,sans-serif;
@@ -5129,9 +5158,11 @@ function svOpenStampModal(i, emoji, el, isEdit) {
 
 function svConfirmStampMemo(i, emoji, isEdit) {
   const memo = document.getElementById('svStampMemoInput')?.value.trim() || '';
+  const dateVal = document.getElementById('svStampDateInput')?.value || svGetTodayKST();
   document.getElementById('svStampMemoModal')?.remove();
 
   svStampMemos[i] = memo;
+  svStampDates[i] = dateVal;
   svSaveStampMemos();
 
   if (!isEdit) {
@@ -5161,6 +5192,7 @@ function svDeleteStampFromModal(i) {
   document.getElementById('svStampMemoModal')?.remove();
   svEarned = svEarned.filter(x => x !== i);
   delete svStampMemos[i];
+  delete svStampDates[i];
   svSaveStampMemos();
   svBuildStamps();
   svUpdateStampCount();
@@ -5170,8 +5202,27 @@ function svDeleteStampFromModal(i) {
 function svRefreshStampMemoIndicators() {
   document.querySelectorAll('#svStampGrid .sv-stamp').forEach((el, i) => {
     el.removeAttribute('title');
-    if (svStampMemos[i]) {
-      el.setAttribute('title', svStampMemos[i]);
+    const parts = [];
+    if (svStampDates[i]) parts.push(svFormatDateKR(svStampDates[i]));
+    if (svStampMemos[i]) parts.push(svStampMemos[i]);
+    if (parts.length) {
+      el.setAttribute('title', parts.join('\n'));
+    }
+    // 날짜 작은 글씨 표시 (획득한 스탬프만)
+    const existing = el.querySelector('.sv-stamp-date-label');
+    if (existing) existing.remove();
+    if (svEarned.includes(i) && svStampDates[i]) {
+      const dateLabel = document.createElement('span');
+      dateLabel.className = 'sv-stamp-date-label';
+      const d = svStampDates[i].slice(5); // MM-DD
+      dateLabel.textContent = d.replace('-', '/');
+      dateLabel.style.cssText = `
+        position:absolute;bottom:1px;left:0;right:0;
+        font-size:0.48rem;color:#b07d00;text-align:center;
+        line-height:1;font-weight:bold;pointer-events:none;
+      `;
+      el.style.position = 'relative';
+      el.appendChild(dateLabel);
     }
   });
 }
@@ -5229,6 +5280,7 @@ function svDoResetStamps() {
   document.getElementById('svResetConfirmModal')?.remove();
   svEarned = [];
   svStampMemos = {};
+  svStampDates = {};
   svSaveStampMemos();
   svBuildStamps();
   svSaveState();
