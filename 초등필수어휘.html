@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>초등 국어 어휘 드릴</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Gowun+Dodum&display=swap');
+
+  :root {
+    --bg: #f0f7ff;
+    --surface: #ffffff;
+    --surface2: #e8f1fc;
+    --border: #c2d8f5;
+    --accent: #3b82f6;
+    --accent2: #f43f8e;
+    --accent3: #f59e0b;
+    --text: #1e3a5f;
+    --text-muted: #6b8ab0;
+    --success: #10b981;
+    --fail: #ef4444;
+    --grade-colors: #3b82f6, #8b5cf6, #f97316, #10b981, #ec4899, #f59e0b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(147,197,253,.35) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(253,186,252,.25) 0%, transparent 50%),
+      radial-gradient(circle at 60% 10%, rgba(167,243,208,.25) 0%, transparent 40%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── 배경 파티클 ── */
+  #bg-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+
+  .wrap { position: relative; z-index: 1; }
+
+  /* ── 헤더 ── */
+  header {
+    text-align: center;
+    padding: 14px 20px 8px;
+  }
+  header .logo { display: none; }
+  header h1 {
+    font-size: clamp(17px, 3vw, 24px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #3b82f6, #6366f1, #f43f8e);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+  }
+  header p { display: none; }
+
+  /* ── 학년 선택 탭 ── */
+  .grade-tabs {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    padding: 0 16px 12px;
+  }
+  .grade-tab {
+    padding: 8px 20px; border-radius: 50px;
+    border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text-muted);
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all .2s; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .grade-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .grade-tab.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; box-shadow: 0 0 20px rgba(108,143,255,.35);
+  }
+
+  /* ── 모드 선택 ── */
+  .mode-bar {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    padding: 0 16px 10px;
+  }
+  .mode-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 22px; border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text-muted);
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: all .2s; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .mode-btn .icon { font-size: 18px; }
+  .mode-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .mode-btn.active {
+    background: linear-gradient(135deg, #ff7eb3, #ff6b8a);
+    border-color: transparent; color: #fff;
+    box-shadow: 0 0 20px rgba(255,126,179,.3);
+  }
+
+  /* ── 진행 상태 ── */
+  .progress-bar-wrap {
+    max-width: 640px; margin: 0 auto 10px; padding: 0 20px;
+  }
+  .progress-info {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 8px;
+  }
+  .progress-track {
+    height: 6px; background: var(--surface2); border-radius: 10px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width .4s ease;
+  }
+
+  /* ── 점수 칩 ── */
+  .score-chips {
+    display: flex; gap: 12px; justify-content: center; margin-bottom: 12px;
+  }
+  .chip {
+    padding: 6px 18px; border-radius: 50px; font-size: 13px; font-weight: 700;
+  }
+  .chip.correct { background: rgba(67,217,173,.15); color: var(--success); border: 1px solid rgba(67,217,173,.3); }
+  .chip.wrong   { background: rgba(255,107,138,.15); color: var(--fail);    border: 1px solid rgba(255,107,138,.3); }
+
+  /* ── 카드 영역 ── */
+  .card-area {
+    max-width: 640px; margin: 0 auto; padding: 0 16px 40px;
+  }
+
+  /* ── 드릴 카드 ── */
+  .drill-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    animation: cardIn .3s ease;
+    box-shadow: 0 4px 24px rgba(59,130,246,.10), 0 1px 4px rgba(0,0,0,.06);
+  }
+  .drill-card::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,130,246,.10), transparent 70%);
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .q-meta {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+  }
+  .q-badge {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    padding: 4px 12px; border-radius: 50px;
+    background: rgba(108,143,255,.15); color: var(--accent);
+  }
+  .q-num { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+
+  .q-word {
+    font-size: clamp(32px, 7vw, 52px);
+    font-weight: 900; letter-spacing: -1px;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, #1e3a5f, #3b82f6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .q-hanja {
+    font-size: 16px; color: var(--text-muted); margin-bottom: 28px;
+    font-family: 'Gowun Dodum', serif;
+  }
+
+  /* 뜻 고르기 – 보기 4개 */
+  .choices {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .choice-btn {
+    padding: 14px 12px; border-radius: 14px; text-align: left;
+    border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-size: 13px; line-height: 1.5; cursor: pointer;
+    transition: all .18s; font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(108,143,255,.08); }
+  .choice-btn.correct { border-color: var(--success); background: rgba(67,217,173,.12); color: var(--success); }
+  .choice-btn.wrong   { border-color: var(--fail);    background: rgba(255,107,138,.12); color: var(--fail); }
+  .choice-btn:disabled { cursor: default; }
+
+  /* 빈칸 채우기 */
+  .fill-area { display: flex; flex-direction: column; gap: 14px; }
+  .fill-hint { font-size: 15px; color: var(--text-muted); line-height: 1.8; }
+  .fill-hint strong { color: var(--accent3); font-size: 18px; }
+  .fill-input {
+    width: 100%; padding: 14px 18px; border-radius: 14px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    color: var(--text); font-size: 16px; font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif; outline: none;
+    transition: border-color .2s;
+  }
+  .fill-input:focus { border-color: var(--accent); }
+  .fill-input.correct { border-color: var(--success); background: rgba(67,217,173,.08); }
+  .fill-input.wrong   { border-color: var(--fail);    background: rgba(255,107,138,.08); }
+
+  .submit-btn {
+    width: 100%; padding: 14px; border-radius: 14px; border: none;
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+    color: #fff; font-size: 15px; font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif; cursor: pointer;
+    transition: opacity .2s, transform .1s;
+  }
+  .submit-btn:hover { opacity: .9; transform: translateY(-1px); }
+  .submit-btn:active { transform: translateY(0); }
+
+  /* 플래시 카드 */
+  .flash-wrap { perspective: 1000px; }
+  .flash-card {
+    position: relative; height: 240px; cursor: pointer;
+    transform-style: preserve-3d; transition: transform .5s;
+  }
+  .flash-card.flipped { transform: rotateY(180deg); }
+  .flash-face {
+    position: absolute; inset: 0; border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backface-visibility: hidden; padding: 28px;
+  }
+  .flash-front {
+    background: linear-gradient(135deg, #dbeafe, #ede9fe);
+    border: 1.5px solid var(--border);
+  }
+  .flash-back {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border: 1.5px solid rgba(16,185,129,.3);
+    transform: rotateY(180deg);
+  }
+  .flash-word { font-size: 44px; font-weight: 900; color: #1e3a5f; margin-bottom: 6px; }
+  .flash-hanja { font-size: 18px; color: var(--text-muted); font-family: 'Gowun Dodum', serif; }
+  .flash-meaning { font-size: 16px; color: #065f46; text-align: center; line-height: 1.7; font-weight: 500; }
+  .flash-tap { font-size: 12px; color: var(--text-muted); position: absolute; bottom: 16px; }
+
+  /* 결과 피드백 */
+  .feedback {
+    margin-top: 14px; padding: 14px 18px; border-radius: 14px;
+    font-size: 14px; font-weight: 500; line-height: 1.6;
+    animation: fadeUp .25s ease;
+  }
+  .feedback.correct { background: rgba(67,217,173,.1); border: 1px solid rgba(67,217,173,.25); color: var(--success); }
+  .feedback.wrong   { background: rgba(255,107,138,.1); border: 1px solid rgba(255,107,138,.25); color: var(--fail); }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 다음 버튼 */
+  .next-btn {
+    width: 100%; margin-top: 14px; padding: 14px; border-radius: 14px; border: none;
+    background: var(--surface2); color: var(--text);
+    font-size: 14px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer; border: 1.5px solid var(--border);
+    transition: all .18s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .next-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .flash-nav {
+    display: flex; gap: 10px; margin-top: 18px;
+  }
+  .flash-nav button {
+    flex: 1; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-size: 14px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer; transition: all .18s;
+  }
+  .flash-nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* 결과 화면 */
+  .result-screen {
+    max-width: 640px; margin: 0 auto; padding: 0 16px 60px;
+    text-align: center; animation: cardIn .4s ease;
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 16px; }
+  .result-title { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+  .result-score {
+    font-size: 56px; font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin: 20px 0;
+  }
+  .result-detail { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; }
+  .result-btns { display: flex; gap: 12px; justify-content: center; }
+  .result-btn {
+    padding: 13px 28px; border-radius: 50px; font-size: 14px; font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all .2s;
+  }
+  .result-btn.primary {
+    background: linear-gradient(135deg, var(--accent), #818cf8); border: none; color: #fff;
+    box-shadow: 0 0 20px rgba(108,143,255,.3);
+  }
+  .result-btn.secondary {
+    background: var(--surface2); border: 1.5px solid var(--border); color: var(--text);
+  }
+  .result-btn:hover { transform: translateY(-2px); }
+
+  /* 단어 목록 뷰 */
+  .vocab-list {
+    max-width: 720px; margin: 0 auto; padding: 0 16px 60px;
+  }
+  .vocab-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;
+  }
+  .vocab-item {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 14px 16px; cursor: pointer;
+    transition: all .18s;
+  }
+  .vocab-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .vocab-item .v-word { font-size: 18px; font-weight: 900; color: var(--text); }
+  .vocab-item .v-hanja { font-size: 12px; color: var(--text-muted); margin: 2px 0 6px; }
+  .vocab-item .v-meaning { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* 도구 바 */
+  .toolbar {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    padding: 0 16px 8px; max-width: 640px; margin: 0 auto;
+  }
+  .tool-btn {
+    padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: 700;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text-muted); cursor: pointer; transition: all .18s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .tool-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* 반응형 */
+  @media (max-width: 480px) {
+    .choices { grid-template-columns: 1fr; }
+    .flash-word { font-size: 36px; }
+    header { padding: 32px 16px 16px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="logo">Elementary Korean Vocab</div>
+    <h1>초등 국어 필수 어휘 드릴</h1>
+    <p>학년별 100개 한자어 어휘를 재미있게 익혀요</p>
+  </header>
+
+  <!-- 학년 탭 -->
+  <div class="grade-tabs" id="gradeTabs"></div>
+
+  <!-- 모드 선택 -->
+  <div class="mode-bar">
+    <button class="mode-btn active" data-mode="choice" onclick="setMode('choice')">
+      <span class="icon">🎯</span> 뜻 고르기
+    </button>
+    <button class="mode-btn" data-mode="fill" onclick="setMode('fill')">
+      <span class="icon">✏️</span> 빈칸 채우기
+    </button>
+    <button class="mode-btn" data-mode="flash" onclick="setMode('flash')">
+      <span class="icon">🃏</span> 플래시 카드
+    </button>
+    <button class="mode-btn" data-mode="list" onclick="setMode('list')">
+      <span class="icon">📋</span> 어휘 목록
+    </button>
+  </div>
+
+  <!-- 도구 바 -->
+  <div class="toolbar" id="toolbar">
+    <button class="tool-btn" onclick="shuffleAndStart()">🔀 섞기</button>
+    <button class="tool-btn" onclick="resetDrill()">🔄 처음부터</button>
+    <button class="tool-btn" id="wrongOnlyBtn" onclick="wrongOnly()">❌ 틀린 것만</button>
+  </div>
+
+  <!-- 진행 바 -->
+  <div class="progress-bar-wrap" id="progressWrap">
+    <div class="progress-info">
+      <span id="progressText">0 / 0</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- 점수 -->
+  <div class="score-chips" id="scoreChips">
+    <div class="chip correct">✓ <span id="correctCount">0</span></div>
+    <div class="chip wrong">✗ <span id="wrongCount">0</span></div>
+  </div>
+
+  <!-- 드릴 카드 or 결과 -->
+  <div class="card-area" id="cardArea"></div>
+  <div class="vocab-list" id="vocabListArea" style="display:none"></div>
+  <div class="result-screen" id="resultScreen" style="display:none"></div>
+</div>
+
+<script>
+// ============================================================
+// 어휘 데이터 (학년별 100개)
+// ============================================================
+const VOCAB = {
+  1: [
+    {w:"가족",h:"家族",m:"한집에 살며 함께 생활하는 사람들"},
+    {w:"감사",h:"感謝",m:"고마운 마음을 나타냄"},
+    {w:"강",h:"江",m:"물이 흘러 바다로 들어가는 큰 물줄기"},
+    {w:"계절",h:"季節",m:"봄·여름·가을·겨울의 네 시기"},
+    {w:"공부",h:"工夫",m:"학문이나 기술을 배우고 익힘"},
+    {w:"교실",h:"敎室",m:"학교에서 수업하는 방"},
+    {w:"국어",h:"國語",m:"한 나라의 국민이 쓰는 말"},
+    {w:"기분",h:"氣分",m:"마음속에 드는 즐겁거나 불쾌한 느낌"},
+    {w:"동물",h:"動物",m:"스스로 움직이며 사는 생명체"},
+    {w:"방학",h:"放學",m:"학교 수업을 일정 기간 쉬는 것"},
+    {w:"색깔",h:"色",m:"빛의 파장에 따라 눈으로 느끼는 것"},
+    {w:"선생님",h:"先生",m:"학교에서 학생을 가르치는 사람"},
+    {w:"소개",h:"紹介",m:"잘 모르는 것을 알 수 있게 알려 줌"},
+    {w:"식물",h:"植物",m:"땅에 뿌리를 내리고 사는 생명체"},
+    {w:"안전",h:"安全",m:"위험하지 않고 평안한 상태"},
+    {w:"음식",h:"飮食",m:"먹고 마시는 것"},
+    {w:"인사",h:"人事",m:"예를 갖추어 서로 만나는 행동"},
+    {w:"자연",h:"自然",m:"사람이 만들지 않은 산 바다 하늘 등"},
+    {w:"친구",h:"親舊",m:"가깝게 사귀는 사람"},
+    {w:"학교",h:"學校",m:"학생을 가르치는 교육 기관"},
+    {w:"고향",h:"故鄕",m:"자기가 태어나서 자란 곳"},
+    {w:"공원",h:"公園",m:"사람들이 쉬거나 놀 수 있게 만든 큰 뜰"},
+    {w:"농부",h:"農夫",m:"논밭을 일구어 농사를 짓는 사람"},
+    {w:"병원",h:"病院",m:"아픈 사람을 치료하는 곳"},
+    {w:"부모",h:"父母",m:"아버지와 어머니"},
+    {w:"시장",h:"市場",m:"물건을 사고파는 곳"},
+    {w:"연필",h:"鉛筆",m:"글씨를 쓰는 데 쓰는 필기 도구"},
+    {w:"우유",h:"牛乳",m:"소의 젖으로 만든 음료"},
+    {w:"의사",h:"醫師",m:"병을 진찰하고 치료하는 사람"},
+    {w:"자동차",h:"自動車",m:"엔진의 힘으로 스스로 움직이는 탈것"},
+    {w:"점심",h:"點心",m:"낮에 먹는 끼니"},
+    {w:"지구",h:"地球",m:"우리가 사는 태양계의 행성"},
+    {w:"형제",h:"兄弟",m:"같은 부모를 둔 남자 형제"},
+    {w:"화요일",h:"火曜日",m:"월요일 다음 날"},
+    {w:"곤충",h:"昆蟲",m:"몸이 머리 가슴 배로 나뉘는 동물"},
+    {w:"공기",h:"空氣",m:"우리 주변을 둘러싼 기체"},
+    {w:"기차",h:"汽車",m:"레일 위를 달리는 열차"},
+    {w:"나라",h:"國",m:"일정한 땅과 국민이 있는 사회 집단"},
+    {w:"다리",h:"橋",m:"강이나 길 위를 건너도록 놓은 구조물"},
+    {w:"도서관",h:"圖書館",m:"책을 모아두고 읽을 수 있는 건물"},
+    {w:"동쪽",h:"東",m:"해가 뜨는 방향"},
+    {w:"비행기",h:"飛行機",m:"하늘을 날아 이동하는 탈것"},
+    {w:"산",h:"山",m:"땅이 높게 솟아오른 곳"},
+    {w:"아침",h:"朝",m:"날이 밝아오는 이른 시간"},
+    {w:"우산",h:"雨傘",m:"비를 막기 위해 쓰는 것"},
+    {w:"지도",h:"地圖",m:"땅의 모양을 그린 그림"},
+    {w:"축구",h:"蹴球",m:"발로 공을 차서 골에 넣는 운동"},
+    {w:"화분",h:"花盆",m:"꽃이나 식물을 심어 키우는 그릇"},
+    {w:"동생",h:"同生",m:"같은 부모에게서 태어난 나보다 어린 사람"},
+    {w:"마을",h:"村",m:"사람들이 모여 사는 작은 지역"},
+    {w:"별",h:"星",m:"밤하늘에 반짝이는 천체"},
+    {w:"국화",h:"菊花",m:"가을에 피는 꽃"},
+    {w:"목요일",h:"木曜日",m:"수요일 다음 날"},
+    {w:"수요일",h:"水曜日",m:"화요일 다음 날"},
+    {w:"금요일",h:"金曜日",m:"목요일 다음 날"},
+    {w:"월요일",h:"月曜日",m:"한 주의 첫 번째 날"},
+    {w:"토요일",h:"土曜日",m:"금요일 다음 날"},
+    {w:"일요일",h:"日曜日",m:"한 주의 마지막 날"},
+    {w:"일월",h:"一月",m:"한 해의 첫 번째 달"},
+    {w:"이월",h:"二月",m:"한 해의 두 번째 달"},
+    {w:"삼월",h:"三月",m:"한 해의 세 번째 달"},
+    {w:"사월",h:"四月",m:"한 해의 네 번째 달"},
+    {w:"오월",h:"五月",m:"한 해의 다섯 번째 달"},
+    {w:"유월",h:"六月",m:"한 해의 여섯 번째 달"},
+    {w:"칠월",h:"七月",m:"한 해의 일곱 번째 달"},
+    {w:"팔월",h:"八月",m:"한 해의 여덟 번째 달"},
+    {w:"구월",h:"九月",m:"한 해의 아홉 번째 달"},
+    {w:"시월",h:"十月",m:"한 해의 열 번째 달"},
+    {w:"십일월",h:"十一月",m:"한 해의 열한 번째 달"},
+    {w:"십이월",h:"十二月",m:"한 해의 마지막 달"},
+    {w:"가을",h:"秋",m:"여름이 지나 날이 시원해지는 계절"},
+    {w:"겨울",h:"冬",m:"일 년 중 가장 추운 계절"},
+    {w:"봄",h:"春",m:"겨울이 지나고 날이 따뜻해지는 계절"},
+    {w:"여름",h:"夏",m:"봄 다음에 오는 가장 더운 계절"},
+    {w:"하늘",h:"天",m:"땅 위로 펼쳐진 공간"},
+    {w:"바다",h:"海",m:"육지를 둘러싼 짠물이 있는 곳"},
+    {w:"구름",h:"雲",m:"하늘에 떠있는 물방울 덩어리"},
+    {w:"눈",h:"雪",m:"하늘에서 내리는 흰 얼음 결정"},
+    {w:"바람",h:"風",m:"공기가 움직이는 것"},
+    {w:"비",h:"雨",m:"하늘에서 물방울이 떨어지는 것"},
+    {w:"달",h:"月",m:"밤하늘에 빛나는 지구의 위성"},
+    {w:"해",h:"日",m:"낮에 하늘에서 빛을 내는 별"},
+    {w:"꽃",h:"花",m:"식물에 피어나는 아름다운 부분"},
+    {w:"나무",h:"木",m:"줄기와 가지가 있는 여러해살이 식물"},
+    {w:"씨앗",h:"種",m:"식물이 자라나는 시작점인 종자"},
+    {w:"숲",h:"林",m:"나무가 빽빽하게 우거진 곳"},
+    {w:"연못",h:"池",m:"작은 호수나 물웅덩이"},
+    {w:"땅",h:"地",m:"우리가 딛고 서 있는 지면"},
+    {w:"강아지",h:"犬",m:"개의 새끼"},
+    {w:"고양이",h:"猫",m:"야옹하고 울고 쥐를 잡는 동물"},
+    {w:"나비",h:"蝶",m:"꽃에서 꿀을 먹는 날개 달린 곤충"},
+    {w:"벌",h:"蜂",m:"꿀을 만드는 날개 달린 곤충"},
+    {w:"새",h:"鳥",m:"날개로 날아다니는 동물"},
+    {w:"소",h:"牛",m:"농사에 쓰이는 큰 가축"},
+    {w:"오리",h:"鴨",m:"물에서 헤엄치는 날짐승"},
+    {w:"코끼리",h:"象",m:"코가 긴 가장 큰 육지 동물"},
+    {w:"토끼",h:"兎",m:"귀가 길고 빠르게 달리는 작은 동물"},
+    {w:"모기",h:"蚊",m:"피를 빠는 작은 곤충"},
+    {w:"책",h:"冊",m:"글이나 그림을 인쇄해 묶은 것"},
+    {w:"방",h:"房",m:"집 안에서 생활하는 공간"},
+    {w:"물",h:"水",m:"강 바다 비 등의 맑은 액체"},
+    {w:"귀",h:"耳",m:"소리를 듣는 신체 기관"},
+    {w:"코",h:"鼻",m:"냄새를 맡고 숨을 쉬는 신체 기관"},
+    {w:"입",h:"口",m:"말하고 먹는 신체 기관"},
+    {w:"손",h:"手",m:"물건을 집거나 만지는 신체 기관"},
+    {w:"발",h:"足",m:"땅을 딛고 걷는 신체 기관"},
+    {w:"머리",h:"頭",m:"몸의 가장 위쪽에 있는 부분"},
+    {w:"주스",h:"汁",m:"과일이나 채소를 짜서 만든 음료"},
+    {w:"야채",h:"野菜",m:"밭에서 키우는 채소"},
+    {w:"신발",h:"靴",m:"발을 보호하기 위해 신는 것"},
+    {w:"버스",h:"巴士",m:"많은 사람이 함께 타는 대형 자동차"},
+    {w:"백",h:"百",m:"숫자 100"},
+    {w:"천",h:"千",m:"숫자 1000"},
+    {w:"아버지",h:"父",m:"자녀를 낳은 남자 어른"},
+    {w:"어머니",h:"母",m:"자녀를 낳은 여자 어른"},
+    {w:"할머니",h:"祖母",m:"아버지나 어머니의 어머니"},
+    {w:"할아버지",h:"祖父",m:"아버지나 어머니의 아버지"},
+    {w:"형",h:"兄",m:"같은 부모에게서 태어난 나보다 나이 많은 남자"},
+    {w:"삼촌",h:"三寸",m:"아버지의 형제"},
+    {w:"이모",h:"姨母",m:"어머니의 여자 형제"},
+    {w:"고모",h:"姑母",m:"아버지의 여자 형제"},
+    {w:"외삼촌",h:"外三寸",m:"어머니의 남자 형제"},
+    {w:"도움",h:"助",m:"힘이나 능력을 보태어 줌"},
+    {w:"소풍",h:"遠足",m:"야외로 나가 놀며 즐기는 것"},
+    {w:"운동",h:"運動",m:"몸을 움직여 건강을 기르는 일"},
+    {w:"음악",h:"音樂",m:"소리를 이용한 예술"},
+    {w:"그림",h:"畵",m:"선과 색으로 나타낸 형상"},
+    {w:"글씨",h:"書",m:"손으로 쓴 글자"},
+    {w:"독서",h:"讀書",m:"책을 읽음"},
+    {w:"미술",h:"美術",m:"그림이나 조각 등 시각적 예술"},
+    {w:"체육",h:"體育",m:"신체를 기르는 교육 또는 운동 과목"},
+    {w:"수학",h:"數學",m:"수와 도형을 연구하는 학문"},
+    {w:"과학",h:"科學",m:"자연 현상을 연구하는 학문"},
+    {w:"도덕",h:"道德",m:"사람이 지켜야 할 올바른 행동 규범"},
+    {w:"공책",h:"空冊",m:"글씨를 쓰거나 그림을 그리는 빈 책"},
+    {w:"지우개",h:"消",m:"연필로 쓴 글씨를 지우는 도구"},
+    {w:"자",h:"尺",m:"길이를 재는 도구"},
+    {w:"가위",h:"剪",m:"종이나 천을 자르는 도구"},
+    {w:"색연필",h:"色鉛筆",m:"여러 색깔로 쓰는 연필"},
+    {w:"교과서",h:"敎科書",m:"학교에서 공부에 쓰는 책"},
+    {w:"알림장",h:"通知帳",m:"학교에서 가정으로 보내는 연락 공책"},
+    {w:"운동장",h:"運動場",m:"학교에서 운동하는 넓은 마당"},
+    {w:"도서실",h:"圖書室",m:"학교 안에서 책을 읽는 방"},
+    {w:"급식실",h:"給食室",m:"학교에서 밥을 먹는 방"},
+    {w:"화장실",h:"化粧室",m:"대소변을 보는 방"},
+    {w:"복도",h:"複道",m:"교실과 교실 사이의 통로"},
+    {w:"계단",h:"階段",m:"높낮이가 다른 곳을 오르내리는 층층 길"},
+    {w:"교장",h:"校長",m:"학교를 대표하고 이끄는 사람"},
+    {w:"급우",h:"級友",m:"같은 학급에서 함께 공부하는 친구"},
+    {w:"졸업",h:"卒業",m:"학교 과정을 다 마침"},
+  ],
+  2: [
+    {w:"감동",h:"感動",m:"깊이 느껴 마음이 움직임"},
+    {w:"경험",h:"經驗",m:"직접 해 보거나 겪어 봄"},
+    {w:"계획",h:"計劃",m:"앞으로 할 일의 순서나 방법을 미리 정함"},
+    {w:"관찰",h:"觀察",m:"자세히 살펴봄"},
+    {w:"규칙",h:"規則",m:"여럿이 지키기로 정한 약속"},
+    {w:"기억",h:"記憶",m:"지난 일을 마음속에 간직함"},
+    {w:"독서",h:"讀書",m:"책을 읽음"},
+    {w:"발표",h:"發表",m:"생각이나 의견을 여러 사람 앞에서 말함"},
+    {w:"방법",h:"方法",m:"어떤 일을 하는 방식이나 수단"},
+    {w:"변화",h:"變化",m:"달라짐 바뀜"},
+    {w:"비교",h:"比較",m:"두 가지 이상을 견주어 살펴봄"},
+    {w:"상상",h:"想像",m:"실제 없는 것을 머릿속으로 떠올림"},
+    {w:"성격",h:"性格",m:"사람마다 지닌 고유한 마음의 특성"},
+    {w:"소중",h:"所重",m:"매우 귀하고 중요함"},
+    {w:"약속",h:"約束",m:"앞으로 지키기로 미리 정함"},
+    {w:"의견",h:"意見",m:"어떤 일에 대해 갖는 생각"},
+    {w:"중요",h:"重要",m:"매우 귀하고 꼭 필요함"},
+    {w:"사계절",h:"四季節",m:"봄 여름 가을 겨울의 네 계절"},
+    {w:"노력",h:"努力",m:"힘을 다하여 애씀"},
+    {w:"용기",h:"勇氣",m:"겁내지 않고 씩씩하게 행동하는 기운"},
+    {w:"정리",h:"整理",m:"어수선한 것을 바로잡아 가지런히 함"},
+    {w:"준비",h:"準備",m:"미리 마련하여 갖춤"},
+    {w:"행복",h:"幸福",m:"생활에서 충분한 만족과 기쁨을 느끼는 상태"},
+    {w:"건강",h:"健康",m:"몸과 마음이 아프지 않고 튼튼함"},
+    {w:"결심",h:"決心",m:"마음을 굳게 정함"},
+    {w:"공손",h:"恭遜",m:"말이나 행동이 예의 바르고 겸손함"},
+    {w:"관심",h:"關心",m:"어떤 것에 마음이 쏠림"},
+    {w:"교통",h:"交通",m:"사람이나 물건이 이동하는 것 또는 그 시설"},
+    {w:"기쁨",h:"喜",m:"즐겁고 흐뭇한 마음 상태"},
+    {w:"담임",h:"擔任",m:"학급을 맡아 책임지는 선생님"},
+    {w:"도서",h:"圖書",m:"책을 통틀어 이르는 말"},
+    {w:"문화",h:"文化",m:"사회 구성원이 함께 만들어 온 생활 양식"},
+    {w:"미술",h:"美術",m:"그림이나 조각 등 시각적 예술"},
+    {w:"방문",h:"訪問",m:"다른 사람의 집이나 어떤 장소를 찾아감"},
+    {w:"발견",h:"發見",m:"아직 알려지지 않은 것을 찾아냄"},
+    {w:"봉사",h:"奉仕",m:"남을 위해 자기 힘을 기꺼이 써서 도움"},
+    {w:"사용",h:"使用",m:"물건이나 방법 등을 씀"},
+    {w:"사진",h:"寫眞",m:"카메라로 찍어 남긴 영상"},
+    {w:"산책",h:"散策",m:"쉬면서 가볍게 걷는 것"},
+    {w:"생활",h:"生活",m:"일상 속에서 살아가는 것"},
+    {w:"소풍",h:"遠足",m:"야외로 나가 놀며 즐기는 것"},
+    {w:"수업",h:"授業",m:"선생님이 학생에게 지식을 가르치는 것"},
+    {w:"시간",h:"時間",m:"어느 때부터 어느 때까지의 길이"},
+    {w:"식사",h:"食事",m:"밥을 먹는 일"},
+    {w:"안부",h:"安否",m:"편안하게 잘 지내는지 안 지내는지"},
+    {w:"여행",h:"旅行",m:"집을 떠나 다른 곳을 다니는 것"},
+    {w:"연습",h:"練習",m:"같은 것을 되풀이하여 익힘"},
+    {w:"온도",h:"溫度",m:"차갑고 따뜻한 정도"},
+    {w:"우정",h:"友情",m:"친구 사이의 정다운 감정"},
+    {w:"운동",h:"運動",m:"몸을 움직여 건강을 기르는 일"},
+    {w:"음악",h:"音樂",m:"소리를 이용한 예술"},
+    {w:"인사말",h:"人事",m:"만나거나 헤어질 때 나누는 말"},
+    {w:"일기",h:"日記",m:"날마다 그날에 있었던 일을 기록하는 것"},
+    {w:"장소",h:"場所",m:"어떤 일이 이루어지는 곳"},
+    {w:"전화",h:"電話",m:"멀리 떨어진 곳과 말을 주고받는 통신 기기"},
+    {w:"정성",h:"精誠",m:"마음을 다하는 참된 마음"},
+    {w:"주말",h:"週末",m:"한 주의 끝 부분 토요일과 일요일"},
+    {w:"지식",h:"知識",m:"배우거나 경험하여 알게 된 내용"},
+    {w:"체육",h:"體育",m:"신체를 기르는 교육 또는 운동 과목"},
+    {w:"취미",h:"趣味",m:"즐거움을 위해 즐기는 활동"},
+    {w:"표정",h:"表情",m:"감정이 얼굴에 나타나는 모습"},
+    {w:"화해",h:"和解",m:"다투다가 서로 풀고 사이좋아짐"},
+    {w:"환경",h:"環境",m:"생물 주변에 영향을 주는 자연 조건"},
+    {w:"활동",h:"活動",m:"적극적으로 움직이며 일하는 것"},
+    {w:"효도",h:"孝道",m:"부모를 잘 모시고 섬기는 도리"},
+    {w:"그림책",h:"畵冊",m:"그림을 위주로 만든 어린이 책"},
+    {w:"동화",h:"童話",m:"어린이를 위해 쓴 이야기"},
+    {w:"주인공",h:"主人公",m:"이야기나 영화에서 중심이 되는 사람"},
+    {w:"집중",h:"集中",m:"한곳에 마음을 모아 쏟음"},
+    {w:"차례",h:"次例",m:"정해진 순서"},
+    {w:"청소",h:"淸掃",m:"더러운 것을 쓸고 닦아 깨끗이 함"},
+    {w:"칭찬",h:"稱讚",m:"잘한 것을 좋게 평가하여 말함"},
+    {w:"탐구",h:"探究",m:"깊이 파고들어 자세히 연구함"},
+    {w:"특징",h:"特徵",m:"다른 것과 구별되는 눈에 띄는 점"},
+    {w:"편지",h:"便紙",m:"글로 써서 전하는 소식"},
+    {w:"호기심",h:"好奇心",m:"신기하고 이상한 것을 알고 싶어하는 마음"},
+    {w:"걱정",h:"憂",m:"마음이 편하지 않고 불안해함"},
+    {w:"구경",h:"觀覽",m:"흥미로운 것을 보거나 돌아봄"},
+    {w:"날짜",h:"日字",m:"달력의 몇 월 며칠을 나타냄"},
+    {w:"마음",h:"心",m:"감정이나 생각이 일어나는 정신 활동의 중심"},
+    {w:"모습",h:"形態",m:"겉으로 보이는 생김새나 형태"},
+    {w:"배움",h:"學",m:"지식이나 기술을 익히는 과정"},
+    {w:"이야기",h:"話",m:"어떤 사실이나 경험을 말로 전하는 것"},
+    {w:"자랑",h:"自慢",m:"뛰어난 것을 남에게 드러내어 뽐냄"},
+    {w:"심부름",h:"使喚",m:"다른 사람의 부탁을 받아 일을 해 줌"},
+    {w:"오후",h:"午後",m:"낮 12시 이후부터 저녁까지의 시간"},
+    {w:"형용사",h:"形容詞",m:"사물의 성질이나 상태를 나타내는 낱말"},
+    {w:"잔소리",h:"小言",m:"쓸데없이 자꾸 반복하는 말"},
+    {w:"회의",h:"會議",m:"여럿이 모여 문제를 의논하는 것"},
+    {w:"도구",h:"道具",m:"어떤 일을 하기 위해 쓰는 기구"},
+    {w:"재료",h:"材料",m:"물건을 만드는 데 쓰이는 것"},
+    {w:"순서",h:"順序",m:"정해진 차례"},
+    {w:"방향",h:"方向",m:"어느 쪽을 향하는 쪽"},
+    {w:"거리",h:"距離",m:"두 곳 사이의 공간적 간격"},
+    {w:"모양",h:"形",m:"어떤 것의 생긴 형태"},
+    {w:"색상",h:"色相",m:"빨강 파랑처럼 구별되는 색의 종류"},
+    {w:"무게",h:"重量",m:"물체가 얼마나 무거운지의 정도"},
+    {w:"길이",h:"長度",m:"어떤 것의 한 끝에서 다른 끝까지의 간격"},
+    {w:"높이",h:"高度",m:"땅바닥에서 위까지의 간격"},
+    {w:"속도",h:"速度",m:"빠르기의 정도"},
+    {w:"원리",h:"原理",m:"사물의 근본이 되는 이치"},
+    {w:"결과",h:"結果",m:"어떤 일의 마지막에 나타난 상태"},
+    {w:"원인",h:"原因",m:"어떤 일이 일어나게 된 까닭"},
+    {w:"사실",h:"事實",m:"실제로 있었거나 있는 일"},
+    {w:"비밀",h:"秘密",m:"남에게 알리지 않는 일"},
+    {w:"속담",h:"俗談",m:"오랫동안 전해 내려온 교훈이 담긴 짧은 말"},
+    {w:"교환",h:"交換",m:"서로 맞바꿈"},
+    {w:"절약",h:"節約",m:"아끼고 줄여서 씀"},
+    {w:"저축",h:"貯蓄",m:"돈이나 물건을 아껴 모음"},
+    {w:"소비",h:"消費",m:"돈이나 물건을 씀"},
+    {w:"생산",h:"生産",m:"물건을 만들어 냄"},
+    {w:"교육",h:"敎育",m:"지식이나 기술을 가르치고 기름"},
+    {w:"학습",h:"學習",m:"지식이나 기술을 배워 익힘"},
+    {w:"예절",h:"禮節",m:"사람이 마땅히 지켜야 할 바른 행동"},
+    {w:"배려",h:"配慮",m:"다른 사람을 생각하고 마음 써 줌"},
+    {w:"존중",h:"尊重",m:"다른 사람을 귀히 여기고 대우함"},
+    {w:"협동",h:"協同",m:"서로 힘을 합하여 함께 일함"},
+    {w:"협력",h:"協力",m:"힘이나 마음을 합하여 도움"},
+    {w:"공평",h:"公平",m:"어느 쪽에도 치우치지 않고 고름"},
+    {w:"평등",h:"平等",m:"차별 없이 고르고 같음"},
+    {w:"정직",h:"正直",m:"마음이 바르고 거짓이 없음"},
+    {w:"성실",h:"誠實",m:"거짓 없이 마음을 다하는 것"},
+    {w:"책임",h:"責任",m:"맡은 임무를 다해야 할 의무"},
+    {w:"의무",h:"義務",m:"마땅히 해야 할 일"},
+    {w:"권리",h:"權利",m:"자신이 당연히 누릴 수 있는 자격"},
+    {w:"자유",h:"自由",m:"스스로 판단하고 행동할 수 있는 상태"},
+    {w:"경기",h:"競技",m:"일정한 규칙에 따라 기량을 겨루는 것"},
+    {w:"응원",h:"應援",m:"힘을 내도록 격려하고 돕는 것"},
+    {w:"우승",h:"優勝",m:"시합이나 경기에서 첫 번째로 이김"},
+    {w:"공연",h:"公演",m:"여러 사람 앞에서 예술을 발표함"},
+    {w:"박수",h:"拍手",m:"두 손뼉을 마주 치는 것"},
+    {w:"관객",h:"觀客",m:"공연이나 경기를 보는 사람"},
+    {w:"작품",h:"作品",m:"예술적으로 만들어 낸 것"},
+    {w:"전시",h:"展示",m:"물건이나 작품을 여러 사람이 볼 수 있게 늘어놓음"},
+    {w:"박물관",h:"博物館",m:"역사 문화적 자료를 모아 전시하는 곳"},
+    {w:"미술관",h:"美術館",m:"미술 작품을 전시하는 건물"},
+    {w:"동물원",h:"動物園",m:"여러 동물을 가두어 놓고 보여 주는 곳"},
+    {w:"식물원",h:"植物園",m:"여러 식물을 심어 가꾸며 전시하는 곳"},
+    {w:"수영장",h:"水泳場",m:"수영을 할 수 있게 만든 시설"},
+    {w:"체육관",h:"體育館",m:"운동을 할 수 있게 만든 건물"},
+    {w:"도착",h:"到着",m:"목적지에 다다름"},
+    {w:"출발",h:"出發",m:"어떤 곳을 향해 떠남"},
+    {w:"지하철",h:"地下鐵",m:"땅 아래 터널로 달리는 열차"},
+    {w:"배",h:"船",m:"물 위를 떠다니는 탈것"},
+    {w:"신호등",h:"信號燈",m:"교통 신호를 색깔로 나타내는 등"},
+    {w:"횡단보도",h:"橫斷步道",m:"사람이 길을 건너도록 표시한 곳"},
+    {w:"구급차",h:"救急車",m:"응급 환자를 싣고 다니는 차"},
+    {w:"소방차",h:"消防車",m:"불을 끄러 다니는 자동차"},
+    {w:"분리수거",h:"分離收去",m:"쓰레기를 종류별로 나누어 버리는 것"},
+    {w:"재활용",h:"再活用",m:"한 번 쓴 물건을 다시 씀"},
+  ],
+  3: [
+    {w:"감정",h:"感情",m:"기쁨 슬픔 화 같은 마음의 상태"},
+    {w:"결과",h:"結果",m:"어떤 일의 마지막에 나타난 상태"},
+    {w:"고유어",h:"固有語",m:"우리말 고유의 순우리말 어휘"},
+    {w:"광고",h:"廣告",m:"많은 사람에게 알리기 위한 선전"},
+    {w:"구분",h:"區分",m:"일정한 기준으로 나눔"},
+    {w:"근거",h:"根據",m:"주장이나 판단의 바탕이 되는 이유"},
+    {w:"단락",h:"段落",m:"글에서 내용상 하나로 묶이는 부분"},
+    {w:"대화",h:"對話",m:"마주 앉아 서로 이야기함"},
+    {w:"독자",h:"讀者",m:"글을 읽는 사람"},
+    {w:"문단",h:"文段",m:"글에서 내용의 단위가 되는 덩어리"},
+    {w:"배경",h:"背景",m:"사건이 일어나는 장소나 시간적 상황"},
+    {w:"사실",h:"事實",m:"실제로 있었거나 있는 일"},
+    {w:"설명",h:"說明",m:"이해하기 쉽게 풀어서 말함"},
+    {w:"속담",h:"俗談",m:"오랫동안 전해 내려온 교훈이 담긴 짧은 말"},
+    {w:"요약",h:"要約",m:"중요한 내용을 간추림"},
+    {w:"원인",h:"原因",m:"어떤 일이 일어나게 된 까닭"},
+    {w:"작가",h:"作家",m:"글 그림 음악 등을 만드는 사람"},
+    {w:"주제",h:"主題",m:"글이나 작품에서 중심이 되는 생각"},
+    {w:"한자어",h:"漢字語",m:"한자를 바탕으로 만들어진 말"},
+    {w:"낱말",h:"語",m:"뜻을 가진 가장 작은 말의 단위"},
+    {w:"가치",h:"價値",m:"사물이 지닌 쓸모나 중요성"},
+    {w:"감상",h:"感想",m:"보거나 듣고 떠오르는 생각이나 느낌"},
+    {w:"강조",h:"强調",m:"특히 두드러지게 나타냄"},
+    {w:"공통점",h:"共通點",m:"여러 것 사이에서 서로 같은 점"},
+    {w:"관련",h:"關聯",m:"서로 연결되거나 관계를 맺음"},
+    {w:"교훈",h:"敎訓",m:"깨달음이나 본보기가 되는 가르침"},
+    {w:"구절",h:"句節",m:"글이나 말의 한 토막"},
+    {w:"낭독",h:"朗讀",m:"소리 내어 책을 읽음"},
+    {w:"내용",h:"內容",m:"사물이나 글 속에 담긴 것"},
+    {w:"다양",h:"多樣",m:"여러 가지 모양이나 종류가 있음"},
+    {w:"단어",h:"單語",m:"뜻을 가진 가장 작은 언어 단위"},
+    {w:"동화",h:"童話",m:"어린이를 위해 쓴 이야기"},
+    {w:"등장",h:"登場",m:"이야기나 무대에 나타남"},
+    {w:"목적",h:"目的",m:"어떤 일을 하고자 하는 이유나 뜻"},
+    {w:"문장",h:"文章",m:"생각을 나타내는 언어의 기본 단위"},
+    {w:"반대",h:"反對",m:"서로 맞서거나 다른 쪽을 이르는 것"},
+    {w:"발전",h:"發展",m:"더 좋게 더 높게 나아가는 것"},
+    {w:"번역",h:"飜譯",m:"다른 나라 말을 우리말로 옮김"},
+    {w:"복습",h:"復習",m:"배운 내용을 다시 익힘"},
+    {w:"분위기",h:"雰圍氣",m:"어떤 장소나 상황의 전반적인 느낌"},
+    {w:"비유",h:"比喩",m:"다른 것에 빗대어 표현하는 방법"},
+    {w:"사건",h:"事件",m:"일어난 일 일어나고 있는 일"},
+    {w:"상상력",h:"想像力",m:"머릿속으로 새로운 것을 떠올리는 능력"},
+    {w:"설화",h:"說話",m:"민간에서 전해 내려오는 이야기"},
+    {w:"소재",h:"素材",m:"작품을 이루는 바탕이 되는 재료"},
+    {w:"시",h:"詩",m:"운율을 살린 짧은 문학 형식"},
+    {w:"어법",h:"語法",m:"말을 바르게 쓰는 규칙"},
+    {w:"언어",h:"言語",m:"사람이 생각이나 감정을 나타내는 음성 문자 체계"},
+    {w:"예의",h:"禮儀",m:"사람이 마땅히 지켜야 할 바른 행동"},
+    {w:"인상",h:"印象",m:"어떤 대상이 마음에 남긴 느낌"},
+    {w:"일화",h:"逸話",m:"잘 알려지지 않은 흥미로운 이야기"},
+    {w:"작품",h:"作品",m:"예술적으로 만들어 낸 것"},
+    {w:"장면",h:"場面",m:"어떤 장소에서 벌어지는 상황"},
+    {w:"전달",h:"傳達",m:"생각이나 정보를 상대방에게 알림"},
+    {w:"조사",h:"助詞",m:"체언 뒤에 붙어 관계를 나타내는 품사"},
+    {w:"주인공",h:"主人公",m:"이야기나 영화에서 중심이 되는 사람"},
+    {w:"줄거리",h:"梗槪",m:"이야기의 주요 내용을 간추린 것"},
+    {w:"차이",h:"差異",m:"서로 같지 않고 다른 점"},
+    {w:"창작",h:"創作",m:"새로운 것을 처음으로 만들어 냄"},
+    {w:"책임",h:"責任",m:"맡은 임무를 다해야 할 의무"},
+    {w:"표현",h:"表現",m:"생각 감정을 말 글 몸짓으로 나타냄"},
+    {w:"풍습",h:"風習",m:"예로부터 내려오는 생활 풍속과 관습"},
+    {w:"해설",h:"解說",m:"이해하기 쉽게 풀어서 설명함"},
+    {w:"형식",h:"形式",m:"사물이나 글의 외적인 틀"},
+    {w:"회상",h:"回想",m:"지나간 일을 다시 떠올림"},
+    {w:"흥미",h:"興味",m:"어떤 것에 관심이 끌리는 느낌"},
+    {w:"희망",h:"希望",m:"어떤 일이 이루어지기를 바람"},
+    {w:"긍정",h:"肯定",m:"그러하다고 인정함 또는 좋게 봄"},
+    {w:"부정",h:"否定",m:"그렇지 않다고 반대 입장을 취함"},
+    {w:"기본",h:"基本",m:"사물이나 생각의 근본이 되는 바탕"},
+    {w:"기원",h:"起源",m:"사물이나 말의 처음 생긴 유래"},
+    {w:"나열",h:"羅列",m:"여럿을 나란히 늘어놓음"},
+    {w:"대상",h:"對象",m:"어떤 일이나 행동의 목표가 되는 것"},
+    {w:"문제",h:"問題",m:"풀거나 해결해야 할 것"},
+    {w:"범위",h:"範圍",m:"어떤 것이 미치는 경계나 한계"},
+    {w:"예시",h:"例示",m:"예를 들어 보여 줌"},
+    {w:"이해",h:"理解",m:"뜻을 깨달아 알아들음"},
+    {w:"전통",h:"傳統",m:"오랫동안 이어져 내려온 고유의 방식"},
+    {w:"제목",h:"題目",m:"글이나 작품의 이름"},
+    {w:"특성",h:"特性",m:"어떤 것만이 가진 고유한 성질"},
+    {w:"포함",h:"包含",m:"어떤 범위나 집합 속에 들어 있음"},
+    {w:"명사",h:"名詞",m:"사람 사물 장소의 이름을 나타내는 낱말"},
+    {w:"동사",h:"動詞",m:"사람이나 사물의 움직임을 나타내는 낱말"},
+    {w:"부사",h:"副詞",m:"용언이나 다른 부사를 꾸며 주는 낱말"},
+    {w:"주어",h:"主語",m:"문장에서 동작이나 상태의 주체가 되는 말"},
+    {w:"서술어",h:"敍述語",m:"주어의 행동 상태 성질을 나타내는 말"},
+    {w:"목적어",h:"目的語",m:"동작의 대상이 되는 말"},
+    {w:"자음",h:"子音",m:"발음할 때 공기 흐름이 막히는 소리"},
+    {w:"모음",h:"母音",m:"발음할 때 공기가 자유롭게 나는 소리"},
+    {w:"음절",h:"音節",m:"한 번에 소리 낼 수 있는 말의 단위"},
+    {w:"일기예보",h:"日氣豫報",m:"앞으로의 날씨를 미리 알리는 것"},
+    {w:"기온",h:"氣溫",m:"대기의 온도"},
+    {w:"강수량",h:"降水量",m:"일정 기간 내린 비나 눈의 양"},
+    {w:"태풍",h:"颱風",m:"열대에서 발생하는 강한 폭풍"},
+    {w:"홍수",h:"洪水",m:"큰비로 강물이 넘쳐 흐르는 현상"},
+    {w:"가뭄",h:"旱災",m:"오랫동안 비가 안 와 물이 모자라는 상태"},
+    {w:"지진",h:"地震",m:"땅이 흔들리는 자연 현상"},
+    {w:"화산",h:"火山",m:"마그마가 땅 위로 솟구치는 산"},
+    {w:"암석",h:"岩石",m:"광물로 이루어진 단단한 돌덩어리"},
+    {w:"토양",h:"土壤",m:"흙과 모래로 이루어진 땅"},
+    {w:"호수",h:"湖水",m:"육지 안에 물이 고여 있는 곳"},
+    {w:"평야",h:"平野",m:"넓고 평탄한 들"},
+    {w:"반도",h:"半島",m:"삼면이 바다로 둘러싸인 땅"},
+    {w:"대륙",h:"大陸",m:"넓은 육지의 덩어리"},
+    {w:"위치",h:"位置",m:"어떤 것이 있는 자리"},
+    {w:"면적",h:"面積",m:"일정한 평면이 차지하는 넓이"},
+    {w:"인구",h:"人口",m:"일정 지역에 사는 사람의 수"},
+    {w:"수도",h:"首都",m:"나라의 중앙 정부가 있는 도시"},
+    {w:"도시",h:"都市",m:"인구가 많고 발달한 지역"},
+    {w:"농촌",h:"農村",m:"농사를 주로 짓는 시골 지역"},
+    {w:"어촌",h:"漁村",m:"고기잡이를 주로 하는 마을"},
+    {w:"문화유산",h:"文化遺産",m:"선조에게서 물려받은 문화적 가치물"},
+    {w:"민속",h:"民俗",m:"예로부터 민간에서 내려오는 풍속"},
+    {w:"민요",h:"民謠",m:"민간에서 자연스럽게 생겨 불려온 노래"},
+    {w:"유물",h:"遺物",m:"옛사람이 남긴 물건"},
+    {w:"유적",h:"遺蹟",m:"옛사람이 남긴 건물이나 시설"},
+    {w:"역사",h:"歷史",m:"인류가 살아온 과거의 일"},
+    {w:"시대",h:"時代",m:"역사적 특징에 따라 구분한 기간"},
+    {w:"왕조",h:"王朝",m:"한 왕가가 나라를 다스리는 기간"},
+    {w:"광복",h:"光復",m:"일제에서 벗어나 나라를 되찾은 것"},
+    {w:"독립운동",h:"獨立運動",m:"나라의 자유를 되찾으려는 활동"},
+    {w:"애국심",h:"愛國心",m:"나라를 사랑하는 마음"},
+    {w:"국기",h:"國旗",m:"나라를 상징하는 깃발"},
+    {w:"국가",h:"國歌",m:"나라를 상징하는 노래"},
+    {w:"국보",h:"國寶",m:"나라에서 지정한 가장 소중한 문화재"},
+    {w:"삼국시대",h:"三國時代",m:"고구려 백제 신라가 있던 시대"},
+    {w:"조선",h:"朝鮮",m:"1392년 태조 이성계가 세운 나라"},
+    {w:"토기",h:"土器",m:"흙으로 만들어 구운 그릇"},
+    {w:"청동기",h:"靑銅器",m:"청동으로 만든 도구나 무기"},
+    {w:"고인돌",h:"支石墓",m:"선사 시대의 무덤 형태"},
+    {w:"신화",h:"神話",m:"신이나 영웅을 주인공으로 한 이야기"},
+    {w:"전설",h:"傳說",m:"특정 장소 사물에 얽힌 이야기"},
+    {w:"우화",h:"寓話",m:"동물을 주인공으로 교훈을 담은 이야기"},
+    {w:"민화",h:"民話",m:"민간에서 전해 내려오는 이야기"},
+    {w:"민속놀이",h:"民俗",m:"예로부터 민간에서 즐겨온 놀이"},
+    {w:"판소리",h:"唱劇",m:"소리꾼이 고수의 장단에 맞춰 부르는 음악극"},
+    {w:"탈춤",h:"假面舞",m:"탈을 쓰고 추는 전통 춤"},
+    {w:"사물놀이",h:"四物",m:"꽹과리 장구 북 징으로 하는 전통 공연"},
+    {w:"광합성",h:"光合成",m:"식물이 빛을 이용해 양분을 만드는 것"},
+    {w:"증발",h:"蒸發",m:"물이 열을 받아 수증기가 되는 것"},
+    {w:"침식",h:"浸蝕",m:"물이나 바람이 땅을 깎아내는 것"},
+    {w:"퇴적",h:"堆積",m:"물이나 바람이 운반한 물질이 쌓이는 것"},
+    {w:"지층",h:"地層",m:"땅속에 켜켜이 쌓인 층"},
+    {w:"화석",h:"化石",m:"옛날 생물의 흔적이 돌 속에 굳어진 것"},
+    {w:"태양계",h:"太陽系",m:"태양과 그 주변을 도는 천체들의 모임"},
+    {w:"행성",h:"行星",m:"태양 주위를 도는 천체"},
+    {w:"은하",h:"銀河",m:"수많은 별이 모인 거대한 별의 집단"},
+    {w:"방식",h:"方式",m:"어떤 일을 하는 일정한 틀이나 절차"},
+    {w:"단계",h:"段階",m:"일이 진행되는 순서나 수준"},
+    {w:"결론",h:"結論",m:"생각이나 논의를 끝맺는 판단"},
+  ],
+  4: [
+    {w:"갈등",h:"葛藤",m:"서로 맞서거나 다투는 충돌 상황"},
+    {w:"관점",h:"觀點",m:"사물을 바라보는 입장이나 시각"},
+    {w:"구성",h:"構成",m:"여러 요소를 짜 맞추어 이룸"},
+    {w:"문맥",h:"文脈",m:"글의 앞뒤 흐름과 연결 관계"},
+    {w:"문학",h:"文學",m:"글로 표현한 예술 소설 시 희곡 등"},
+    {w:"반론",h:"反論",m:"상대방의 주장에 맞서는 주장"},
+    {w:"분류",h:"分類",m:"공통점에 따라 나누어 묶음"},
+    {w:"서론",h:"序論",m:"글의 첫 부분 화제를 꺼내는 부분"},
+    {w:"서술",h:"敍述",m:"사실이나 생각을 차례로 말하거나 씀"},
+    {w:"소감",h:"所感",m:"보거나 듣고 느낀 생각"},
+    {w:"시점",h:"視點",m:"이야기를 바라보는 서술자의 위치"},
+    {w:"어휘",h:"語彙",m:"어떤 범위 안에서 쓰이는 낱말의 집합"},
+    {w:"요점",h:"要點",m:"가장 중요한 내용"},
+    {w:"인물",h:"人物",m:"이야기 속에 등장하는 사람"},
+    {w:"주장",h:"主張",m:"자신의 의견을 굳게 내세움"},
+    {w:"형식",h:"形式",m:"사물이나 글의 외적인 틀"},
+    {w:"효과",h:"效果",m:"어떤 행동으로 나타난 좋은 결과"},
+    {w:"행동",h:"行動",m:"몸을 움직여 하는 짓"},
+    {w:"공감",h:"共感",m:"다른 사람의 감정 생각을 함께 느낌"},
+    {w:"논설",h:"論說",m:"주장과 근거를 논리적으로 펼친 글"},
+    {w:"가치관",h:"價値觀",m:"무엇이 중요한지에 대한 기준과 생각"},
+    {w:"강점",h:"强點",m:"남보다 뛰어나거나 우수한 부분"},
+    {w:"개요",h:"槪要",m:"전체 내용을 간략히 요약한 것"},
+    {w:"결말",h:"結末",m:"이야기의 마지막 부분"},
+    {w:"경쟁",h:"競爭",m:"같은 목적을 위해 서로 겨루는 것"},
+    {w:"고백",h:"告白",m:"숨겨 왔던 사실을 솔직히 말함"},
+    {w:"과정",h:"過程",m:"어떤 일이 되어 가는 차례나 절차"},
+    {w:"관계",h:"關係",m:"둘 이상의 사람이나 사물이 서로 얽혀 있는 상태"},
+    {w:"기준",h:"基準",m:"판단이나 결정의 바탕이 되는 것"},
+    {w:"논거",h:"論據",m:"주장을 뒷받침하는 이유나 증거"},
+    {w:"독창적",h:"獨創的",m:"다른 것을 따르지 않고 스스로 새롭게 만드는"},
+    {w:"등장인물",h:"登場人物",m:"이야기 속에 나오는 사람들"},
+    {w:"목차",h:"目次",m:"책의 내용과 순서를 적은 것"},
+    {w:"묘사",h:"描寫",m:"눈에 보이듯 생생하게 그려 쓰는 것"},
+    {w:"반성",h:"反省",m:"자신의 말 행동을 되돌아보며 살핌"},
+    {w:"발음",h:"發音",m:"말소리를 내는 것"},
+    {w:"분석",h:"分析",m:"대상을 작게 나누어 자세히 살핌"},
+    {w:"사례",h:"事例",m:"어떤 일의 구체적인 예"},
+    {w:"소설",h:"小說",m:"상상으로 지어낸 이야기 형식의 문학"},
+    {w:"수집",h:"蒐集",m:"여러 곳에서 찾아 모음"},
+    {w:"시어",h:"詩語",m:"시에서 쓰는 특별한 말"},
+    {w:"요약문",h:"要約文",m:"긴 글의 핵심을 짧게 줄여 쓴 글"},
+    {w:"운율",h:"韻律",m:"시에서 느껴지는 리듬감"},
+    {w:"의미",h:"意味",m:"말이나 행동이 나타내는 뜻"},
+    {w:"인용",h:"引用",m:"남의 말이나 글을 가져다 씀"},
+    {w:"전개",h:"展開",m:"이야기나 사건이 펼쳐져 나가는 것"},
+    {w:"정보",h:"情報",m:"판단이나 행동에 필요한 지식이나 자료"},
+    {w:"중심문장",h:"中心文章",m:"단락의 핵심 내용을 담은 문장"},
+    {w:"차이점",h:"差異點",m:"서로 다른 점"},
+    {w:"창의적",h:"創意的",m:"새로운 것을 처음으로 생각해 내는"},
+    {w:"추론",h:"推論",m:"알려진 사실에서 새로운 사실을 이끌어 냄"},
+    {w:"토의",h:"討議",m:"여럿이 모여 문제를 의논함"},
+    {w:"특징",h:"特徵",m:"다른 것과 구별되는 눈에 띄는 점"},
+    {w:"풍자",h:"諷刺",m:"현실을 빗대어 비판하거나 비꼬는 것"},
+    {w:"표현법",h:"表現法",m:"생각이나 감정을 나타내는 다양한 방법"},
+    {w:"함축",h:"含蓄",m:"많은 뜻을 속에 품고 있음"},
+    {w:"해결",h:"解決",m:"문제를 풀어 답을 냄"},
+    {w:"화제",h:"話題",m:"이야기의 소재가 되는 주제"},
+    {w:"핵심",h:"核心",m:"사물의 가장 중요한 부분"},
+    {w:"비판",h:"批判",m:"옳고 그름을 가려 따져 봄"},
+    {w:"상징",h:"象徵",m:"추상적인 것을 구체적 사물로 나타냄"},
+    {w:"역설",h:"逆說",m:"겉으로 보기엔 모순 같지만 진리를 담은 말"},
+    {w:"유추",h:"類推",m:"비슷한 점을 바탕으로 같다고 추리함"},
+    {w:"배경지식",h:"背景知識",m:"본문을 이해하는 데 도움이 되는 사전 지식"},
+    {w:"회상",h:"回想",m:"지나간 일을 다시 떠올림"},
+    {w:"비교",h:"比較",m:"두 가지 이상을 견주어 살펴봄"},
+    {w:"대조",h:"對照",m:"두 가지를 맞대어 차이를 밝힘"},
+    {w:"인과",h:"因果",m:"원인과 결과의 관계"},
+    {w:"나열",h:"羅列",m:"여럿을 나란히 늘어놓음"},
+    {w:"정의",h:"定義",m:"어떤 말이나 개념의 뜻을 명확히 밝힘"},
+    {w:"통계",h:"統計",m:"자료를 모아 수로 나타낸 것"},
+    {w:"도표",h:"圖表",m:"자료를 그림이나 표로 나타낸 것"},
+    {w:"보고서",h:"報告書",m:"조사하거나 연구한 내용을 적은 글"},
+    {w:"발표문",h:"發表文",m:"여러 사람 앞에서 발표하는 내용을 적은 글"},
+    {w:"토론문",h:"討論文",m:"찬반 의견을 논리적으로 담은 글"},
+    {w:"일기문",h:"日記文",m:"하루의 일을 날짜에 맞추어 쓴 글"},
+    {w:"편지문",h:"便紙文",m:"편지 형식으로 쓴 글"},
+    {w:"연설문",h:"演說文",m:"여러 사람 앞에서 발표할 내용을 쓴 글"},
+    {w:"기사문",h:"記事文",m:"신문이나 방송에서 사실을 전하는 글"},
+    {w:"설명문",h:"說明文",m:"사실이나 지식을 이해하기 쉽게 쓴 글"},
+    {w:"논설문",h:"論說文",m:"주장과 근거를 논리적으로 펼쳐 쓴 글"},
+    {w:"감상문",h:"感想文",m:"작품이나 경험에 대한 느낌을 쓴 글"},
+    {w:"기행문",h:"紀行文",m:"여행한 경험을 쓴 글"},
+    {w:"자서전",h:"自敍傳",m:"자기 삶을 직접 쓴 전기"},
+    {w:"전기문",h:"傳記文",m:"어떤 인물의 삶을 기록한 글"},
+    {w:"동시",h:"童詩",m:"어린이가 짓거나 어린이를 위한 시"},
+    {w:"시조",h:"時調",m:"우리나라 고유의 정형시"},
+    {w:"수필",h:"隨筆",m:"일상을 자유로운 형식으로 쓴 글"},
+    {w:"희곡",h:"戱曲",m:"연극을 위해 쓴 글"},
+    {w:"전래동화",h:"傳來童話",m:"예로부터 전해 내려오는 어린이 이야기"},
+    {w:"기후",h:"氣候",m:"어떤 지역의 오랜 날씨 패턴"},
+    {w:"환경오염",h:"環境汚染",m:"자연 환경이 더럽혀지는 것"},
+    {w:"생태계",h:"生態系",m:"생물과 그 환경이 이루는 체계"},
+    {w:"응결",h:"凝結",m:"기체가 식어 액체로 변하는 것"},
+    {w:"위성",h:"衛星",m:"행성 주위를 도는 천체"},
+    {w:"행성",h:"行星",m:"태양 주위를 도는 천체"},
+    {w:"태양계",h:"太陽系",m:"태양과 그 주변을 도는 천체들의 모임"},
+    {w:"지층",h:"地層",m:"땅속에 켜켜이 쌓인 층"},
+    {w:"화석",h:"化石",m:"옛날 생물의 흔적이 돌 속에 굳어진 것"},
+    {w:"광합성",h:"光合成",m:"식물이 빛을 이용해 양분을 만드는 것"},
+    {w:"민주주의",h:"民主主義",m:"국민이 권력을 가지는 정치 원리"},
+    {w:"헌법",h:"憲法",m:"나라의 가장 기본이 되는 법"},
+    {w:"선거",h:"選擧",m:"대표자를 뽑는 행위"},
+    {w:"정치",h:"政治",m:"나라를 다스리는 일"},
+    {w:"경제",h:"經濟",m:"재화와 서비스의 생산 분배 소비 활동"},
+    {w:"무역",h:"貿易",m:"나라와 나라 사이에 물건을 사고파는 것"},
+    {w:"수출",h:"輸出",m:"나라 밖으로 물건을 팔아 내보냄"},
+    {w:"수입",h:"輸入",m:"다른 나라 물건을 사들여 옴"},
+    {w:"세금",h:"稅金",m:"국민이 나라에 내는 돈"},
+    {w:"복지",h:"福祉",m:"국민의 건강하고 행복한 생활을 보장하는 것"},
+    {w:"인권",h:"人權",m:"모든 사람이 태어나면서부터 갖는 권리"},
+    {w:"평화",h:"平和",m:"전쟁 없이 조화롭게 지내는 상태"},
+    {w:"외교",h:"外交",m:"다른 나라와 관계를 맺는 활동"},
+    {w:"주권",h:"主權",m:"나라를 스스로 다스리는 권력"},
+    {w:"역할",h:"役割",m:"자신이 맡아서 해야 할 임무나 기능"},
+    {w:"감각",h:"感覺",m:"눈 귀 코 입 피부로 느끼는 것"},
+    {w:"관용구",h:"慣用句",m:"두 낱말 이상이 굳어져 특별한 뜻을 갖는 표현"},
+    {w:"귀납적",h:"歸納的",m:"개별 사례에서 일반 원리를 이끌어내는"},
+    {w:"긴장",h:"緊張",m:"마음이나 몸이 팽팽하게 당겨진 상태"},
+    {w:"논리",h:"論理",m:"말이나 글이 맞고 틀림을 따지는 이치"},
+    {w:"대립",h:"對立",m:"서로 반대가 되어 맞섬"},
+    {w:"맥락",h:"脈絡",m:"글이나 사건의 흐름과 연결 고리"},
+    {w:"반어",h:"反語",m:"실제 의도와 반대되는 말로 표현하는 것"},
+    {w:"발단",h:"發端",m:"이야기의 시작 부분"},
+    {w:"보완",h:"補完",m:"부족한 것을 채워 완전하게 함"},
+    {w:"부각",h:"浮刻",m:"두드러지게 드러남"},
+    {w:"비판적",h:"批判的",m:"옳고 그름을 냉철하게 따지는"},
+    {w:"생략",h:"省略",m:"필요 없다고 여겨 빼거나 줄임"},
+    {w:"서정",h:"抒情",m:"감정이나 정서를 표현함"},
+    {w:"성찰",h:"省察",m:"자신을 깊이 되돌아봄"},
+    {w:"소통",h:"疏通",m:"뜻이 서로 막히지 않고 잘 통함"},
+    {w:"어조",h:"語調",m:"글이나 말에 담긴 분위기나 어투"},
+    {w:"연설",h:"演說",m:"여러 사람 앞에서 자기 의견을 말함"},
+    {w:"오해",h:"誤解",m:"잘못 이해함"},
+    {w:"입장",h:"立場",m:"어떤 문제에 대한 자신의 처지나 태도"},
+    {w:"절정",h:"絶頂",m:"이야기에서 긴장감이 최고조에 달하는 부분"},
+    {w:"조화",h:"調和",m:"여럿이 잘 어울리는 것"},
+    {w:"주관",h:"主觀",m:"자신만의 생각이나 견해"},
+    {w:"체험",h:"體驗",m:"몸으로 직접 겪어 봄"},
+    {w:"추상",h:"抽象",m:"구체적이지 않고 관념적인 것"},
+    {w:"타당",h:"妥當",m:"이치에 맞고 합당함"},
+    {w:"탐색",h:"探索",m:"필요한 것을 찾아 살펴봄"},
+    {w:"판단",h:"判斷",m:"옳고 그름이나 좋고 나쁨을 생각하여 결정함"},
+    {w:"표현력",h:"表現力",m:"생각과 감정을 효과적으로 나타내는 능력"},
+    {w:"해석",h:"解釋",m:"글이나 말의 뜻을 풀어서 밝힘"},
+    {w:"확장",h:"擴張",m:"범위나 규모를 넓힘"},
+    {w:"활용",h:"活用",m:"충분히 잘 이용함"},
+    {w:"화법",h:"話法",m:"말하는 방법이나 방식"},
+    {w:"흐름",h:"流",m:"글이나 이야기가 이어지는 방향"},
+    {w:"매력",h:"魅力",m:"사람을 끌어당기는 힘이나 특성"},
+  ],
+  5: [
+    {w:"개성",h:"個性",m:"다른 사람과 구별되는 고유한 특성"},
+    {w:"결론",h:"結論",m:"글의 마지막 부분 내용을 매듭짓는 부분"},
+    {w:"고전",h:"古典",m:"오래되어 가치 있는 옛 문학 작품"},
+    {w:"논설",h:"論說",m:"주장과 근거를 논리적으로 펼친 글"},
+    {w:"묘사",h:"描寫",m:"눈에 보이듯 생생하게 그려 쓰는 것"},
+    {w:"반성",h:"反省",m:"자신의 말 행동을 되돌아보며 살핌"},
+    {w:"분석",h:"分析",m:"대상을 작게 나누어 자세히 살핌"},
+    {w:"비판",h:"批判",m:"옳고 그름을 가려 따져 봄"},
+    {w:"상징",h:"象徵",m:"추상적인 것을 구체적 사물로 나타냄"},
+    {w:"서정",h:"抒情",m:"감정이나 정서를 표현함"},
+    {w:"설득",h:"說得",m:"이유를 들어 다른 사람을 납득시킴"},
+    {w:"성찰",h:"省察",m:"자신을 깊이 되돌아봄"},
+    {w:"어조",h:"語調",m:"글이나 말에 담긴 분위기나 어투"},
+    {w:"연설",h:"演說",m:"여러 사람 앞에서 자기 의견을 말함"},
+    {w:"예시",h:"例示",m:"예를 들어 보여 줌"},
+    {w:"인용",h:"引用",m:"남의 말이나 글을 가져다 씀"},
+    {w:"체험",h:"體驗",m:"몸으로 직접 겪어 봄"},
+    {w:"토의",h:"討議",m:"여럿이 모여 문제를 의논함"},
+    {w:"공감",h:"共感",m:"다른 사람의 감정 생각을 함께 느낌"},
+    {w:"비유",h:"比喩",m:"다른 것에 빗대어 표현하는 방법"},
+    {w:"가설",h:"假說",m:"아직 증명되지 않은 잠정적인 설명"},
+    {w:"객관적",h:"客觀的",m:"개인의 감정을 넘어 공정하게 바라보는"},
+    {w:"고찰",h:"考察",m:"깊이 생각하고 살펴봄"},
+    {w:"관용어",h:"慣用語",m:"두 낱말 이상이 굳어져 특별한 뜻을 갖는 말"},
+    {w:"귀납",h:"歸納",m:"개별 사례에서 일반적인 원리를 이끌어 냄"},
+    {w:"논리적",h:"論理的",m:"이치에 맞게 생각하는"},
+    {w:"대립",h:"對立",m:"서로 반대가 되어 맞섬"},
+    {w:"대비",h:"對比",m:"둘을 맞대어 차이를 드러냄"},
+    {w:"독백",h:"獨白",m:"혼자 속마음을 말하거나 읊조리는 것"},
+    {w:"동기",h:"動機",m:"어떤 행동을 하게 만드는 이유나 원인"},
+    {w:"매체",h:"媒體",m:"정보를 전달하는 수단 신문 TV 인터넷"},
+    {w:"모순",h:"矛盾",m:"앞뒤가 맞지 않음"},
+    {w:"문체",h:"文體",m:"글 쓰는 사람의 특유한 글 쓰는 방식"},
+    {w:"반어",h:"反語",m:"실제 의도와 반대되는 말로 표현하는 것"},
+    {w:"발단",h:"發端",m:"이야기의 시작 부분"},
+    {w:"서사",h:"敍事",m:"사건의 흐름을 순서대로 기록 서술함"},
+    {w:"소통",h:"疏通",m:"뜻이 서로 막히지 않고 잘 통함"},
+    {w:"수사법",h:"修辭法",m:"말이나 글을 아름답게 다듬는 방법"},
+    {w:"신뢰성",h:"信賴性",m:"믿을 수 있는 성질"},
+    {w:"연대",h:"連帶",m:"여럿이 함께 책임지고 협력함"},
+    {w:"의사소통",h:"意思疏通",m:"생각이나 감정을 서로 주고받음"},
+    {w:"인과",h:"因果",m:"원인과 결과의 관계"},
+    {w:"입장",h:"立場",m:"어떤 문제에 대한 자신의 처지나 태도"},
+    {w:"자아",h:"自我",m:"자기 자신을 인식하는 주체"},
+    {w:"전달력",h:"傳達力",m:"의미를 효과적으로 상대에게 전하는 능력"},
+    {w:"전환",h:"轉換",m:"방향이나 상태가 바뀜"},
+    {w:"절정",h:"絶頂",m:"이야기에서 긴장감이 최고조에 달하는 부분"},
+    {w:"조화",h:"調和",m:"여럿이 잘 어울리는 것"},
+    {w:"증거",h:"證據",m:"사실을 증명하는 근거"},
+    {w:"창의",h:"創意",m:"새로운 것을 처음으로 생각해 냄"},
+    {w:"추상적",h:"抽象的",m:"구체적이지 않고 관념적인"},
+    {w:"핵심어",h:"核心語",m:"글에서 가장 중요한 낱말"},
+    {w:"행간",h:"行間",m:"글줄과 글줄 사이 또는 숨겨진 뜻"},
+    {w:"화자",h:"話者",m:"시나 글에서 말을 하는 사람"},
+    {w:"형상화",h:"形象化",m:"생각이나 감정을 구체적 형태로 나타냄"},
+    {w:"환기",h:"喚起",m:"잊혀진 생각이나 감정을 불러일으킴"},
+    {w:"담론",h:"談論",m:"어떤 주제에 대한 깊이 있는 이야기"},
+    {w:"맥락",h:"脈絡",m:"글이나 사건의 흐름과 연결 고리"},
+    {w:"반영",h:"反映",m:"어떤 현상이나 상황을 그대로 나타냄"},
+    {w:"보완",h:"補完",m:"부족한 것을 채워 완전하게 함"},
+    {w:"생략",h:"省略",m:"필요 없다고 여겨 빼거나 줄임"},
+    {w:"이해력",h:"理解力",m:"글이나 말의 뜻을 알아차리는 능력"},
+    {w:"풍요",h:"豊饒",m:"넉넉하고 여유가 있음"},
+    {w:"매력",h:"魅力",m:"사람을 끌어당기는 힘이나 특성"},
+    {w:"선입관",h:"先入觀",m:"먼저 들어온 생각으로 생긴 편견"},
+    {w:"오해",h:"誤解",m:"잘못 이해함"},
+    {w:"긴장감",h:"緊張感",m:"팽팽하게 당겨지거나 불안한 느낌"},
+    {w:"사회적",h:"社會的",m:"사회와 관련된"},
+    {w:"시각적",h:"視覺的",m:"눈으로 볼 수 있는"},
+    {w:"심화",h:"深化",m:"더 깊이 파고들거나 발전시킴"},
+    {w:"현실",h:"現實",m:"실제로 지금 존재하는 상태나 상황"},
+    {w:"효과적",h:"效果的",m:"목적을 이루는 데 도움이 되는"},
+    {w:"관용",h:"寬容",m:"남의 잘못을 너그럽게 받아들임"},
+    {w:"공동체",h:"共同體",m:"같은 목표를 가진 사람들의 집단"},
+    {w:"다원성",h:"多元性",m:"여러 가지 다양한 것이 공존하는 성질"},
+    {w:"규범",h:"規範",m:"행동의 기준이 되는 규칙"},
+    {w:"윤리",h:"倫理",m:"사람이 마땅히 지켜야 할 도리"},
+    {w:"정체성",h:"正體性",m:"자신이 누구인지를 나타내는 본질"},
+    {w:"책임감",h:"責任感",m:"맡은 일에 대한 의무를 느끼는 마음"},
+    {w:"시민의식",h:"市民意識",m:"공동체의 일원으로서 갖는 책임감"},
+    {w:"여론",h:"輿論",m:"사회적 문제에 대한 많은 사람의 공통 의견"},
+    {w:"보편성",h:"普遍性",m:"어디에나 두루 통하는 성질"},
+    {w:"타당성",h:"妥當性",m:"이치에 맞는 성질"},
+    {w:"신뢰",h:"信賴",m:"믿고 의지함"},
+    {w:"통찰",h:"洞察",m:"사물을 꿰뚫어 보는 날카로운 안목"},
+    {w:"비판적",h:"批判的",m:"옳고 그름을 냉철하게 따지는"},
+    {w:"주관적",h:"主觀的",m:"개인의 경험이나 감정에 기반한"},
+    {w:"역할",h:"役割",m:"자신이 맡아서 해야 할 임무나 기능"},
+    {w:"논증",h:"論證",m:"주장을 논리적으로 증명함"},
+    {w:"실증",h:"實證",m:"실제 증거로 사실을 뒷받침함"},
+    {w:"왜곡",h:"歪曲",m:"사실을 비틀어 잘못 나타냄"},
+    {w:"예측",h:"豫測",m:"앞으로 일어날 일을 미리 짐작함"},
+    {w:"당위성",h:"當爲性",m:"마땅히 그렇게 해야 하는 성질"},
+    {w:"객관성",h:"客觀性",m:"주관에 치우치지 않는 공정한 성질"},
+    {w:"독창성",h:"獨創性",m:"남의 것을 따르지 않고 스스로 만드는 성질"},
+    {w:"연역",h:"演繹",m:"일반 원리에서 개별 사실을 이끌어 냄"},
+    {w:"반증",h:"反證",m:"어떤 주장이 틀렸음을 증거로 보임"},
+    {w:"수사적",h:"修辭的",m:"말을 아름답게 꾸미는"},
+    {w:"역설",h:"逆說",m:"겉으로 보기엔 모순 같지만 진리를 담은 말"},
+    {w:"상호작용",h:"相互作用",m:"서로 영향을 주고받음"},
+    {w:"갈등해결",h:"葛藤解決",m:"대립이나 충돌을 풀어내는 것"},
+    {w:"의사결정",h:"意思決定",m:"여러 가지 가운데 하나를 선택하는 과정"},
+    {w:"재해석",h:"再解釋",m:"이미 알려진 것을 새롭게 다시 해석함"},
+    {w:"집단지성",h:"集團知性",m:"여럿이 협력하여 만들어 내는 지식"},
+    {w:"자기표현",h:"自己表現",m:"자신의 생각과 감정을 나타내는 것"},
+    {w:"자아성찰",h:"自我省察",m:"자신을 깊이 들여다보고 반성함"},
+    {w:"선입견",h:"先入見",m:"이미 굳어버린 잘못된 생각"},
+    {w:"중립적",h:"中立的",m:"어느 편도 들지 않는"},
+    {w:"긍정적",h:"肯定的",m:"좋게 보거나 인정하는 태도의"},
+    {w:"부정적",h:"否定的",m:"나쁘게 보거나 반대하는 태도의"},
+    {w:"이중적",h:"二重的",m:"두 가지 성질을 동시에 가진"},
+    {w:"통합적",h:"統合的",m:"여러 부분을 하나로 합쳐 보는"},
+    {w:"지속가능",h:"持續可能",m:"오래도록 계속 유지할 수 있는"},
+    {w:"환경문제",h:"環境問題",m:"자연 환경이 훼손되어 생기는 사회 문제"},
+    {w:"세계화",h:"世界化",m:"세계가 하나로 연결되어 가는 과정"},
+    {w:"정보화",h:"情報化",m:"정보가 사회의 중심이 되어 가는 것"},
+    {w:"저작권",h:"著作權",m:"창작물을 만든 사람이 갖는 권리"},
+    {w:"인권",h:"人權",m:"모든 사람이 태어나면서부터 갖는 권리"},
+    {w:"민주주의",h:"民主主義",m:"국민이 권력을 가지는 정치 원리"},
+    {w:"헌법",h:"憲法",m:"나라의 가장 기본이 되는 법"},
+    {w:"선거",h:"選擧",m:"대표자를 뽑는 행위"},
+    {w:"세금",h:"稅金",m:"국민이 나라에 내는 돈"},
+    {w:"복지",h:"福祉",m:"국민의 건강하고 행복한 생활을 보장하는 것"},
+    {w:"봉사활동",h:"奉仕活動",m:"남을 위해 자원하여 하는 활동"},
+    {w:"사회참여",h:"社會參與",m:"사회 활동에 적극적으로 끼어드는 것"},
+    {w:"협상",h:"協商",m:"서로 의논하여 결정하는 것"},
+    {w:"중재",h:"仲裁",m:"다툼에서 중간에서 화해를 이끄는 것"},
+    {w:"화합",h:"和合",m:"서로 사이좋게 어울림"},
+    {w:"공존",h:"共存",m:"둘 이상이 함께 존재함"},
+    {w:"포용",h:"包容",m:"너그럽게 받아들임"},
+    {w:"다문화",h:"多文化",m:"여러 문화가 함께 있는 상태"},
+    {w:"난민",h:"難民",m:"전쟁 등으로 살던 곳을 떠난 사람"},
+    {w:"평화",h:"平和",m:"전쟁 없이 조화롭게 지내는 상태"},
+    {w:"비폭력",h:"非暴力",m:"폭력을 쓰지 않고 문제를 해결하는 것"},
+    {w:"인류",h:"人類",m:"지구 위에 사는 모든 사람"},
+    {w:"문화다양성",h:"文化多樣性",m:"여러 문화가 함께 공존하는 상태"},
+    {w:"국제협력",h:"國際協力",m:"여러 나라가 함께 협력하는 것"},
+    {w:"탄소중립",h:"炭素中立",m:"탄소 배출량과 흡수량을 같게 만드는 것"},
+    {w:"기후변화",h:"氣候變化",m:"지구 기온이 변해가는 현상"},
+    {w:"생물다양성",h:"生物多樣性",m:"지구 위 생물 종류의 다양함"},
+    {w:"재생에너지",h:"再生",m:"자연에서 반복해 얻을 수 있는 에너지"},
+    {w:"관점",h:"觀點",m:"사물을 바라보는 입장이나 시각"},
+    {w:"논거",h:"論據",m:"주장을 뒷받침하는 이유나 증거"},
+    {w:"배경지식",h:"背景知識",m:"본문을 이해하는 데 도움이 되는 사전 지식"},
+    {w:"사회보장",h:"社會保障",m:"사회가 개인의 기본 생활을 보장하는 제도"},
+    {w:"이민",h:"移民",m:"다른 나라로 이주하는 것"},
+    {w:"전개",h:"展開",m:"이야기나 사건이 펼쳐져 나가는 것"},
+    {w:"판단력",h:"判斷力",m:"옳고 그름을 가릴 수 있는 능력"},
+    {w:"함축",h:"含蓄",m:"많은 뜻을 속에 품고 있음"},
+    {w:"해석",h:"解釋",m:"글이나 말의 뜻을 풀어서 밝힘"},
+  ],
+  6: [
+    {w:"가치관",h:"價値觀",m:"무엇이 중요한지에 대한 기준과 생각"},
+    {w:"논리",h:"論理",m:"말이나 글이 맞고 틀림을 따지는 이치"},
+    {w:"담론",h:"談論",m:"어떤 주제에 대한 깊이 있는 이야기"},
+    {w:"매체",h:"媒體",m:"정보를 전달하는 수단 신문 TV 인터넷"},
+    {w:"문화",h:"文化",m:"사회 구성원이 함께 만들어 온 생활 양식"},
+    {w:"반증",h:"反證",m:"어떤 주장이 틀렸음을 증거로 보임"},
+    {w:"보완",h:"補完",m:"부족한 것을 채워 완전하게 함"},
+    {w:"비유",h:"比喩",m:"다른 것에 빗대어 표현하는 방법"},
+    {w:"서사",h:"敍事",m:"사건의 흐름을 순서대로 기록 서술함"},
+    {w:"설화",h:"說話",m:"민간에서 전해 내려오는 이야기"},
+    {w:"시각",h:"視角",m:"사물을 보는 각도나 관점"},
+    {w:"신뢰",h:"信賴",m:"믿고 의지함"},
+    {w:"여론",h:"輿論",m:"사회적 문제에 대한 많은 사람의 공통 의견"},
+    {w:"역할",h:"役割",m:"자신이 맡아서 해야 할 임무나 기능"},
+    {w:"연대",h:"連帶",m:"여럿이 함께 책임지고 협력함"},
+    {w:"윤리",h:"倫理",m:"사람이 마땅히 지켜야 할 도리"},
+    {w:"정보",h:"情報",m:"판단이나 행동에 필요한 지식이나 자료"},
+    {w:"주제문",h:"主題文",m:"글의 중심 생각을 담은 핵심 문장"},
+    {w:"창의",h:"創意",m:"새로운 것을 처음으로 생각해 냄"},
+    {w:"토론",h:"討論",m:"찬반 의견을 나누어 논리적으로 겨루는 말하기"},
+    {w:"가치판단",h:"價値判斷",m:"어떤 것의 옳고 그름을 따지는 것"},
+    {w:"갈등해결",h:"葛藤解決",m:"대립이나 충돌을 풀어내는 것"},
+    {w:"객관성",h:"客觀性",m:"주관에 치우치지 않는 공정한 성질"},
+    {w:"공동체",h:"共同體",m:"같은 목표를 가진 사람들의 집단"},
+    {w:"관용",h:"寬容",m:"남의 잘못을 너그럽게 받아들임"},
+    {w:"귀납적",h:"歸納的",m:"개별 사실에서 일반 원리를 이끌어내는"},
+    {w:"규범",h:"規範",m:"행동의 기준이 되는 규칙"},
+    {w:"논증",h:"論證",m:"주장을 논리적으로 증명함"},
+    {w:"다원성",h:"多元性",m:"여러 가지 다양한 것이 공존하는 성질"},
+    {w:"당위성",h:"當爲性",m:"마땅히 그렇게 해야 하는 성질"},
+    {w:"대중매체",h:"大衆媒體",m:"많은 사람에게 정보를 전하는 수단"},
+    {w:"독창성",h:"獨創性",m:"남의 것을 따르지 않고 스스로 만드는 성질"},
+    {w:"맥락",h:"脈絡",m:"글이나 사건의 흐름과 연결 고리"},
+    {w:"문화유산",h:"文化遺産",m:"선조에게서 물려받은 문화적 가치물"},
+    {w:"민주주의",h:"民主主義",m:"국민이 권력을 가지는 정치 원리"},
+    {w:"반성적",h:"反省的",m:"자신의 행동이나 생각을 돌아보는"},
+    {w:"보편성",h:"普遍性",m:"어디에나 두루 통하는 성질"},
+    {w:"비판적",h:"批判的",m:"옳고 그름을 냉철하게 따지는"},
+    {w:"사회문제",h:"社會問題",m:"사회 구성원이 공통으로 겪는 어려움"},
+    {w:"상호작용",h:"相互作用",m:"서로 영향을 주고받음"},
+    {w:"선입견",h:"先入見",m:"이미 굳어버린 잘못된 생각"},
+    {w:"설득력",h:"說得力",m:"상대를 납득시킬 수 있는 능력"},
+    {w:"소통",h:"疏通",m:"뜻이 서로 막히지 않고 잘 통함"},
+    {w:"시민의식",h:"市民意識",m:"공동체의 일원으로서 갖는 책임감"},
+    {w:"실증",h:"實證",m:"실제 증거로 사실을 뒷받침함"},
+    {w:"압축",h:"壓縮",m:"내용을 줄여 간결하게 나타냄"},
+    {w:"역설",h:"逆說",m:"겉으로 보기엔 모순 같지만 진리를 담은 말"},
+    {w:"연역",h:"演繹",m:"일반 원리에서 개별 사실을 이끌어 냄"},
+    {w:"예측",h:"豫測",m:"앞으로 일어날 일을 미리 짐작함"},
+    {w:"왜곡",h:"歪曲",m:"사실을 비틀어 잘못 나타냄"},
+    {w:"유추",h:"類推",m:"비슷한 점을 바탕으로 같다고 추리함"},
+    {w:"의사결정",h:"意思決定",m:"여러 가지 가운데 하나를 선택하는 과정"},
+    {w:"인과관계",h:"因果關係",m:"원인과 결과의 관계"},
+    {w:"자아성찰",h:"自我省察",m:"자신을 깊이 들여다보고 반성함"},
+    {w:"재해석",h:"再解釋",m:"이미 알려진 것을 새롭게 다시 해석함"},
+    {w:"정체성",h:"正體性",m:"자신이 누구인지를 나타내는 본질"},
+    {w:"주관적",h:"主觀的",m:"개인의 경험이나 감정에 기반한"},
+    {w:"지속가능",h:"持續可能",m:"오래도록 계속 유지할 수 있는"},
+    {w:"책임감",h:"責任感",m:"맡은 일에 대한 의무를 느끼는 마음"},
+    {w:"철학적",h:"哲學的",m:"삶과 세계의 근본을 생각하는"},
+    {w:"통찰",h:"洞察",m:"사물을 꿰뚫어 보는 날카로운 안목"},
+    {w:"타당성",h:"妥當性",m:"이치에 맞는 성질"},
+    {w:"함축적",h:"含蓄的",m:"많은 뜻을 속에 품고 있는"},
+    {w:"현상",h:"現象",m:"감각으로 파악할 수 있는 사물의 모습"},
+    {w:"화제",h:"話題",m:"이야기의 소재가 되는 주제"},
+    {w:"회의적",h:"懷疑的",m:"의심하거나 믿지 않는 태도를 가진"},
+    {w:"효율적",h:"效率的",m:"노력에 비해 결과가 큰"},
+    {w:"희곡",h:"戱曲",m:"연극을 위해 쓴 글"},
+    {w:"긍정적",h:"肯定的",m:"좋게 보거나 인정하는 태도의"},
+    {w:"부정적",h:"否定的",m:"나쁘게 보거나 반대하는 태도의"},
+    {w:"중립적",h:"中立的",m:"어느 편도 들지 않는"},
+    {w:"논문",h:"論文",m:"연구 결과를 체계적으로 쓴 글"},
+    {w:"문장구조",h:"文章構造",m:"문장을 이루는 요소들의 짜임"},
+    {w:"심미적",h:"審美的",m:"아름다움을 느끼거나 감상하는"},
+    {w:"이중적",h:"二重的",m:"두 가지 성질을 동시에 가진"},
+    {w:"통합적",h:"統合的",m:"여러 부분을 하나로 합쳐 보는"},
+    {w:"표준어",h:"標準語",m:"한 나라에서 공식적으로 정한 언어"},
+    {w:"작가의식",h:"作家意識",m:"작가가 작품을 통해 드러내는 세계관"},
+    {w:"추상화",h:"抽象化",m:"구체적인 것을 일반화함"},
+    {w:"표현의자유",h:"表現自由",m:"생각이나 의견을 자유롭게 나타낼 권리"},
+    {w:"인권",h:"人權",m:"모든 사람이 태어나면서부터 갖는 권리"},
+    {w:"민주시민",h:"民主市民",m:"민주주의 사회에서 권리와 의무를 다하는 시민"},
+    {w:"헌법",h:"憲法",m:"나라의 가장 기본이 되는 법"},
+    {w:"법치",h:"法治",m:"법에 따라 나라를 다스리는 것"},
+    {w:"저작권",h:"著作權",m:"창작물을 만든 사람이 갖는 권리"},
+    {w:"사생활",h:"私生活",m:"개인의 사적인 생활"},
+    {w:"개인정보",h:"個人情報",m:"개인을 식별할 수 있는 정보"},
+    {w:"팩트체크",h:"事實確認",m:"정보의 사실 여부를 확인하는 것"},
+    {w:"허위정보",h:"虛僞情報",m:"사실이 아닌 거짓 정보"},
+    {w:"알고리즘",h:"演算",m:"문제를 풀기 위한 단계적 절차"},
+    {w:"인공지능",h:"人工知能",m:"컴퓨터가 사람처럼 생각하고 학습하는 것"},
+    {w:"빅데이터",h:"大量資料",m:"방대한 양의 디지털 데이터"},
+    {w:"지구촌",h:"地球村",m:"지구 전체를 하나의 마을로 보는 개념"},
+    {w:"세계시민",h:"世界市民",m:"지구 공동체의 구성원으로서의 시민"},
+    {w:"국제협력",h:"國際協力",m:"여러 나라가 함께 협력하는 것"},
+    {w:"탄소중립",h:"炭素中立",m:"탄소 배출량과 흡수량을 같게 만드는 것"},
+    {w:"기후변화",h:"氣候變化",m:"지구 기온이 변해가는 현상"},
+    {w:"생물다양성",h:"生物多樣性",m:"지구 위 생물 종류의 다양함"},
+    {w:"재생에너지",h:"再生",m:"자연에서 반복해 얻을 수 있는 에너지"},
+    {w:"공정무역",h:"公正貿易",m:"생산자에게 정당한 대가를 주는 무역"},
+    {w:"인도주의",h:"人道主義",m:"인간의 존엄과 복지를 최우선으로 하는 사상"},
+    {w:"다문화사회",h:"多文化社會",m:"다양한 문화 배경의 사람이 함께 사는 사회"},
+    {w:"평화통일",h:"平和統一",m:"평화적인 방법으로 남북이 하나가 되는 것"},
+    {w:"남북관계",h:"南北關係",m:"남한과 북한 사이의 관계"},
+    {w:"분단",h:"分斷",m:"하나였던 것이 둘로 나뉨"},
+    {w:"통일",h:"統一",m:"나뉜 것이 하나로 합쳐짐"},
+    {w:"이산가족",h:"離散家族",m:"전쟁 등으로 흩어진 가족"},
+    {w:"민족",h:"民族",m:"같은 역사 언어 문화를 공유하는 집단"},
+    {w:"주권",h:"主權",m:"나라를 스스로 다스리는 권력"},
+    {w:"외교",h:"外交",m:"다른 나라와 관계를 맺는 활동"},
+    {w:"조약",h:"條約",m:"나라 사이에 맺는 약속 또는 협정"},
+    {w:"국제법",h:"國際法",m:"나라 사이의 관계를 규율하는 법"},
+    {w:"미디어리터러시",h:"媒體識讀",m:"미디어 정보를 비판적으로 읽는 능력"},
+    {w:"문화상대주의",h:"文化相對主義",m:"각 문화를 그 사회의 맥락에서 이해하는 태도"},
+    {w:"난민문제",h:"難民問題",m:"전쟁 재해로 살던 곳을 떠난 사람들의 문제"},
+    {w:"비무장지대",h:"非武裝地帶",m:"군사 시설이 없는 경계 지역 DMZ"},
+    {w:"사회보장",h:"社會保障",m:"사회가 개인의 기본 생활을 보장하는 제도"},
+    {w:"감수성",h:"感受性",m:"외부의 자극을 민감하게 받아들이는 성질"},
+    {w:"객관적",h:"客觀的",m:"개인의 감정을 넘어 공정하게 바라보는"},
+    {w:"공정성",h:"公正性",m:"어느 쪽에도 치우치지 않는 성질"},
+    {w:"귀납",h:"歸納",m:"개별 사례에서 일반적인 원리를 이끌어 냄"},
+    {w:"논설문",h:"論說文",m:"주장과 근거를 논리적으로 펼쳐 쓴 글"},
+    {w:"반박",h:"反駁",m:"상대방의 주장을 반대하여 논리적으로 반론함"},
+    {w:"보도",h:"報道",m:"사건이나 사실을 알리는 것"},
+    {w:"비판의식",h:"批判意識",m:"잘못된 것을 가려내고 따지는 의식"},
+    {w:"사실판단",h:"事實判斷",m:"어떤 것이 사실인지 아닌지를 따지는 것"},
+    {w:"서술방식",h:"敍述方式",m:"글을 서술하는 방법이나 방식"},
+    {w:"세계관",h:"世界觀",m:"세계를 이해하는 전체적인 관점"},
+    {w:"시민권",h:"市民權",m:"시민으로서 갖는 법적 권리"},
+    {w:"언론",h:"言論",m:"신문 방송 등 대중에게 정보를 전하는 기관"},
+    {w:"역사의식",h:"歷史意識",m:"역사를 바르게 이해하려는 의식"},
+    {w:"이해관계",h:"利害關係",m:"이익과 손해가 서로 얽혀 있는 관계"},
+    {w:"정당",h:"政黨",m:"같은 정치적 목적을 가진 사람들의 단체"},
+    {w:"정책",h:"政策",m:"정부나 기관이 일을 처리하기 위해 세운 방침"},
+    {w:"지방자치",h:"地方自治",m:"지역 주민이 스스로 지역 문제를 처리하는 것"},
+    {w:"집회",h:"集會",m:"여러 사람이 같은 목적으로 모이는 것"},
+    {w:"타문화이해",h:"他文化理解",m:"다른 문화를 존중하고 이해하려는 태도"},
+    {w:"환경윤리",h:"環境倫理",m:"환경에 대한 인간의 도덕적 의무"},
+    {w:"자유민주주의",h:"自由民主主義",m:"개인의 자유와 민주주의를 결합한 정치 원리"},
+    {w:"이데올로기",h:"理念",m:"사회나 집단의 근본적인 생각 체계"},
+    {w:"독립선언",h:"獨立宣言",m:"독립을 선언하는 공식 문서"},
+    {w:"변증법",h:"辨證法",m:"대립하는 두 의견을 종합하는 논리 방식"},
+    {w:"문화충격",h:"文化衝擊",m:"낯선 문화를 접했을 때 느끼는 혼란"},
+    {w:"표현주의",h:"表現主義",m:"내면의 감정을 강하게 표현하는 예술 경향"},
+    {w:"상대주의",h:"相對主義",m:"모든 것은 상황에 따라 달리 볼 수 있다는 생각"},
+    {w:"개인정보보호",h:"個人情報保護",m:"개인 정보를 함부로 사용하지 못하게 지키는 것"},
+    {w:"동화",h:"同化",m:"다른 것이 서로 비슷하게 되어 가는 것"},
+    {w:"고증",h:"考證",m:"역사적 사실을 증거로 밝힘"},
+    {w:"맥락분석",h:"脈絡分析",m:"글이나 사건의 흐름을 분석하는 것"},
+    {w:"언론자유",h:"言論自由",m:"신문 방송 등이 자유롭게 의견을 표현할 권리"},
+  ],
+};
+// ============================================================
+// 앱 상태
+// ============================================================
+let grade = 3;
+let mode = 'choice';
+let queue = [];
+let current = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let wrongList = [];
+let answered = false;
+let flashFlipped = false;
+
+// ============================================================
+// 초기화
+// ============================================================
+function init() {
+  buildGradeTabs();
+  setGrade(3);
+  drawBg();
+}
+
+function buildGradeTabs() {
+  const c = document.getElementById('gradeTabs');
+  for (let g = 1; g <= 6; g++) {
+    const btn = document.createElement('button');
+    btn.className = 'grade-tab' + (g === grade ? ' active' : '');
+    btn.textContent = g + '학년';
+    btn.onclick = () => setGrade(g);
+    c.appendChild(btn);
+  }
+}
+
+function setGrade(g) {
+  grade = g;
+  document.querySelectorAll('.grade-tab').forEach((b, i) => {
+    b.classList.toggle('active', i + 1 === g);
+  });
+  resetDrill();
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === m);
+  });
+  const isGame = ['choice','fill'].includes(m);
+  document.getElementById('toolbar').style.display = isGame ? 'flex' : 'none';
+  document.getElementById('progressWrap').style.display = ['choice','fill','flash'].includes(m) ? 'block' : 'none';
+  document.getElementById('scoreChips').style.display = isGame ? 'flex' : 'none';
+
+  if (m === 'list') {
+    renderList();
+  } else {
+    resetDrill();
+  }
+}
+
+function resetDrill() {
+  queue = [...VOCAB[grade]];
+  current = 0; correctCount = 0; wrongCount = 0; wrongList = [];
+  answered = false; flashFlipped = false;
+  updateScore();
+  document.getElementById('vocabListArea').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('cardArea').style.display = 'block';
+  renderCard();
+}
+
+function shuffleAndStart() {
+  queue = shuffle([...VOCAB[grade]]);
+  current = 0; correctCount = 0; wrongCount = 0; wrongList = [];
+  answered = false; flashFlipped = false;
+  updateScore();
+  renderCard();
+}
+
+function wrongOnly() {
+  if (!wrongList.length) { alert('틀린 어휘가 없어요! 👏'); return; }
+  queue = shuffle([...wrongList]);
+  current = 0; correctCount = 0; wrongCount = 0; wrongList = [];
+  answered = false;
+  updateScore();
+  renderCard();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function updateProgress() {
+  const total = queue.length;
+  const done = current;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('progressText').textContent = `${done} / ${total}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function updateScore() {
+  document.getElementById('correctCount').textContent = correctCount;
+  document.getElementById('wrongCount').textContent = wrongCount;
+  updateProgress();
+}
+
+// ============================================================
+// 카드 렌더링
+// ============================================================
+function renderCard() {
+  updateProgress();
+  if (mode === 'list') { renderList(); return; }
+
+  const area = document.getElementById('cardArea');
+  area.style.display = 'block';
+  document.getElementById('vocabListArea').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+
+  if (current >= queue.length) {
+    showResult();
+    return;
+  }
+
+  const item = queue[current];
+  answered = false;
+  flashFlipped = false;
+
+  if (mode === 'choice') renderChoice(item, area);
+  else if (mode === 'fill') renderFill(item, area);
+  else if (mode === 'flash') renderFlash(item, area);
+}
+
+function renderChoice(item, area) {
+  const others = VOCAB[grade].filter(v => v.w !== item.w);
+  const wrong3 = shuffle(others).slice(0, 3);
+  const choices = shuffle([item, ...wrong3]);
+
+  area.innerHTML = `
+    <div class="drill-card">
+      <div class="q-meta">
+        <span class="q-badge">뜻 고르기</span>
+        <span class="q-num">${current + 1} / ${queue.length}</span>
+      </div>
+      <div class="q-word">${item.w}</div>
+      <div class="q-hanja">${item.h}</div>
+      <div class="choices" id="choices">
+        ${choices.map((c, i) => `
+          <button class="choice-btn" onclick="checkChoice(this,'${c.w === item.w}','${item.m.replace(/'/g,"\\'")}')">
+            ${c.m}
+          </button>`).join('')}
+      </div>
+      <div id="feedback"></div>
+    </div>`;
+}
+
+function checkChoice(btn, isCorrect, meaning) {
+  if (answered) return;
+  answered = true;
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === meaning) b.classList.add('correct');
+  });
+
+  if (isCorrect === 'true') {
+    btn.classList.add('correct');
+    correctCount++;
+    showFeedback(true, '정답이에요! 🎉');
+  } else {
+    btn.classList.add('wrong');
+    wrongCount++;
+    wrongList.push(queue[current]);
+    showFeedback(false, `틀렸어요 😢 정답: "${meaning}"`);
+  }
+  updateScore();
+  addNextBtn();
+}
+
+function renderFill(item, area) {
+  // 뜻을 주고 어휘를 입력
+  area.innerHTML = `
+    <div class="drill-card">
+      <div class="q-meta">
+        <span class="q-badge">빈칸 채우기</span>
+        <span class="q-num">${current + 1} / ${queue.length}</span>
+      </div>
+      <div class="fill-area">
+        <div class="fill-hint">뜻: <strong>${item.m}</strong></div>
+        <div class="fill-hint" style="font-size:14px;color:var(--text-muted)">한자: ${item.h}</div>
+        <input class="fill-input" id="fillInput" type="text" placeholder="어휘를 입력하세요"
+          maxlength="10"
+          onkeydown="if(event.key==='Enter')checkFill('${item.w}')">
+        <button class="submit-btn" onclick="checkFill('${item.w}')">확인</button>
+      </div>
+      <div id="feedback"></div>
+    </div>`;
+  setTimeout(() => document.getElementById('fillInput')?.focus(), 100);
+}
+
+function checkFill(answer) {
+  if (answered) return;
+  const inp = document.getElementById('fillInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  answered = true;
+  inp.disabled = true;
+
+  if (val === answer) {
+    inp.classList.add('correct');
+    correctCount++;
+    showFeedback(true, '정답이에요! 🎉');
+  } else {
+    inp.classList.add('wrong');
+    wrongCount++;
+    wrongList.push(queue[current]);
+    showFeedback(false, `틀렸어요 😢 정답: "${answer}"`);
+  }
+  updateScore();
+  addNextBtn();
+}
+
+function renderFlash(item, area) {
+  area.innerHTML = `
+    <div class="drill-card" style="background:none;border:none;padding:0;">
+      <div class="q-meta" style="padding:0 4px 12px;">
+        <span class="q-badge">플래시 카드</span>
+        <span class="q-num">${current + 1} / ${queue.length}</span>
+      </div>
+      <div class="flash-wrap">
+        <div class="flash-card" id="flashCard" onclick="flipCard()">
+          <div class="flash-face flash-front">
+            <div class="flash-word">${item.w}</div>
+            <div class="flash-hanja">${item.h}</div>
+            <div class="flash-tap">탭하여 뜻 보기 👆</div>
+          </div>
+          <div class="flash-face flash-back">
+            <div class="flash-meaning">${item.m}</div>
+            <div class="flash-tap">탭하여 뒤집기 🔄</div>
+          </div>
+        </div>
+      </div>
+      <div class="flash-nav">
+        <button onclick="prevCard()">← 이전</button>
+        <button onclick="nextCard()">다음 →</button>
+      </div>
+    </div>`;
+}
+
+function flipCard() {
+  flashFlipped = !flashFlipped;
+  document.getElementById('flashCard')?.classList.toggle('flipped', flashFlipped);
+}
+
+function prevCard() {
+  if (current > 0) { current--; renderCard(); }
+}
+
+function nextCard() {
+  if (current < queue.length - 1) { current++; renderCard(); }
+  else showResult();
+}
+
+function showFeedback(ok, msg) {
+  const fb = document.getElementById('feedback');
+  if (!fb) return;
+  fb.innerHTML = `<div class="feedback ${ok ? 'correct' : 'wrong'}">${msg}</div>`;
+}
+
+function addNextBtn() {
+  const area = document.getElementById('cardArea');
+  const nb = document.createElement('button');
+  nb.className = 'next-btn';
+  nb.innerHTML = current + 1 < queue.length ? '다음 문제 →' : '결과 보기 🏆';
+  nb.onclick = () => { current++; renderCard(); };
+  const card = area.querySelector('.drill-card');
+  if (card) card.appendChild(nb);
+}
+
+// ============================================================
+// 결과 화면
+// ============================================================
+function showResult() {
+  document.getElementById('cardArea').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.style.display = 'block';
+  const total = queue.length;
+  const pct = Math.round(correctCount / total * 100);
+  const emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 50 ? '😊' : '💪';
+  const msg = pct >= 90 ? '완벽해요!' : pct >= 70 ? '잘했어요!' : pct >= 50 ? '조금 더 노력해봐요!' : '다시 도전해봐요!';
+
+  rs.innerHTML = `
+    <div class="result-emoji">${emoji}</div>
+    <div class="result-title">${msg}</div>
+    <div class="result-score">${pct}점</div>
+    <div class="result-detail">
+      ${grade}학년 어휘 ${total}문제 중<br>
+      맞힌 것 <strong style="color:var(--success)">${correctCount}개</strong> · 
+      틀린 것 <strong style="color:var(--fail)">${wrongCount}개</strong>
+    </div>
+    <div class="result-btns">
+      <button class="result-btn primary" onclick="shuffleAndStart()">🔀 다시 풀기</button>
+      ${wrongCount > 0 ? `<button class="result-btn secondary" onclick="wrongOnly()">❌ 틀린 것만</button>` : ''}
+    </div>`;
+}
+
+// ============================================================
+// 어휘 목록
+// ============================================================
+function renderList() {
+  document.getElementById('cardArea').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  const la = document.getElementById('vocabListArea');
+  la.style.display = 'block';
+  la.innerHTML = `
+    <div style="text-align:center;margin-bottom:20px;color:var(--text-muted);font-size:13px;">
+      ${grade}학년 필수 어휘 ${VOCAB[grade].length}개
+    </div>
+    <div class="vocab-grid">
+      ${VOCAB[grade].map(v => `
+        <div class="vocab-item">
+          <div class="v-word">${v.w}</div>
+          <div class="v-hanja">${v.h}</div>
+          <div class="v-meaning">${v.m}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ============================================================
+// 배경 캔버스
+// ============================================================
+function drawBg() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, dots;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    dots = Array.from({length: 60}, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.5 + 0.3,
+      vx: (Math.random() - .5) * .3,
+      vy: (Math.random() - .5) * .3,
+      a: Math.random() * .5 + .1
+    }));
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    dots.forEach(d => {
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0) d.x = W; if (d.x > W) d.x = 0;
+      if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(59,130,246,${d.a * 0.4})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', resize);
+  resize(); loop();
+}
+
+init();
+</script>
+</body>
+</html>
