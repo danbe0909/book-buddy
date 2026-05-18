@@ -319,6 +319,52 @@
   .vocab-item .v-hanja { font-size: 12px; color: var(--text-muted); margin: 2px 0 6px; }
   .vocab-item .v-meaning { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
+  /* ── 어휘 상세 모달 ── */
+  .vocab-modal-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(30, 58, 95, 0.45);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeOverlay .2s ease;
+  }
+  @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+  .vocab-modal {
+    background: #fff; border-radius: 28px; padding: 44px 40px 36px;
+    max-width: 420px; width: 90%;
+    box-shadow: 0 20px 60px rgba(59,130,246,.18), 0 4px 16px rgba(0,0,0,.08);
+    text-align: center; position: relative;
+    animation: modalPop .25s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: scale(.85) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .vocab-modal-close {
+    position: absolute; top: 16px; right: 18px;
+    background: #f0f7ff; border: none; border-radius: 50%;
+    width: 32px; height: 32px; font-size: 16px; cursor: pointer;
+    color: #6b8ab0; line-height: 32px; transition: background .15s;
+  }
+  .vocab-modal-close:hover { background: #dbeafe; color: #3b82f6; }
+  .vocab-modal-num { font-size: 12px; color: #6b8ab0; letter-spacing: 2px; font-weight: 700; margin-bottom: 14px; }
+  .vocab-modal-word {
+    font-size: clamp(48px, 12vw, 72px); font-weight: 900; letter-spacing: -2px; line-height: 1;
+    background: linear-gradient(135deg, #1e3a5f, #3b82f6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;
+  }
+  .vocab-modal-hanja { font-size: 20px; color: #6b8ab0; margin-bottom: 22px; font-family: 'Gowun Dodum', serif; }
+  .vocab-modal-divider { height: 2px; background: linear-gradient(90deg, transparent, #c2d8f5, transparent); margin: 0 auto 22px; width: 60%; }
+  .vocab-modal-meaning { font-size: 18px; color: #1e3a5f; line-height: 1.7; font-weight: 500; margin-bottom: 28px; }
+  .vocab-modal-nav { display: flex; gap: 10px; justify-content: center; }
+  .vocab-modal-nav button {
+    padding: 10px 24px; border-radius: 50px; font-size: 13px; font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all .18s;
+    border: 1.5px solid #c2d8f5; background: #f0f7ff; color: #3b82f6;
+  }
+  .vocab-modal-nav button:hover { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .vocab-modal-nav button.primary { background: linear-gradient(135deg, #3b82f6, #6366f1); border-color: transparent; color: #fff; }
+  .vocab-modal-nav button.primary:hover { opacity: .88; }
+
   /* 도구 바 */
   .toolbar {
     display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
@@ -1636,14 +1682,57 @@ function renderList() {
       ${grade}학년 필수 어휘 ${VOCAB[grade].length}개
     </div>
     <div class="vocab-grid">
-      ${VOCAB[grade].map(v => `
-        <div class="vocab-item">
+      ${VOCAB[grade].map((v,i) => `
+        <div class="vocab-item" onclick="openVocabModal(${i})">
           <div class="v-word">${v.w}</div>
           <div class="v-hanja">${v.h}</div>
           <div class="v-meaning">${v.m}</div>
         </div>`).join('')}
     </div>`;
 }
+
+
+// ============================================================
+// 어휘 상세 모달
+// ============================================================
+let modalIdx = 0;
+
+function openVocabModal(idx) {
+  modalIdx = idx;
+  updateModal();
+  document.getElementById('vocabModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function updateModal() {
+  const list = VOCAB[grade];
+  const v = list[modalIdx];
+  document.getElementById('modalNum').textContent = (modalIdx + 1) + ' / ' + list.length;
+  document.getElementById('modalWord').textContent = v.w;
+  document.getElementById('modalHanja').textContent = v.h;
+  document.getElementById('modalMeaning').textContent = v.m;
+}
+
+function closeVocabModal(e) {
+  if (e && e.target !== document.getElementById('vocabModal')) return;
+  document.getElementById('vocabModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function modalMove(dir) {
+  const list = VOCAB[grade];
+  modalIdx = (modalIdx + dir + list.length) % list.length;
+  updateModal();
+}
+
+// 키보드 좌우 화살표, ESC 지원
+document.addEventListener('keydown', function(e) {
+  const modal = document.getElementById('vocabModal');
+  if (modal.style.display === 'none') return;
+  if (e.key === 'ArrowLeft')  modalMove(-1);
+  if (e.key === 'ArrowRight') modalMove(1);
+  if (e.key === 'Escape')     { modal.style.display = 'none'; document.body.style.overflow = ''; }
+});
 
 // ============================================================
 // 배경 캔버스
@@ -1685,5 +1774,22 @@ function drawBg() {
 
 init();
 </script>
+
+<!-- 어휘 상세 모달 -->
+<div id="vocabModal" class="vocab-modal-overlay" style="display:none" onclick="closeVocabModal(event)">
+  <div class="vocab-modal">
+    <button class="vocab-modal-close" onclick="closeVocabModal()">✕</button>
+    <div class="vocab-modal-num" id="modalNum"></div>
+    <div class="vocab-modal-word" id="modalWord"></div>
+    <div class="vocab-modal-hanja" id="modalHanja"></div>
+    <div class="vocab-modal-divider"></div>
+    <div class="vocab-modal-meaning" id="modalMeaning"></div>
+    <div class="vocab-modal-nav">
+      <button onclick="modalMove(-1)">← 이전</button>
+      <button class="primary" onclick="closeVocabModal()">닫기</button>
+      <button onclick="modalMove(1)">다음 →</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
