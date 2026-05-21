@@ -378,6 +378,300 @@
   }
   .tool-btn:hover { border-color: var(--accent3); color: var(--accent3); }
 
+  /* ── 모둠 퀴즈 설정 화면 ── */
+  .team-setup {
+    max-width: 520px; margin: 0 auto; padding: 0 16px 40px;
+    animation: cardIn .3s ease;
+  }
+  .team-setup-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 24px; padding: 28px 28px 24px;
+    box-shadow: 0 4px 24px rgba(59,130,246,.10);
+  }
+  .team-setup-title {
+    font-size: 18px; font-weight: 900; margin-bottom: 20px; text-align: center;
+    background: linear-gradient(135deg, #3b82f6, #f43f8e);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .setup-row { margin-bottom: 18px; }
+  .setup-label {
+    font-size: 13px; font-weight: 700; color: var(--text-muted);
+    margin-bottom: 8px; display: block;
+  }
+  .team-count-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tc-btn {
+    padding: 8px 16px; border-radius: 50px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text-muted);
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif; transition: all .18s;
+  }
+  .tc-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .timer-row { display: flex; align-items: center; gap: 12px; }
+  .timer-select {
+    flex: 1; padding: 10px 14px; border-radius: 12px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    font-size: 14px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text); outline: none; cursor: pointer;
+  }
+  .q-count-select {
+    width: 100%; padding: 10px 14px; border-radius: 12px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    font-size: 14px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text); outline: none; cursor: pointer;
+  }
+  .team-names-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .team-name-input {
+    padding: 10px 14px; border-radius: 12px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text); outline: none; transition: border-color .2s;
+  }
+  .team-name-input:focus { border-color: var(--accent); }
+  .start-quiz-btn {
+    width: 100%; padding: 15px; border-radius: 14px; border: none;
+    background: linear-gradient(135deg, #f43f8e, #f97316);
+    color: #fff; font-size: 16px; font-weight: 900;
+    font-family: 'Noto Sans KR', sans-serif; cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    box-shadow: 0 4px 16px rgba(244,63,142,.3);
+    margin-top: 8px;
+  }
+  .start-quiz-btn:hover { opacity: .9; transform: translateY(-1px); }
+
+  /* ── 모둠 퀴즈 진행 화면 ── */
+  .team-quiz-wrap { max-width: 700px; margin: 0 auto; padding: 0 14px 40px; }
+
+  /* 상단 타이머 바 */
+  .tq-header {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 10px 18px; margin-bottom: 14px;
+    box-shadow: 0 2px 12px rgba(59,130,246,.08);
+  }
+  .tq-timer-ring {
+    position: relative; width: 52px; height: 52px; flex-shrink: 0;
+  }
+  .tq-timer-ring svg { transform: rotate(-90deg); }
+  .tq-timer-ring circle { fill: none; stroke-width: 4; }
+  .tq-timer-ring .track { stroke: var(--surface2); }
+  .tq-timer-ring .fill  { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .5s linear, stroke .3s; }
+  .tq-timer-num {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 900; color: var(--text);
+  }
+  .tq-meta { flex: 1; min-width: 0; }
+  .tq-qnum { font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 1px; }
+  .tq-current-team {
+    font-size: 15px; font-weight: 900; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tq-pause-btn {
+    padding: 7px 14px; border-radius: 50px; border: 1.5px solid var(--border);
+    background: var(--surface2); font-size: 12px; font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif; cursor: pointer; color: var(--text-muted);
+    transition: all .18s; white-space: nowrap;
+  }
+  .tq-pause-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── 모둠별 타이머 (문제당) ── */
+  .tq-team-timer-ring {
+    position: relative; width: 90px; height: 90px; flex-shrink: 0;
+  }
+  .tq-team-timer-ring svg { transform: rotate(-90deg); }
+  .tq-team-timer-ring circle { fill: none; stroke-width: 7; }
+  .tq-team-timer-ring .track { stroke: var(--surface2); }
+  .tq-team-timer-ring .fill  { stroke-linecap: round; transition: stroke-dashoffset .25s linear, stroke .3s; }
+  .tq-team-timer-num-big {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; color: var(--text);
+  }
+
+  /* 타임아웃 / 모둠 전환 오버레이 */
+  .tq-turn-banner {
+    position: fixed; inset: 0; z-index: 870;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(30,58,95,.55); backdrop-filter: blur(4px);
+    animation: fadeOverlay .15s ease;
+  }
+  .tq-turn-box {
+    background: #fff; border-radius: 28px; padding: 36px 44px 28px;
+    text-align: center; min-width: 280px; max-width: 360px; width: 90%;
+    box-shadow: 0 20px 60px rgba(59,130,246,.2);
+    animation: modalPop .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .tq-turn-emoji { font-size: 52px; margin-bottom: 10px; }
+  .tq-turn-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+  .tq-turn-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+  .tq-turn-ready {
+    width: 100%; padding: 14px; border-radius: 14px; border: none;
+    font-size: 15px; font-weight: 900; font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer; color: #fff; transition: opacity .2s;
+  }
+  .tq-turn-ready:hover { opacity: .88; }
+
+  /* 모둠 선택 그리드 */
+  .tq-select-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+  }
+  .tq-select-team-btn {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 12px 8px 10px;
+    border-radius: 14px; border: 2px solid;
+    background: #fff; cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all .18s; position: relative; overflow: hidden;
+  }
+  .tq-select-team-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    filter: brightness(1.04);
+  }
+  .tq-select-team-btn:active { transform: scale(.97); }
+  .tq-select-name {
+    font-size: 13px; font-weight: 800; line-height: 1.2;
+  }
+  .tq-select-score {
+    font-size: 11px; font-weight: 600; opacity: .7;
+  }
+
+  /* 점수판 */
+  .tq-scoreboard {
+    display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .tq-score-chip {
+    flex: 1; min-width: 70px; background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: 14px;
+    padding: 10px 10px 8px; text-align: center;
+    transition: all .3s; position: relative; overflow: hidden;
+  }
+  .tq-score-chip.active-team {
+    border-color: var(--accent2);
+    box-shadow: 0 0 18px rgba(244,63,142,.22);
+    transform: translateY(-2px);
+  }
+  .tq-score-chip.active-team::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(244,63,142,.07), rgba(249,115,22,.05));
+  }
+  .tq-chip-name { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+  .tq-chip-score {
+    font-size: 22px; font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .tq-chip-label { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  .tq-score-bump { animation: scoreBump .4s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes scoreBump {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.25) translateY(-4px); }
+    100% { transform: scale(1); }
+  }
+
+  /* 문제 카드 */
+  .tq-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 24px; padding: 22px 24px;
+    box-shadow: 0 4px 24px rgba(59,130,246,.10);
+    animation: cardIn .3s ease; position: relative; overflow: hidden;
+  }
+  .tq-card::before {
+    content:''; position:absolute; top:-60px; right:-60px;
+    width:180px; height:180px; border-radius:50%;
+    background: radial-gradient(circle, rgba(244,63,142,.10), transparent 70%);
+  }
+
+  /* 타이머 바 (카드 상단) */
+  .tq-time-bar {
+    height: 5px; border-radius: 10px; background: var(--surface2);
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .tq-time-fill {
+    height: 100%; border-radius: 10px;
+    background: linear-gradient(90deg, var(--success), var(--accent3), var(--fail));
+    transition: width .5s linear;
+  }
+
+  /* 모둠 퀴즈 결과 */
+  .tq-result {
+    max-width: 540px; margin: 0 auto; padding: 0 16px 60px;
+    text-align: center; animation: cardIn .4s ease;
+  }
+  .tq-result-title { font-size: 22px; font-weight: 900; margin: 12px 0 24px; }
+  .tq-podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 28px; }
+  .tq-podium-item { display: flex; flex-direction: column; align-items: center; }
+  .tq-podium-name { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text); max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tq-podium-score-num { font-size: 18px; font-weight: 900; margin-bottom: 4px; }
+  .tq-podium-block {
+    border-radius: 12px 12px 4px 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 900; color: #fff;
+  }
+  .tq-rank-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .tq-rank-row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 18px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 14px; transition: all .2s;
+  }
+  .tq-rank-row.gold   { border-color: #f59e0b; background: rgba(245,158,11,.06); }
+  .tq-rank-row.silver { border-color: #94a3b8; background: rgba(148,163,184,.06); }
+  .tq-rank-row.bronze { border-color: #cd7c4d; background: rgba(205,124,77,.06); }
+  .tq-rank-num { font-size: 20px; font-weight: 900; width: 32px; flex-shrink: 0; }
+  .tq-rank-name { flex: 1; font-size: 15px; font-weight: 700; text-align: left; }
+  .tq-rank-score { font-size: 20px; font-weight: 900; color: var(--accent); }
+  .tq-rank-pts { font-size: 11px; color: var(--text-muted); margin-left: 2px; }
+  .tq-result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* 타임업 오버레이 */
+  .tq-timeup-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(30,58,95,.55); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeOverlay .2s ease;
+  }
+  .tq-timeup-box {
+    background: #fff; border-radius: 28px; padding: 40px 36px 32px;
+    text-align: center; max-width: 360px; width: 90%;
+    animation: modalPop .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 20px 60px rgba(59,130,246,.18);
+  }
+  .tq-timeup-icon { font-size: 56px; margin-bottom: 12px; }
+  .tq-timeup-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+  .tq-timeup-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+
+  /* 오답 폭발 효과 */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  .shake { animation: shake .4s ease; }
+
+  /* 정답 파티클 */
+  .confetti-wrap {
+    position: fixed; inset: 0; pointer-events: none; z-index: 800; overflow: hidden;
+  }
+  .confetti-particle {
+    position: absolute; width: 10px; height: 10px; border-radius: 2px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* 반응형 */
+  @media (max-width: 480px) {
+    .tq-scoreboard { gap: 5px; }
+    .tq-score-chip { min-width: 50px; padding: 8px 6px 6px; }
+    .tq-chip-score { font-size: 18px; }
+    .tq-podium { gap: 6px; }
+  }
+
   /* 반응형 */
   @media (max-width: 480px) {
     .choices { grid-template-columns: 1fr; }
@@ -403,6 +697,9 @@
   <div class="mode-bar">
     <button class="mode-btn active" data-mode="choice" onclick="setMode('choice')">
       <span class="icon">🎯</span> 뜻 고르기
+    </button>
+    <button class="mode-btn" data-mode="team" onclick="setMode('team')">
+      <span class="icon">🏆</span> 모둠 퀴즈
     </button>
     <button class="mode-btn" data-mode="fill" onclick="setMode('fill')">
       <span class="icon">✏️</span> 빈칸 채우기
@@ -441,6 +738,73 @@
   <div class="card-area" id="cardArea"></div>
   <div class="vocab-list" id="vocabListArea" style="display:none"></div>
   <div class="result-screen" id="resultScreen" style="display:none"></div>
+
+  <!-- 모둠 퀴즈 설정 -->
+  <div class="team-setup" id="teamSetupArea" style="display:none">
+    <div class="team-setup-card">
+      <div class="team-setup-title">🏆 모둠 퀴즈 설정</div>
+
+      <div class="setup-row">
+        <span class="setup-label">📌 모둠 수</span>
+        <div class="team-count-btns" id="teamCountBtns">
+          <button class="tc-btn" onclick="setTeamCount(2)">2모둠</button>
+          <button class="tc-btn" onclick="setTeamCount(3)">3모둠</button>
+          <button class="tc-btn active" onclick="setTeamCount(4)">4모둠</button>
+          <button class="tc-btn" onclick="setTeamCount(5)">5모둠</button>
+          <button class="tc-btn" onclick="setTeamCount(6)">6모둠</button>
+        </div>
+      </div>
+
+      <div class="setup-row">
+        <span class="setup-label">✏️ 모둠 이름 (선택)</span>
+        <div class="team-names-grid" id="teamNamesGrid"></div>
+      </div>
+
+      <div class="setup-row">
+        <span class="setup-label">📚 출제 학년 <span style="font-weight:400;color:var(--text-muted)">(복수 선택 가능)</span></span>
+        <div class="team-count-btns" id="gradeSelectBtns">
+          <button class="tc-btn grade-btn active" data-g="1" onclick="toggleGrade(1)">1학년</button>
+          <button class="tc-btn grade-btn active" data-g="2" onclick="toggleGrade(2)">2학년</button>
+          <button class="tc-btn grade-btn active" data-g="3" onclick="toggleGrade(3)">3학년</button>
+          <button class="tc-btn grade-btn active" data-g="4" onclick="toggleGrade(4)">4학년</button>
+          <button class="tc-btn grade-btn active" data-g="5" onclick="toggleGrade(5)">5학년</button>
+          <button class="tc-btn grade-btn active" data-g="6" onclick="toggleGrade(6)">6학년</button>
+        </div>
+      </div>
+
+      <div class="setup-row">
+        <span class="setup-label">⏱ 모둠별 제한 시간 <span style="font-weight:400;color:var(--text-muted)">(턴당 · 여러 문제 연속 풀기)</span></span>
+        <select class="timer-select" id="timerSelect">
+          <option value="20">20초</option>
+          <option value="30" selected>30초</option>
+          <option value="45">45초</option>
+          <option value="60">1분</option>
+          <option value="90">1분 30초</option>
+          <option value="120">2분</option>
+          <option value="0">제한 없음</option>
+        </select>
+      </div>
+
+      <div class="setup-row">
+        <span class="setup-label">📝 전체 문제 수</span>
+        <select class="q-count-select" id="qCountSelect">
+          <option value="10">10문제</option>
+          <option value="20" selected>20문제</option>
+          <option value="30">30문제</option>
+          <option value="50">50문제</option>
+          <option value="0">전체</option>
+        </select>
+      </div>
+
+      <button class="start-quiz-btn" onclick="startTeamQuiz()">🚀 퀴즈 시작!</button>
+    </div>
+  </div>
+
+  <!-- 모둠 퀴즈 진행 -->
+  <div class="team-quiz-wrap" id="teamQuizArea" style="display:none"></div>
+
+  <!-- 모둠 퀴즈 결과 -->
+  <div class="tq-result" id="teamResultArea" style="display:none"></div>
 </div>
 
 <script>
@@ -1412,8 +1776,21 @@ function setMode(m) {
   document.getElementById('progressWrap').style.display = ['choice','fill','flash'].includes(m) ? 'block' : 'none';
   document.getElementById('scoreChips').style.display = isGame ? 'flex' : 'none';
 
+  // 모둠 퀴즈 영역 표시
+  document.getElementById('teamSetupArea').style.display = 'none';
+  document.getElementById('teamQuizArea').style.display = 'none';
+  document.getElementById('teamResultArea').style.display = 'none';
+
   if (m === 'list') {
     renderList();
+  } else if (m === 'team') {
+    document.getElementById('cardArea').style.display = 'none';
+    document.getElementById('vocabListArea').style.display = 'none';
+    document.getElementById('resultScreen').style.display = 'none';
+    document.getElementById('progressWrap').style.display = 'none';
+    document.getElementById('scoreChips').style.display = 'none';
+    document.getElementById('toolbar').style.display = 'none';
+    showTeamSetup();
   } else {
     resetDrill();
   }
@@ -1770,6 +2147,543 @@ function drawBg() {
 
   window.addEventListener('resize', resize);
   resize(); loop();
+}
+
+// ============================================================
+// 모둠 퀴즈 로직 ― 턴제 (한 모둠이 제한 시간 동안 연속 풀기)
+// ============================================================
+let tq = {
+  teamCount: 4,
+  teamNames: [],
+  scores: [],        // 모둠별 누적 점수
+  turnScores: [],    // 이번 턴에서 획득한 점수 (턴 종료 배너용)
+  queue: [],         // 전체 문제 풀
+  teamQueues: [],    // 모둠별 남은 문제 인덱스 (각자 다른 문제 범위)
+  turnStart: 0,      // 이번 턴 시작 문제 인덱스
+  current: 0,        // 현재 문제 인덱스
+  currentTeam: 0,
+  turnTime: 30,      // 모둠 턴당 제한 시간(초)
+  timeLeft: 30,
+  timerInterval: null,
+  paused: false,
+  answered: false,
+  qCount: 20,
+  allDone: false,    // 전체 문제 소진 여부
+};
+
+const TEAM_COLORS = ['#3b82f6','#f43f8e','#10b981','#f97316','#8b5cf6','#f59e0b'];
+const TEAM_EMOJIS = ['🔵','🌸','🟢','🟠','🟣','🟡'];
+
+function showTeamSetup() {
+  document.getElementById('teamSetupArea').style.display = 'block';
+  renderTeamNameInputs();
+}
+
+function setTeamCount(n) {
+  tq.teamCount = n;
+  document.querySelectorAll('.tc-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === n + '모둠');
+  });
+  renderTeamNameInputs();
+}
+
+function renderTeamNameInputs() {
+  const grid = document.getElementById('teamNamesGrid');
+  const old = Array.from(grid.querySelectorAll('input')).map(i => i.value);
+  grid.innerHTML = '';
+  for (let i = 0; i < tq.teamCount; i++) {
+    const inp = document.createElement('input');
+    inp.className = 'team-name-input';
+    inp.placeholder = (i + 1) + '모둠';
+    inp.value = old[i] || '';
+    inp.style.borderColor = TEAM_COLORS[i];
+    grid.appendChild(inp);
+  }
+}
+
+// ── 출제 학년 토글 ───────────────────────────────────────────
+let selectedGrades = new Set([1, 2, 3, 4, 5, 6]);  // 기본: 전 학년
+
+function toggleGrade(g) {
+  // 최소 1개는 선택 유지
+  if (selectedGrades.has(g) && selectedGrades.size === 1) return;
+  if (selectedGrades.has(g)) selectedGrades.delete(g);
+  else selectedGrades.add(g);
+  document.querySelectorAll('.grade-btn').forEach(b => {
+    b.classList.toggle('active', selectedGrades.has(+b.dataset.g));
+  });
+}
+
+function startTeamQuiz() {
+  tq.teamNames = Array.from(document.querySelectorAll('.team-name-input'))
+    .map((inp, i) => inp.value.trim() || (i + 1) + '모둠');
+  tq.scores     = Array(tq.teamCount).fill(0);
+  tq.turnScores = Array(tq.teamCount).fill(0);
+
+  tq.turnTime = parseInt(document.getElementById('timerSelect').value);
+
+  const qc = parseInt(document.getElementById('qCountSelect').value);
+
+  // 선택 학년별로 각각 섞은 뒤 라운드로빈으로 섞어 학년이 고르게 분포되게
+  const gradePools = [...selectedGrades].sort().map(g =>
+    shuffle([...VOCAB[g]]).map(v => ({ ...v, _grade: g }))
+  );
+  const interleaved = [];
+  const maxLen = Math.max(...gradePools.map(p => p.length));
+  for (let i = 0; i < maxLen; i++) {
+    for (const gp of gradePools) {
+      if (i < gp.length) interleaved.push(gp[i]);
+    }
+  }
+  const pool  = shuffle(interleaved);          // 한 번 더 섞어 완전 무작위
+  tq.qCount   = qc === 0 ? pool.length : Math.min(qc, pool.length);
+  tq.queue    = pool.slice(0, tq.qCount);
+
+  tq.current     = 0;
+  tq.turnStart   = 0;
+  tq.currentTeam = 0;
+  tq.paused      = false;
+  tq.answered    = false;
+  tq.allDone     = false;
+
+  document.getElementById('teamSetupArea').style.display = 'none';
+  document.getElementById('teamQuizArea').style.display  = 'block';
+
+  showFirstTeamSelector();
+}
+
+// ── 첫 모둠 선택 팝업 ────────────────────────────────────────
+function showFirstTeamSelector() {
+  clearInterval(tq.timerInterval);
+  tq.paused = true;
+  document.getElementById('tqTurnBanner')?.remove();
+
+  const teamBtns = tq.teamNames.map((nm, i) => `
+    <button class="tq-select-team-btn"
+      style="border-color:${TEAM_COLORS[i]};color:${TEAM_COLORS[i]};"
+      onclick="selectNextTeam(${i})">
+      <span style="font-size:22px;">${TEAM_EMOJIS[i]}</span>
+      <span class="tq-select-name">${nm}</span>
+    </button>`).join('');
+
+  const banner = document.createElement('div');
+  banner.className = 'tq-turn-banner';
+  banner.id = 'tqTurnBanner';
+  banner.innerHTML = `
+    <div class="tq-turn-box" style="max-width:420px;">
+      <div class="tq-turn-emoji">🏆</div>
+      <div class="tq-turn-title">첫 번째 모둠을 선택하세요!</div>
+      <div class="tq-turn-sub" style="margin-bottom:16px;">
+        남은 문제 <strong>${tq.queue.length}개</strong>
+        ${tq.turnTime > 0
+          ? `&nbsp;·&nbsp; 턴당 <strong>${fmtTime(tq.turnTime)}</strong>`
+          : '&nbsp;·&nbsp; 시간 제한 없음'}
+      </div>
+      <div class="tq-select-grid">${teamBtns}</div>
+    </div>`;
+  document.body.appendChild(banner);
+}
+
+// ── 턴 시작 배너 ─────────────────────────────────────────────
+function showTurnStartBanner(teamIdx, isFirst = false) {
+  clearInterval(tq.timerInterval);
+  tq.paused = true;
+  document.getElementById('tqTurnBanner')?.remove();
+
+  const name  = tq.teamNames[teamIdx];
+  const color = TEAM_COLORS[teamIdx];
+  const emoji = TEAM_EMOJIS[teamIdx];
+  const remaining = tq.queue.length - tq.current;
+
+  const banner = document.createElement('div');
+  banner.className = 'tq-turn-banner';
+  banner.id = 'tqTurnBanner';
+  banner.innerHTML = `
+    <div class="tq-turn-box">
+      <div class="tq-turn-emoji">${emoji}</div>
+      <div class="tq-turn-title" style="color:${color}">${name} 차례!</div>
+      <div class="tq-turn-sub">
+        ${isFirst ? '<strong>퀴즈를 시작합니다!</strong><br>' : ''}
+        남은 문제 <strong>${remaining}개</strong>
+        ${tq.turnTime > 0
+          ? `<br>⏱ <strong>${fmtTime(tq.turnTime)}</strong> 동안 최대한 많이 풀어보세요`
+          : '<br>제한 시간 없이 끝까지 풀어보세요'}
+      </div>
+      <button class="tq-turn-ready" style="background:${color}"
+        onclick="closeTurnBanner()">준비됐어요! ✊</button>
+    </div>`;
+  document.body.appendChild(banner);
+}
+
+function closeTurnBanner() {
+  document.getElementById('tqTurnBanner')?.remove();
+  tq.paused    = false;
+  tq.turnStart = tq.current;
+  tq.answered  = false;
+  startTurnTimer();
+  renderTeamQuiz();
+}
+
+// ── 턴 타이머 ────────────────────────────────────────────────
+function startTurnTimer() {
+  clearInterval(tq.timerInterval);
+  if (tq.turnTime <= 0) return;      // 제한 없음
+  tq.timeLeft = tq.turnTime;
+  updateHeaderTimer();
+
+  tq.timerInterval = setInterval(() => {
+    if (tq.paused) return;
+    tq.timeLeft--;
+    updateHeaderTimer();
+    if (tq.timeLeft <= 0) {
+      clearInterval(tq.timerInterval);
+      onTurnTimeout();
+    }
+  }, 1000);
+}
+
+function updateHeaderTimer() {
+  // 헤더의 타이머 숫자·링 업데이트
+  const numEl  = document.getElementById('tqHeaderTimerNum');
+  const fillEl = document.getElementById('tqHeaderTimerFill');
+  if (!numEl) return;
+
+  const t = tq.timeLeft;
+  numEl.textContent = fmtTime(t);
+  numEl.style.color = t <= 10 ? '#ef4444' : t <= Math.ceil(tq.turnTime * 0.3) ? '#f59e0b' : 'var(--text)';
+
+  if (fillEl && tq.turnTime > 0) {
+    const r = 22, circ = 2 * Math.PI * r;
+    const pct = t / tq.turnTime;
+    fillEl.style.strokeDashoffset = circ * (1 - pct);
+    fillEl.style.stroke = t <= 10 ? '#ef4444' : t <= Math.ceil(tq.turnTime * 0.3) ? '#f59e0b' : TEAM_COLORS[tq.currentTeam];
+  }
+}
+
+function fmtTime(s) {
+  if (s >= 60) return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  return String(s);
+}
+
+// ── 턴 타임아웃 ──────────────────────────────────────────────
+function onTurnTimeout() {
+  if (tq.paused) return;
+  // 현재 문제 잠금
+  tq.answered = true;
+  document.querySelectorAll('#tqChoices .choice-btn').forEach(b => b.disabled = true);
+
+  // 정답 표시
+  const meaning = tq.queue[tq.current]?.m;
+  if (meaning) {
+    document.querySelectorAll('#tqChoices .choice-btn').forEach(b => {
+      if (b.textContent.trim() === meaning) b.classList.add('correct');
+    });
+    const fb = document.getElementById('tqFeedback');
+    if (fb) fb.innerHTML = `<div class="feedback wrong">⏰ 시간 종료!</div>`;
+  }
+
+  setTimeout(() => showTurnEndBanner(), 1000);
+}
+
+// ── 턴 종료 → 모둠 선택 배너 ────────────────────────────────
+function showTurnEndBanner() {
+  clearInterval(tq.timerInterval);
+  document.getElementById('tqTurnBanner')?.remove();
+
+  const teamIdx = tq.currentTeam;
+  const name    = tq.teamNames[teamIdx];
+  const color   = TEAM_COLORS[teamIdx];
+  const emoji   = TEAM_EMOJIS[teamIdx];
+  const solved  = tq.current - tq.turnStart;
+  const gained  = tq.scores[teamIdx] - (tq._prevScore ?? 0);
+  tq._prevScore = tq.scores[teamIdx];
+  const noMore  = tq.current >= tq.queue.length;
+
+  const banner = document.createElement('div');
+  banner.className = 'tq-turn-banner';
+  banner.id = 'tqTurnBanner';
+
+  if (noMore) {
+    // 전체 문제 소진 → 바로 결과
+    banner.innerHTML = `
+      <div class="tq-turn-box">
+        <div class="tq-turn-emoji">🎉</div>
+        <div class="tq-turn-title" style="color:${color}">${name} 턴 종료!</div>
+        <div class="tq-turn-sub">
+          이번 턴: <strong>${solved}문제</strong> 풀고
+          <strong style="color:${color}">${gained}점</strong> 획득<br>
+          <strong>전체 문제를 모두 풀었어요!</strong>
+        </div>
+        <button class="tq-turn-ready" style="background:#10b981"
+          onclick="document.getElementById('tqTurnBanner')?.remove();showTeamResult()">
+          결과 보기 🏆
+        </button>
+      </div>`;
+  } else {
+    // 모둠 선택 버튼 그리드
+    const teamBtns = tq.teamNames.map((nm, i) => `
+      <button class="tq-select-team-btn"
+        style="border-color:${TEAM_COLORS[i]};color:${TEAM_COLORS[i]};"
+        onclick="selectNextTeam(${i})">
+        <span style="font-size:22px;">${TEAM_EMOJIS[i]}</span>
+        <span class="tq-select-name">${nm}</span>
+        <span class="tq-select-score">${tq.scores[i]}점</span>
+      </button>`).join('');
+
+    banner.innerHTML = `
+      <div class="tq-turn-box" style="max-width:420px;">
+        <div class="tq-turn-emoji">${emoji}</div>
+        <div class="tq-turn-title" style="color:${color}">${name} 턴 종료!</div>
+        <div class="tq-turn-sub" style="margin-bottom:16px;">
+          이번 턴: <strong>${solved}문제</strong> 풀고
+          <strong style="color:${color}">${gained}점</strong> 획득
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:10px;">
+          ✋ 다음에 풀 모둠을 선택하세요
+        </div>
+        <div class="tq-select-grid">${teamBtns}</div>
+        <div style="margin-top:14px;">
+          <button class="tq-turn-ready" style="background:#6b8ab0;font-size:13px;padding:10px;"
+            onclick="document.getElementById('tqTurnBanner')?.remove();showTeamResult()">
+            🏆 퀴즈 종료하고 결과 보기
+          </button>
+        </div>
+      </div>`;
+  }
+  document.body.appendChild(banner);
+}
+
+function selectNextTeam(teamIdx) {
+  document.getElementById('tqTurnBanner')?.remove();
+  if (tq.current >= tq.queue.length) { showTeamResult(); return; }
+  tq.currentTeam = teamIdx;
+  showTurnStartBanner(teamIdx);
+}
+
+// ── 문제 렌더링 ──────────────────────────────────────────────
+function renderTeamQuiz() {
+  const area = document.getElementById('teamQuizArea');
+  if (tq.current >= tq.queue.length) {
+    clearInterval(tq.timerInterval);
+    showTeamResult();
+    return;
+  }
+
+  const item      = tq.queue[tq.current];
+  const teamColor = TEAM_COLORS[tq.currentTeam];
+  const teamName  = tq.teamNames[tq.currentTeam];
+  const r = 22, circ = 2 * Math.PI * r;
+  const timeFrac  = tq.turnTime > 0 ? tq.timeLeft / tq.turnTime : 1;
+
+  const others  = VOCAB[item._grade || grade].filter(v => v.w !== item.w);
+  const wrong3  = shuffle(others).slice(0, 3);
+  const choices = shuffle([item, ...wrong3]);
+  tq.answered   = false;
+
+  // 학년 배지 색상
+  const GRADE_COLORS = { 1:'#ec4899', 2:'#f43f8e', 3:'#3b82f6', 4:'#10b981', 5:'#f97316', 6:'#8b5cf6' };
+  const gradeColor   = GRADE_COLORS[item._grade || grade] || '#6b7280';
+  const gradeLabel   = item._grade ? item._grade + '학년' : grade + '학년';
+
+  area.innerHTML = `
+    <!-- 헤더: 타이머 + 현재 모둠 + 점수 요약 -->
+    <div class="tq-header" style="gap:10px;align-items:center;">
+      ${tq.turnTime > 0 ? `
+      <div class="tq-timer-ring" style="flex-shrink:0;">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle class="track" cx="26" cy="26" r="${r}" stroke-width="4"/>
+          <circle class="fill" id="tqHeaderTimerFill" cx="26" cy="26" r="${r}"
+            stroke-width="4" stroke-dasharray="${circ}"
+            stroke-dashoffset="${circ * (1 - timeFrac)}"
+            style="stroke:${teamColor}"/>
+        </svg>
+        <div class="tq-timer-num" id="tqHeaderTimerNum" style="font-size:14px;font-weight:900;">
+          ${fmtTime(tq.timeLeft)}
+        </div>
+      </div>` : ''}
+      <div class="tq-meta" style="flex:1;min-width:0;">
+        <div class="tq-qnum">문제 ${tq.current + 1} / ${tq.queue.length}
+          &nbsp;|&nbsp; 이번 턴 ${tq.current - tq.turnStart}문제 완료
+        </div>
+        <div class="tq-current-team" style="color:${teamColor}">
+          ${TEAM_EMOJIS[tq.currentTeam]} ${teamName} 차례
+        </div>
+      </div>
+      <button class="tq-pause-btn" id="pauseBtn" onclick="togglePause()">⏸ 일시정지</button>
+    </div>
+
+    <!-- 점수판 -->
+    <div class="tq-scoreboard" id="tqScoreboard">
+      ${tq.teamNames.map((nm, i) => `
+        <div class="tq-score-chip ${i === tq.currentTeam ? 'active-team' : ''}" id="chip_${i}">
+          <div class="tq-chip-name" style="color:${TEAM_COLORS[i]}">${TEAM_EMOJIS[i]} ${nm}</div>
+          <div class="tq-chip-score" id="score_${i}">${tq.scores[i]}</div>
+          <div class="tq-chip-label">점</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- 문제 카드 -->
+    <div class="tq-card" id="tqCard" style="border-color:${teamColor}40;">
+      <div class="q-meta">
+        <span class="q-badge" style="background:${teamColor}18;color:${teamColor}">
+          ${TEAM_EMOJIS[tq.currentTeam]} ${teamName}
+        </span>
+        <span class="q-badge" style="background:${gradeColor}15;color:${gradeColor};margin-left:4px;">
+          📚 ${gradeLabel}
+        </span>
+        <span class="q-num">${tq.current + 1} / ${tq.queue.length}</span>
+      </div>
+      <div class="q-word">${item.w}</div>
+      <div class="q-hanja">${item.h}</div>
+      <div class="choices" id="tqChoices">
+        ${choices.map(c => `
+          <button class="choice-btn"
+            onclick="checkTeamChoice(this,'${c.w === item.w}','${item.m.replace(/'/g,"\\'")}')">
+            ${c.m}
+          </button>`).join('')}
+      </div>
+      <div id="tqFeedback"></div>
+    </div>`;
+}
+
+// ── 정답 확인 ────────────────────────────────────────────────
+function checkTeamChoice(btn, isCorrect, meaning) {
+  if (tq.answered || tq.paused) return;
+  tq.answered = true;
+
+  document.querySelectorAll('#tqChoices .choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === meaning) b.classList.add('correct');
+  });
+
+  const fb = document.getElementById('tqFeedback');
+  if (isCorrect === 'true') {
+    btn.classList.add('correct');
+    tq.scores[tq.currentTeam]++;
+    const scoreEl = document.getElementById('score_' + tq.currentTeam);
+    if (scoreEl) {
+      scoreEl.textContent = tq.scores[tq.currentTeam];
+      scoreEl.closest('.tq-score-chip').classList.add('tq-score-bump');
+      setTimeout(() => scoreEl.closest('.tq-score-chip')?.classList.remove('tq-score-bump'), 500);
+    }
+    spawnConfetti(20);
+    if (fb) fb.innerHTML = `<div class="feedback correct">정답! 🎉 +1점</div>`;
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('tqCard')?.classList.add('shake');
+    setTimeout(() => document.getElementById('tqCard')?.classList.remove('shake'), 400);
+    if (fb) fb.innerHTML = `<div class="feedback wrong">아쉬워요 😢 정답: "${meaning}"</div>`;
+  }
+
+  // 0.9초 후 자동으로 다음 문제 (타이머는 계속 진행)
+  setTimeout(() => {
+    if (tq.timeLeft <= 0 && tq.turnTime > 0) return; // 타임아웃이 먼저 온 경우
+    tq.current++;
+    if (tq.current >= tq.queue.length) {
+      clearInterval(tq.timerInterval);
+      showTurnEndBanner();
+    } else {
+      renderTeamQuiz();
+    }
+  }, 900);
+}
+
+// ── 일시정지 ─────────────────────────────────────────────────
+function togglePause() {
+  tq.paused = !tq.paused;
+  const btn = document.getElementById('pauseBtn');
+  if (btn) btn.innerHTML = tq.paused ? '▶ 계속' : '⏸ 일시정지';
+  document.querySelectorAll('#tqChoices .choice-btn').forEach(b => {
+    if (!tq.answered) b.disabled = tq.paused;
+  });
+}
+
+// ── 결과 ─────────────────────────────────────────────────────
+function showTeamResult() {
+  clearInterval(tq.timerInterval);
+  document.getElementById('tqTurnBanner')?.remove();
+  document.getElementById('teamQuizArea').style.display = 'none';
+  const area = document.getElementById('teamResultArea');
+  area.style.display = 'block';
+
+  const ranked = tq.teamNames
+    .map((nm, i) => ({ name: nm, score: tq.scores[i], color: TEAM_COLORS[i], emoji: TEAM_EMOJIS[i] }))
+    .sort((a, b) => b.score - a.score);
+
+  const medals    = ['🥇','🥈','🥉'];
+  const rankClass = ['gold','silver','bronze'];
+
+  let podiumHTML = '';
+  if (ranked.length >= 3) {
+    const heights = [80, 110, 60];
+    podiumHTML = `
+      <div class="tq-podium">
+        ${[1,0,2].map((ri, pi) => {
+          const r = ranked[ri];
+          return r ? `
+            <div class="tq-podium-item">
+              <div class="tq-podium-name">${r.emoji} ${r.name}</div>
+              <div class="tq-podium-score-num" style="color:${r.color}">${r.score}점</div>
+              <div class="tq-podium-block" style="background:${r.color};width:70px;height:${heights[pi]}px">
+                ${medals[ri] || ri+1}
+              </div>
+            </div>` : '';
+        }).join('')}
+      </div>`;
+  }
+
+  const turnsPerTeam = Math.ceil(tq.teamCount > 0 ? tq.queue.length / tq.teamCount : 1);
+
+  area.innerHTML = `
+    <div class="result-emoji">🏆</div>
+    <div class="tq-result-title">${grade}학년 모둠 퀴즈 결과</div>
+    ${podiumHTML}
+    <div class="tq-rank-list">
+      ${ranked.map((r, i) => `
+        <div class="tq-rank-row ${rankClass[i] || ''}">
+          <div class="tq-rank-num">${medals[i] || (i+1)+'위'}</div>
+          <div class="tq-rank-name" style="color:${r.color}">${r.emoji} ${r.name}</div>
+          <div>
+            <span class="tq-rank-score">${r.score}</span>
+            <span class="tq-rank-pts">점</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="color:var(--text-muted);font-size:13px;margin-bottom:24px;">
+      총 ${tq.queue.length}문제 ·
+      ${tq.turnTime > 0 ? '턴당 ' + fmtTime(tq.turnTime) + ' 제한' : '시간 제한 없음'}
+    </div>
+    <div class="tq-result-btns">
+      <button class="result-btn primary" onclick="restartTeamQuiz()">🔄 다시 시작</button>
+      <button class="result-btn secondary" onclick="setMode('team')">⚙ 설정 변경</button>
+      <button class="result-btn secondary" onclick="setMode('choice')">🎯 개인 드릴</button>
+    </div>`;
+
+  spawnConfetti(80);
+}
+
+function restartTeamQuiz() {
+  document.getElementById('teamResultArea').style.display = 'none';
+  startTeamQuiz();
+}
+
+function spawnConfetti(count = 30) {
+  const wrap   = document.createElement('div');
+  wrap.className = 'confetti-wrap';
+  document.body.appendChild(wrap);
+  const colors = ['#3b82f6','#f43f8e','#10b981','#f59e0b','#8b5cf6','#f97316'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    p.style.animationDelay   = Math.random() * 0.5 + 's';
+    p.style.width = p.style.height = (6 + Math.random() * 8) + 'px';
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    wrap.appendChild(p);
+  }
+  setTimeout(() => wrap.remove(), 3500);
 }
 
 init();
