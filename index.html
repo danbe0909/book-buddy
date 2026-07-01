@@ -3030,7 +3030,7 @@ renderTeamNameInputs();
     function attachSchoolListeners() {
         detachAllListeners();
 
-        const cnCb = snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); };
+        const cnCb = snap => { allClassNames = snap.val() || {}; syncHeaderAndStats(); updateTeacherBadge(); };
         const cnRef = schoolRef('classNames_v2');
         cnRef.on('value', cnCb); _dbListeners.push({ ref: cnRef, cb: cnCb });
 
@@ -3049,7 +3049,7 @@ renderTeamNameInputs();
         const peRef = schoolRef('pendingStudents_v2');
         peRef.on('value', peCb); _dbListeners.push({ ref: peRef, cb: peCb });
 
-        const taCb = snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); };
+        const taCb = snap => { teacherAccounts = snap.val() || {}; renderTeacherAccountList(); updateTeacherBadge(); };
         const taRef = schoolRef('teacherAccounts_v2');
         taRef.on('value', taCb); _dbListeners.push({ ref: taRef, cb: taCb });
 
@@ -3630,6 +3630,16 @@ renderTeamNameInputs();
                 db.ref(`schools/${schoolCode}/teacherAccounts_v2/${id}/pw`).set(result.hash);
             }
             currentSchoolCode = schoolCode;
+            // ✅ [버그수정] 뱃지에 필요한 학급명/교사이름 데이터를 먼저 확실히 읽어온 뒤
+            // 리스너를 붙이고 뱃지를 그린다. (기존에는 attachSchoolListeners()의 비동기
+            // 콜백이 도착하기 전에 applyTeacherPermissions()가 실행되어, 네트워크 속도에
+            // 따라 "3학년 1반"처럼 이름/학급명이 빠진 상태로 표시되는 경쟁 조건이 있었음)
+            const [cnSnap, taSnap] = await Promise.all([
+                db.ref(`schools/${schoolCode}/classNames_v2`).once('value'),
+                db.ref(`schools/${schoolCode}/teacherAccounts_v2`).once('value')
+            ]);
+            allClassNames = cnSnap.val() || {};
+            teacherAccounts = taSnap.val() || {};
             attachSchoolListeners();
             const g = acc.grade, c = acc.classNum;
             currentTeacher = `${g}-${c}`;
@@ -3639,6 +3649,28 @@ renderTeamNameInputs();
             document.getElementById('newClass').value = c;
             executeSwitch('teacher'); closeAdminModal(); applyTeacherPermissions();
         });
+    }
+
+    // ✅ [버그수정] 교사 뱃지(이름/학급명)를 그리는 로직을 별도 함수로 분리.
+    // Firebase 데이터(allClassNames, teacherAccounts)가 늦게 도착해도
+    // cnCb/taCb 콜백에서 이 함수를 다시 호출해 뱃지를 최신 상태로 갱신한다.
+    function updateTeacherBadge() {
+        if (!currentTeacher) return; // 아직 교사 로그인 전이면 무시
+        const badge = document.getElementById('headerTeacherBadge');
+        if (!badge) return;
+        if (currentTeacher === 'super') {
+            badge.innerHTML = `<span class="admin-badge">👑 관리자 모드 · ${currentSchoolCode}</span>`;
+            return;
+        }
+        const [g, c] = currentTeacher.split('-');
+        const cnVal = allClassNames[currentTeacher];
+        const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${g}학년 ${c}반`;
+        const matchKey = Object.keys(teacherAccounts).find(k => {
+            const acc = teacherAccounts[k];
+            return typeof acc === 'object' && `${acc.grade}-${acc.classNum}` === currentTeacher;
+        });
+        const teacherName = matchKey ? teacherAccounts[matchKey].name : '';
+        badge.innerHTML = `<span class="teacher-badge">🏫 ${teacherName ? teacherName + ' 선생님 · ' : ''}${className}</span><br><span style="font-size:11px;opacity:0.8;">${currentSchoolCode}</span>`;
     }
 
     function applyTeacherPermissions() {
@@ -3656,20 +3688,7 @@ renderTeamNameInputs();
         document.getElementById('editNameGrade').disabled = !isSuper;
         document.getElementById('editNameClass').disabled = !isSuper;
 
-        const badge = document.getElementById('headerTeacherBadge');
-        if (isSuper) {
-            badge.innerHTML = `<span class="admin-badge">👑 관리자 모드 · ${currentSchoolCode}</span>`;
-        } else {
-            const [g, c] = currentTeacher.split('-');
-            const cnVal = allClassNames[currentTeacher];
-            const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${g}학년 ${c}반`;
-            const matchKey = Object.keys(teacherAccounts).find(k => {
-                const acc = teacherAccounts[k];
-                return typeof acc === 'object' && `${acc.grade}-${acc.classNum}` === currentTeacher;
-            });
-            const teacherName = matchKey ? teacherAccounts[matchKey].name : '';
-            badge.innerHTML = `<span class="teacher-badge">🏫 ${teacherName ? teacherName + ' 선생님 · ' : ''}${className}</span><br><span style="font-size:11px;opacity:0.8;">${currentSchoolCode}</span>`;
-        }
+        updateTeacherBadge();
         syncHeaderAndStats(); renderAll(); renderNoticePreview();
         if (isSuper) loadSchoolCodeList();
         updateAddStudentSelects();
