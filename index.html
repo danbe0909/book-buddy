@@ -203,6 +203,9 @@
         .top5-count { font-size: 14px; font-weight: bold; color: var(--primary-dark); min-width: 30px; text-align: right; }
         .top5-empty { text-align: center; color: #bbb; font-size: 13px; padding: 10px 0; }
         .top5-class-label { font-size: 15px; color: #aaa; text-align: center; margin-bottom: 10px; font-weight: bold; }
+        .top5-period-toggle { display: flex; justify-content: center; gap: 6px; margin: -4px 0 8px 0; }
+        .top5-period-btn { border: 2px solid #ffcc80; background: #fff; color: #e65100; font-size: 12px; font-weight: bold; padding: 4px 14px; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+        .top5-period-btn.active { background: linear-gradient(135deg, #ff9a8b, #ff8e72); border-color: #ff8e72; color: #fff; }
 
         /* ✅ 독서 캘린더 (잔디 심기) */
         .cal-card { background: linear-gradient(135deg, #f0fff4 0%, #e8f5e9 100%); border: 3px solid #a5d6a7; border-radius: 25px; padding: 20px; margin-bottom: 18px; box-shadow: 0 6px 0px rgba(165,214,167,0.4); }
@@ -2488,6 +2491,10 @@ renderTeamNameInputs();
                 <!-- ✅ TOP 5 독서왕 카드 (로그인 섹션 내, 학년/반 선택 시 표시) -->
                 <div id="top5Card" class="top5-card hidden">
                     <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
+                    <div class="top5-period-toggle" data-top7-toggle="top5List">
+                        <button class="top5-period-btn active" data-period="month" onclick="setTop7Period('top5List','month')">📅 월기준</button>
+                        <button class="top5-period-btn" data-period="year" onclick="setTop7Period('top5List','year')">🗓️ 년기준</button>
+                    </div>
                     <div style="font-size:15px;color:#aaa;text-align:center;margin-top:-4px;margin-bottom:4px;font-weight:bold;" id="top5MonthLabel"></div>
                     <div id="top5ClassLabel" class="top5-class-label"></div>
                     <div id="top5List"><div class="top5-empty">독서 기록이 없습니다.</div></div>
@@ -2544,6 +2551,10 @@ renderTeamNameInputs();
             <!-- ✅ 로그인 후 writeSection 내 TOP 5 독서왕 -->
             <div id="top5CardWrite" class="top5-card">
                 <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
+                <div class="top5-period-toggle" data-top7-toggle="top5ListWrite">
+                    <button class="top5-period-btn active" data-period="month" onclick="setTop7Period('top5ListWrite','month')">📅 월기준</button>
+                    <button class="top5-period-btn" data-period="year" onclick="setTop7Period('top5ListWrite','year')">🗓️ 년기준</button>
+                </div>
                 <div style="font-size:15px;color:#aaa;text-align:center;margin-top:-4px;margin-bottom:4px;font-weight:bold;" id="top5MonthLabelWrite"></div>
                 <div id="top5ClassLabelWrite" class="top5-class-label"></div>
                 <div id="top5ListWrite"><div class="top5-empty">독서 기록이 없습니다.</div></div>
@@ -3097,8 +3108,26 @@ renderTeamNameInputs();
         document.getElementById('welcomeMsg').innerText = `${s.name} 안녕! 👋${badge ? ' ' + badge : ''}`;
     }
 
-    // ✅ TOP 5 독서왕 렌더링 함수
+    // ✅ TOP7 독서왕 기준(월간/연간) 상태 저장
+    let top7PeriodState = { top5List: 'month', top5ListWrite: 'month', pvTop7List: 'month' };
+    function setTop7Period(listId, period) {
+        top7PeriodState[listId] = period;
+        const toggleWrap = document.querySelector(`[data-top7-toggle="${listId}"]`);
+        if (toggleWrap) {
+            toggleWrap.querySelectorAll('.top5-period-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.period === period);
+            });
+        }
+        if (listId === 'top5List') renderTop7FromFilter();
+        else if (listId === 'top5ListWrite') renderTop7ForStudent();
+        else if (listId === 'pvTop7List' && typeof _pvSid !== 'undefined' && _pvSid && rawData[_pvSid]) {
+            renderTop7(document.getElementById('pvTop7List'), document.getElementById('pvTop7Label'), rawData[_pvSid].grade, rawData[_pvSid].classNum);
+        }
+    }
+
+    // ✅ TOP 7 독서왕 렌더링 함수 (월기준/년기준 지원)
     function renderTop7(listEl, labelEl, grade, classNum) {
+        const period = top7PeriodState[listEl.id] || 'month';
         if (!grade || !classNum) {
             listEl.innerHTML = '<div class="top5-empty">학년/반을 선택하면 독서왕을 확인할 수 있어요!</div>';
             labelEl.innerText = '';
@@ -3111,19 +3140,23 @@ renderTeamNameInputs();
             return;
         }
         const now = new Date();
-        // ✅ "2026-04" 형식으로 직접 비교
+        // ✅ "2026-04" 형식으로 직접 비교 (월기준) / "2026" 형식 (년기준)
         const thisMonthYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        const thisMonthPrefix = thisMonthYM + '-'; // 기존 변수명 유지 (하위 호환)
+        const thisYearY = String(now.getFullYear());
+        const inPeriod = (b) => {
+            if (!b.date) return false;
+            return period === 'year' ? b.date.substring(0, 4) === thisYearY : b.date.substring(0, 7) === thisMonthYM;
+        };
         const ranked = classStudents
             .map(s => {
-                const thisMonthBooks = s.books ? Object.values(s.books).filter(b => b.date && b.date.substring(0, 7) === thisMonthPrefix.substring(0, 7)) : [];
-                // ✅ 이번 달 독서 중 가장 빠른(오래된) 날짜 추출 → 동점자 우선순위 기준
-                const earliestDate = thisMonthBooks.length > 0
-                    ? thisMonthBooks.map(b => b.date.substring(0, 10)).sort()[0]
+                const periodBooks = s.books ? Object.values(s.books).filter(inPeriod) : [];
+                // ✅ 기간 내 독서 중 가장 빠른(오래된) 날짜 추출 → 동점자 우선순위 기준
+                const earliestDate = periodBooks.length > 0
+                    ? periodBooks.map(b => b.date.substring(0, 10)).sort()[0]
                     : '9999-99-99';
                 return {
                     name: s.name,
-                    count: thisMonthBooks.length,
+                    count: periodBooks.length,
                     earliestDate,
                     id: s.id
                 };
@@ -3141,8 +3174,9 @@ renderTeamNameInputs();
         const cnVal = allClassNames[`${grade}-${classNum}`];
         const className = (cnVal && typeof cnVal === 'string') ? cnVal : `${grade}학년 ${classNum}반`;
         labelEl.innerText = className;
-        const monthLabelEl = listEl === document.getElementById('top5List') ? document.getElementById('top5MonthLabel') : document.getElementById('top5MonthLabelWrite');
-        if (monthLabelEl) monthLabelEl.innerText = `${now.getMonth() + 1}월 기준`;
+        const monthLabelIdMap = { top5List: 'top5MonthLabel', top5ListWrite: 'top5MonthLabelWrite', pvTop7List: 'pvTop7MonthLabel' };
+        const monthLabelEl = document.getElementById(monthLabelIdMap[listEl.id]);
+        if (monthLabelEl) monthLabelEl.innerText = period === 'year' ? `${now.getFullYear()}년 기준` : `${now.getMonth() + 1}월 기준`;
 
         if (maxCount === 0) {
             listEl.innerHTML = '<div class="top5-empty">아직 독서 기록이 없어요. 첫 번째 독서왕이 되어보세요! 📚</div>';
@@ -3184,8 +3218,8 @@ renderTeamNameInputs();
             const allRanked = classStudents
                 .map(s => ({
                     name: s.name,
-                    // ✅ timezone 문제 방지: ISO 문자열 앞 7자리로 직접 비교
-                    count: s.books ? Object.values(s.books).filter(b => b.date && b.date.substring(0, 7) === thisMonthPrefix.substring(0, 7)).length : 0,
+                    // ✅ timezone 문제 방지: ISO 문자열 앞자리로 직접 비교 (월/년 기준)
+                    count: s.books ? Object.values(s.books).filter(inPeriod).length : 0,
                     id: s.id
                 }))
                 .sort((a, b) => b.count - a.count);
@@ -7762,6 +7796,11 @@ function engShowQuizResult() {
       </div>
       <div class="top5-card" style="margin-bottom:14px;">
         <div class="top5-title">🏆 우리 반 독서왕 TOP 7</div>
+        <div class="top5-period-toggle" data-top7-toggle="pvTop7List">
+          <button class="top5-period-btn active" data-period="month" onclick="setTop7Period('pvTop7List','month')">📅 월기준</button>
+          <button class="top5-period-btn" data-period="year" onclick="setTop7Period('pvTop7List','year')">🗓️ 년기준</button>
+        </div>
+        <div id="pvTop7MonthLabel" style="font-size:13px;color:#aaa;text-align:center;margin-top:-4px;margin-bottom:4px;font-weight:bold;"></div>
         <div id="pvTop7Label" class="top5-class-label"></div>
         <div id="pvTop7List"><div class="top5-empty">독서 기록이 없습니다.</div></div>
         <div id="pvMyRank" style="display:none;margin-top:10px;padding:10px 14px;background:linear-gradient(135deg,#fff0ec,#ffe8df);border:1.5px solid #ff8e72;border-radius:12px;text-align:center;font-size:13px;color:#c0522a;"></div>
