@@ -162,7 +162,7 @@
               <span class="w-8 h-8 rounded-2xl bg-amber-600 text-white flex items-center justify-center text-sm">💴</span>
               <div>
                 <h2 class="text-sm font-extrabold text-amber-950">여행 경비 기록 · 정산표</h2>
-                <p class="text-xs text-amber-800">엔화(JPY)·원화(KRW) 자동 환산 · CSV(엑셀) 내보내기</p>
+                <p class="text-xs text-amber-800">엔·달러·유로·동·원 자동 환산 · CSV(엑셀) 내보내기</p>
               </div>
             </div>
             <span class="text-xs font-bold text-amber-700 bg-white px-2.5 py-1.5 rounded-xl border border-amber-200">열기</span>
@@ -306,12 +306,21 @@
           <div class="flex items-center justify-between">
             <span class="inline-block text-[11px] font-bold bg-white/20 px-2.5 py-0.5 rounded-full">여행 경비 가계부 · 자동 저장</span>
             <div class="flex items-center gap-1.5 bg-white/15 px-2.5 py-1 rounded-xl text-xs">
-              <label for="fxRateInput" class="font-semibold text-amber-100">환율 100¥=</label>
-              <input id="fxRateInput" type="number" step="1" min="100" max="3000" value="930"
+              <label id="fxRateLabel" for="fxRateInput" class="font-semibold text-amber-100">환율 100¥=</label>
+              <input id="fxRateInput" type="number" step="any" min="0" value="930"
                 class="w-14 bg-white text-slate-900 font-extrabold text-right rounded-md px-1.5 py-0.5 text-xs" />
               <span class="font-semibold">원</span>
             </div>
           </div>
+          <div class="mt-1.5 flex items-center justify-end gap-1.5 text-[10px] text-amber-100">
+            <span id="fxStatus">환율 확인 중…</span>
+            <label for="fxOffsetInput" class="font-semibold">보정</label>
+            <input id="fxOffsetInput" type="number" step="any" value="0" class="w-12 bg-white text-slate-900 font-bold text-right rounded-md px-1 py-0.5 text-[10px]" />
+            <span>원</span>
+            <button id="fxAutoBtn" type="button" class="bg-white/20 hover:bg-white/25 px-2 py-0.5 rounded-full font-bold text-white active:scale-95">🔄 자동</button>
+          </div>
+
+          <div id="fxBoard" class="mt-2.5 grid grid-cols-4 gap-1.5"></div>
 
           <div class="mt-3 grid grid-cols-2 gap-2.5">
             <div class="bg-white/15 rounded-2xl p-3">
@@ -321,7 +330,7 @@
             </div>
             <div class="bg-white/15 rounded-2xl p-3">
               <div class="text-[11px] text-amber-100 font-semibold">통화별 원본 합계</div>
-              <div id="expTotalJpy" class="text-sm font-extrabold mt-1">¥ 0</div>
+              <div id="expTotalJpy" class="text-sm font-extrabold mt-1 leading-snug">-</div>
               <div id="expPureKrw" class="text-xs font-bold text-amber-100 mt-0.5">₩ 0</div>
             </div>
           </div>
@@ -383,6 +392,9 @@
               <label class="block text-[11px] font-bold text-slate-600 mb-1">통화</label>
               <select id="expCurrInput" class="exp-input font-bold">
                 <option value="JPY">¥ 엔화 (JPY)</option>
+                <option value="USD">$ 미국 달러 (USD)</option>
+                <option value="EUR">€ 유로 (EUR)</option>
+                <option value="VND">₫ 베트남 동 (VND)</option>
                 <option value="KRW">₩ 원화 (KRW)</option>
               </select>
             </div>
@@ -936,7 +948,8 @@
       routeMode: 'arrive',
       selectedDay: 'd18',
       expenses: [],
-      fxRate: 930,
+      fx: {},
+      fxCur: 'JPY',
       budgetKrw: 0,
       expFilterDay: 'ALL',
       expSummaryMode: 'cat', // cat | day | pay
@@ -1274,13 +1287,24 @@
     ];
 
     function loadExpenseState() {
+      appState.fx = defaultFxState();
       try {
         const raw = localStorage.getItem(EXPENSE_STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed && Array.isArray(parsed.expenses)) {
             appState.expenses = parsed.expenses;
-            if (parsed.fxRate) appState.fxRate = Number(parsed.fxRate) || 930;
+            if (parsed.fx) {
+              FX_CODES.forEach((c) => { if (parsed.fx[c]) Object.assign(appState.fx[c], parsed.fx[c]); });
+            } else if (parsed.fxRate) { // 이전 버전(엔화 전용) 데이터 이전
+              const j = appState.fx.JPY;
+              j.rate = Number(parsed.fxRate) || j.rate;
+              if (parsed.fxAuto !== undefined) j.auto = !!parsed.fxAuto;
+              j.base = Number(parsed.fxBase) || 0;
+              j.offset = Number(parsed.fxOffset) || 0;
+              j.src = parsed.fxSrc || '';
+              j.at = Number(parsed.fxUpdatedAt) || 0;
+            }
             if (parsed.budgetKrw !== undefined) appState.budgetKrw = Number(parsed.budgetKrw) || 0;
             return;
           }
@@ -1293,15 +1317,158 @@
       try {
         localStorage.setItem(EXPENSE_STORAGE_KEY, JSON.stringify({
           expenses: appState.expenses,
-          fxRate: appState.fxRate,
+          fx: appState.fx,
           budgetKrw: appState.budgetKrw
         }));
       } catch (e) {}
     }
 
+    // ===== 통화 / 환율 (원화 기준, 통화별 기준단위당 원) =====
+    const CURRENCIES = {
+      JPY: { flag: '🇯🇵', sym: '¥', name: '엔화', unit: 100, def: 930, min: 100, max: 3000, naver: 'FX_JPYKRW', api: 'jpy' },
+      USD: { flag: '🇺🇸', sym: '$', name: '미국 달러', unit: 1, def: 1400, min: 500, max: 3000, naver: 'FX_USDKRW', api: 'usd' },
+      EUR: { flag: '🇪🇺', sym: '€', name: '유로', unit: 1, def: 1600, min: 500, max: 3500, naver: 'FX_EURKRW', api: 'eur' },
+      VND: { flag: '🇻🇳', sym: '₫', name: '베트남 동', unit: 100, def: 5.5, min: 1, max: 20, naver: 'FX_VNDKRW', api: 'vnd' }
+    };
+    const FX_CODES = Object.keys(CURRENCIES);
+    const FX_REFRESH_MS = 60 * 60 * 1000; // 1시간
+
+    function defaultFxState() {
+      const o = {};
+      FX_CODES.forEach((c) => { o[c] = { rate: CURRENCIES[c].def, base: 0, offset: 0, auto: true, src: '', at: 0 }; });
+      return o;
+    }
+    function currSym(code) { return code === 'KRW' ? '₩' : (CURRENCIES[code] ? CURRENCIES[code].sym : ''); }
+    function fxUnitLabel(code) { return `${CURRENCIES[code].unit}${CURRENCIES[code].sym}`; }
+    function round3(n) { return Math.round(n * 1000) / 1000; }
+    function fmtRate(n) { return Number(n || 0).toLocaleString('ko-KR', { maximumFractionDigits: 2 }); }
+
+    function fxSources(code) {
+      const c = CURRENCIES[code];
+      const viaApi = (d) => (d && d[c.api] ? Number(d[c.api].krw) * c.unit : NaN);
+      return [
+        { name: '네이버', url: `https://m.stock.naver.com/front-api/marketIndex/productDetail?category=exchange&reutersCode=${c.naver}`,
+          pick: (d) => (d && d.result ? Number(String(d.result.closePrice).replace(/,/g, '')) : NaN) },
+        { name: '글로벌 시세', url: `https://open.er-api.com/v6/latest/${code}`,
+          pick: (d) => (d && d.rates ? Number(d.rates.KRW) * c.unit : NaN) },
+        { name: '글로벌 시세', url: `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${c.api}.json`, pick: viaApi },
+        { name: '글로벌 시세', url: `https://latest.currency-api.pages.dev/v1/currencies/${c.api}.json`, pick: viaApi }
+      ];
+    }
+
+    async function fetchLiveFxRate(code) {
+      const c = CURRENCIES[code];
+      for (const s of fxSources(code)) {
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 6000);
+          const res = await fetch(s.url, { signal: ctrl.signal, cache: 'no-store' });
+          clearTimeout(timer);
+          if (!res.ok) continue;
+          const rate = round3(s.pick(await res.json()));
+          if (rate >= c.min && rate <= c.max) return { rate, name: s.name };
+        } catch (e) { /* 다음 소스 시도 */ }
+      }
+      return null;
+    }
+
+    function fxTimeLabel(ts) {
+      const d = new Date(ts);
+      const p = (n) => String(n).padStart(2, '0');
+      return `${d.getMonth() + 1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+
+    function fxStatusText(code) {
+      const f = appState.fx[code];
+      if (!f.auto) return '수동 입력 환율 사용 중';
+      if (!f.at) return '저장된 환율 사용';
+      return `${f.src || '시세'} 기준 ${fxTimeLabel(f.at)}`;
+    }
+
+    function updateFxStatus(text) {
+      const code = appState.fxCur;
+      const f = appState.fx[code];
+      const el = $('fxStatus');
+      if (el) el.textContent = text || fxStatusText(code);
+      const off = $('fxOffsetInput');
+      if (off && document.activeElement !== off) off.value = f.offset;
+      const btn = $('fxAutoBtn');
+      if (btn) {
+        btn.textContent = f.auto ? '🔄 자동 ON' : '✋ 수동 · 자동으로';
+        btn.setAttribute('aria-pressed', f.auto ? 'true' : 'false');
+      }
+    }
+
+    function renderFxPanel() {
+      const code = appState.fxCur;
+      const c = CURRENCIES[code];
+      const f = appState.fx[code];
+      $('fxRateLabel').textContent = `${c.name} ${fxUnitLabel(code)}=`;
+      $('fxRateInput').value = f.rate;
+      $('fxBoard').innerHTML = FX_CODES.map((k) => {
+        const ck = CURRENCIES[k];
+        const fk = appState.fx[k];
+        const active = k === code;
+        return `<button type="button" data-fxcur="${k}" class="fx-chip rounded-xl px-1 py-1.5 text-center leading-tight transition active:scale-95 ${
+          active ? 'bg-white text-slate-900 shadow-sm' : 'bg-white/15 text-white'}">
+          <div class="text-[10px] font-bold ${active ? 'text-amber-700' : 'text-amber-100'}">${ck.flag} ${k}${fk.auto ? '' : ' ✋'}</div>
+          <div class="text-sm font-extrabold tracking-tight">${fmtRate(fk.rate)}</div>
+          <div class="text-[9px] ${active ? 'text-slate-500' : 'text-amber-100'}">${fxUnitLabel(k)}당 원</div>
+        </button>`;
+      }).join('');
+      document.querySelectorAll('.fx-chip').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          appState.fxCur = btn.getAttribute('data-fxcur');
+          renderFxPanel();
+          updateFxStatus();
+        });
+      });
+    }
+
+    async function refreshOneFx(code, force) {
+      const f = appState.fx[code];
+      if (!f.auto) return 'manual';
+      if (!force && f.at && Date.now() - f.at < FX_REFRESH_MS) return 'fresh';
+      const live = await fetchLiveFxRate(code);
+      if (!f.auto) return 'manual'; // 불러오는 사이 수동 전환된 경우
+      if (!live) return 'fail';
+      f.base = live.rate;
+      f.src = live.name;
+      f.rate = round3(f.base + f.offset);
+      f.at = Date.now();
+      return 'ok';
+    }
+
+    async function refreshFxRate(force, onlyCode) {
+      const codes = onlyCode ? [onlyCode] : FX_CODES;
+      updateFxStatus('시세 불러오는 중…');
+      const results = await Promise.all(codes.map((c) => refreshOneFx(c, force)));
+      saveExpenseState();
+      renderExpenseView();
+      const selFail = results[codes.indexOf(appState.fxCur)] === 'fail';
+      updateFxStatus(selFail ? '네트워크 오류 · 저장된 환율 사용' : '');
+      if (force) {
+        const ok = results.filter((r) => r === 'ok').length;
+        showToast(ok ? `${ok}개 통화 시세를 반영했습니다` : '시세를 불러오지 못했습니다');
+      }
+    }
+
     function toKrw(exp) {
-      if (exp.curr === 'KRW') return Math.round(Number(exp.amt) || 0);
-      return Math.round((Number(exp.amt) || 0) * (appState.fxRate / 100));
+      const amt = Number(exp.amt) || 0;
+      const c = CURRENCIES[exp.curr];
+      if (exp.curr === 'KRW' || !c) return Math.round(amt);
+      return Math.round(amt * (appState.fx[exp.curr].rate / c.unit));
+    }
+
+    // 통화별 원본 합계 { JPY: n, USD: n, ... }
+    function sumByCurr(list) {
+      const sums = {};
+      list.forEach((e) => { sums[e.curr] = (sums[e.curr] || 0) + (Number(e.amt) || 0); });
+      return sums;
+    }
+    function foreignText(sums) {
+      const parts = FX_CODES.filter((k) => sums[k] > 0).map((k) => `${currSym(k)}${fmtNum(sums[k])}`);
+      return parts.join(' · ');
     }
 
     function fmtNum(n) {
@@ -1309,21 +1476,20 @@
     }
 
     function renderExpenseView() {
-      $('fxRateInput').value = appState.fxRate;
+      renderFxPanel();
+      updateFxStatus();
       $('budgetKrwInput').value = appState.budgetKrw > 0 ? appState.budgetKrw : '';
 
-      let totalKrw = 0, totalJpy = 0, pureKrw = 0;
-      appState.expenses.forEach((e) => {
-        const krw = toKrw(e);
-        totalKrw += krw;
-        if (e.curr === 'JPY') totalJpy += Number(e.amt) || 0;
-        else pureKrw += Number(e.amt) || 0;
-      });
+      let totalKrw = 0;
+      appState.expenses.forEach((e) => { totalKrw += toKrw(e); });
+      const allSums = sumByCurr(appState.expenses);
 
       $('expTotalKrw').textContent = `${fmtNum(totalKrw)}원`;
       $('expCountText').textContent = `총 ${appState.expenses.length}건 기록됨`;
-      $('expTotalJpy').textContent = `¥ ${fmtNum(totalJpy)}`;
-      $('expPureKrw').textContent = `₩ ${fmtNum(pureKrw)}`;
+      const fgnTags = FX_CODES.filter((k) => allSums[k] > 0)
+        .map((k) => `<span class="inline-block mr-2">${currSym(k)} ${fmtNum(allSums[k])}</span>`).join('');
+      $('expTotalJpy').innerHTML = fgnTags || '<span class="text-amber-100 font-bold">외화 지출 없음</span>';
+      $('expPureKrw').textContent = `₩ ${fmtNum(allSums.KRW || 0)}`;
 
       if (appState.budgetKrw > 0) {
         const remain = appState.budgetKrw - totalKrw;
@@ -1348,10 +1514,9 @@
       const groups = {};
       appState.expenses.forEach((e) => {
         const key = appState.expSummaryMode === 'cat' ? e.cat : (appState.expSummaryMode === 'day' ? e.day : e.pay);
-        if (!groups[key]) groups[key] = { count: 0, jpy: 0, krwRaw: 0, krwTotal: 0 };
+        if (!groups[key]) groups[key] = { count: 0, sums: {}, krwTotal: 0 };
         groups[key].count += 1;
-        if (e.curr === 'JPY') groups[key].jpy += Number(e.amt) || 0;
-        else groups[key].krwRaw += Number(e.amt) || 0;
+        groups[key].sums[e.curr] = (groups[key].sums[e.curr] || 0) + (Number(e.amt) || 0);
         groups[key].krwTotal += toKrw(e);
       });
 
@@ -1365,7 +1530,7 @@
           return `
             <tr>
               <td class="font-bold text-slate-800">${k} <span class="text-[11px] font-normal text-slate-400">(${g.count}건)</span></td>
-              <td class="exp-num text-slate-600">${g.jpy > 0 ? '¥' + fmtNum(g.jpy) : '-'}</td>
+              <td class="exp-num text-slate-600 text-[11px]">${foreignText(g.sums) || '-'}</td>
               <td class="exp-num font-extrabold text-slate-900">${fmtNum(g.krwTotal)}원</td>
               <td class="exp-num text-[11px] font-bold text-amber-700">${share}%</td>
             </tr>`;
@@ -1375,7 +1540,7 @@
             <thead>
               <tr>
                 <th>구분</th>
-                <th class="exp-num">엔화합계</th>
+                <th class="exp-num">외화합계</th>
                 <th class="exp-num">원화환산</th>
                 <th class="exp-num">비중</th>
               </tr>
@@ -1410,12 +1575,12 @@
         $('expTableBody').innerHTML = `<tr><td colspan="5" class="text-center text-xs text-slate-400 py-6">해당 조건의 지출 내역이 없습니다.</td></tr>`;
         $('expTableFoot').innerHTML = '';
       } else {
-        let subJpy = 0, subKrw = 0;
+        let subKrw = 0;
+        const subSums = sumByCurr(filtered);
         $('expTableBody').innerHTML = filtered.map((e) => {
           const krw = toKrw(e);
           subKrw += krw;
-          if (e.curr === 'JPY') subJpy += Number(e.amt) || 0;
-          const origStr = e.curr === 'JPY' ? `¥${fmtNum(e.amt)}` : `₩${fmtNum(e.amt)}`;
+          const origStr = `${currSym(e.curr)}${fmtNum(e.amt)}`;
           return `
             <tr data-expid="${e.id}" class="exp-row cursor-pointer">
               <td class="whitespace-nowrap font-bold text-slate-700">${e.day}</td>
@@ -1432,7 +1597,7 @@
         $('expTableFoot').innerHTML = `
           <tr class="bg-amber-50/80 font-extrabold text-amber-950">
             <td colspan="3" class="text-xs">조회 합계 (${filtered.length}건)</td>
-            <td class="exp-num text-xs">${subJpy > 0 ? '¥' + fmtNum(subJpy) : '-'}</td>
+            <td class="exp-num text-[11px]">${foreignText(subSums) || '-'}</td>
             <td class="exp-num text-xs">${fmtNum(subKrw)}원</td>
           </tr>`;
 
@@ -1496,20 +1661,21 @@
         showToast('내보낼 지출 내역이 없습니다');
         return;
       }
-      const headers = ['일자', '분류', '사용처/내용', '통화', '원본금액', '적용환율(100엔당)', '원화환산금액(원)', '결제수단', '메모'];
+      const headers = ['일자', '분류', '사용처/내용', '통화', '원본금액', '적용환율(원)', '환율기준단위', '원화환산금액(원)', '결제수단', '메모'];
       const rows = appState.expenses.map((e) => [
         e.day,
         e.cat,
         `"${String(e.item).replace(/"/g, '""')}"`,
         e.curr,
         e.amt,
-        e.curr === 'JPY' ? appState.fxRate : 100,
+        CURRENCIES[e.curr] ? appState.fx[e.curr].rate : 1,
+        CURRENCIES[e.curr] ? CURRENCIES[e.curr].unit : 1,
         toKrw(e),
         e.pay,
         `"${String(e.memo || '').replace(/"/g, '""')}"`
       ]);
       const totalKrw = appState.expenses.reduce((acc, cur) => acc + toKrw(cur), 0);
-      rows.push(['합계', '', `"총 ${appState.expenses.length}건"`, '', '', '', totalKrw, '', '']);
+      rows.push(['합계', '', `"총 ${appState.expenses.length}건"`, '', '', '', '', totalKrw, '', '']);
 
       const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1581,13 +1747,36 @@
 
       // 경비 이벤트 바인딩
       $('fxRateInput').addEventListener('change', (e) => {
+        const code = appState.fxCur;
         const val = Number(e.target.value);
         if (val > 0) {
-          appState.fxRate = val;
+          const f = appState.fx[code];
+          f.rate = val;
+          f.auto = false;
           saveExpenseState();
           renderExpenseView();
-          showToast(`환율이 100¥ = ${val}원으로 반영되었습니다`);
+          showToast(`${fxUnitLabel(code)} = ${fmtRate(val)}원으로 반영되었습니다 (수동)`);
         }
+      });
+      $('fxOffsetInput').addEventListener('change', (e) => {
+        const code = appState.fxCur;
+        const f = appState.fx[code];
+        f.offset = Number(e.target.value) || 0;
+        f.auto = true;
+        if (f.base > 0) {
+          f.rate = round3(f.base + f.offset);
+          saveExpenseState();
+          renderExpenseView();
+          showToast(`보정 ${f.offset >= 0 ? '+' : ''}${f.offset}원 → ${fxUnitLabel(code)} = ${fmtRate(f.rate)}원`);
+        } else {
+          saveExpenseState();
+          refreshFxRate(true, code);
+        }
+      });
+      $('fxAutoBtn').addEventListener('click', () => {
+        appState.fx[appState.fxCur].auto = true;
+        saveExpenseState();
+        refreshFxRate(true, appState.fxCur);
       });
       $('budgetKrwInput').addEventListener('change', (e) => {
         appState.budgetKrw = Math.max(0, Number(e.target.value) || 0);
@@ -1662,6 +1851,10 @@
       renderRoute();
       renderExpenseView();
       switchTab('checklist');
+      refreshFxRate(false);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) refreshFxRate(false);
+      });
     }
 
     document.addEventListener('DOMContentLoaded', initApp);
