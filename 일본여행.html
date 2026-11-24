@@ -448,6 +448,10 @@
               <p class="text-[11px] text-slate-500">행을 누르면 수정·삭제할 수 있습니다</p>
             </div>
             <div class="flex items-center gap-1.5">
+              <button id="expShareToggleBtn" type="button"
+                class="min-h-[40px] px-3 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-95 text-white text-xs font-bold flex items-center gap-1 transition">
+                <span>🔗 공유</span>
+              </button>
               <button id="expExportCsvBtn" type="button"
                 class="min-h-[40px] px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold flex items-center gap-1 transition">
                 <span>📥 엑셀(CSV) 저장</span>
@@ -456,6 +460,19 @@
                 class="min-h-[40px] px-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition">
                 비우기
               </button>
+            </div>
+          </div>
+
+          <!-- 공유 패널 -->
+          <div id="sharePanel" class="hidden rounded-2xl bg-sky-50 border border-sky-200 p-3 space-y-2">
+            <p class="text-[11px] text-sky-900 leading-relaxed">지출 내역은 <b>이 기기 브라우저에만 저장</b>되기 때문에 주소만 보내면 상대에게는 기본 화면이 보여요. 아래 링크에는 <b>현재 지출 내역·환율·예산이 담겨</b> 있어서, 받은 사람이 열면 그대로 불러옵니다. (보낸 시점의 복사본이며, 이후 수정은 자동 반영되지 않아요)</p>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button id="shareLinkBtn" type="button" class="min-h-[40px] rounded-xl bg-sky-600 text-white text-xs font-bold active:scale-95">🔗 공유 링크 복사</button>
+              <button id="shareCodeBtn" type="button" class="min-h-[40px] rounded-xl bg-white border border-sky-300 text-sky-800 text-xs font-bold active:scale-95">📋 코드만 복사</button>
+            </div>
+            <div class="flex gap-1.5">
+              <input id="shareImportInput" type="text" placeholder="받은 코드를 붙여넣기" class="flex-1 min-w-0 rounded-xl border border-sky-200 bg-white px-2.5 text-xs" />
+              <button id="shareImportBtn" type="button" class="min-h-[40px] px-3 rounded-xl bg-slate-900 text-white text-xs font-bold active:scale-95">불러오기</button>
             </div>
           </div>
 
@@ -1529,7 +1546,7 @@
           const share = totalKrw > 0 ? Math.round((g.krwTotal / totalKrw) * 100) : 0;
           return `
             <tr>
-              <td class="font-bold text-slate-800">${k} <span class="text-[11px] font-normal text-slate-400">(${g.count}건)</span></td>
+              <td class="font-bold text-slate-800">${esc(k)} <span class="text-[11px] font-normal text-slate-400">(${g.count}건)</span></td>
               <td class="exp-num text-slate-600 text-[11px]">${foreignText(g.sums) || '-'}</td>
               <td class="exp-num font-extrabold text-slate-900">${fmtNum(g.krwTotal)}원</td>
               <td class="exp-num text-[11px] font-bold text-amber-700">${share}%</td>
@@ -1582,12 +1599,12 @@
           subKrw += krw;
           const origStr = `${currSym(e.curr)}${fmtNum(e.amt)}`;
           return `
-            <tr data-expid="${e.id}" class="exp-row cursor-pointer">
-              <td class="whitespace-nowrap font-bold text-slate-700">${e.day}</td>
-              <td class="whitespace-nowrap"><span class="px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold text-[11px]">${e.cat}</span></td>
+            <tr data-expid="${esc(e.id)}" class="exp-row cursor-pointer">
+              <td class="whitespace-nowrap font-bold text-slate-700">${esc(e.day)}</td>
+              <td class="whitespace-nowrap"><span class="px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold text-[11px]">${esc(e.cat)}</span></td>
               <td>
-                <div class="font-bold text-slate-900 leading-snug">${e.item}</div>
-                <div class="text-[11px] text-slate-500">${e.pay}${e.memo ? ' · ' + e.memo : ''}</div>
+                <div class="font-bold text-slate-900 leading-snug">${esc(e.item)}</div>
+                <div class="text-[11px] text-slate-500">${esc(e.pay)}${e.memo ? ' · ' + esc(e.memo) : ''}</div>
               </td>
               <td class="exp-num font-semibold text-slate-700">${origStr}</td>
               <td class="exp-num font-extrabold text-slate-900">${fmtNum(krw)}원</td>
@@ -1654,6 +1671,124 @@
         $('expSaveBtn').parentNode.appendChild(delBtn);
       }
       $('expFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ===== 지출 내역 공유 (링크/코드) =====
+    function esc(v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function toB64Url(bytes) {
+      let s = '';
+      bytes.forEach((b) => { s += String.fromCharCode(b); });
+      return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function fromB64Url(str) {
+      let s = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (s.length % 4) s += '=';
+      return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+    }
+    async function pipeBytes(bytes, Stream, fmt) {
+      const st = new Stream(fmt);
+      const w = st.writable.getWriter();
+      w.write(bytes);
+      w.close();
+      return new Uint8Array(await new Response(st.readable).arrayBuffer());
+    }
+
+    async function encodeShare() {
+      const fx = {};
+      FX_CODES.forEach((c) => { const f = appState.fx[c]; fx[c] = { r: f.rate, o: f.offset, a: f.auto ? 1 : 0 }; });
+      const payload = { v: 1, e: appState.expenses, fx, b: appState.budgetKrw };
+      const bytes = new TextEncoder().encode(JSON.stringify(payload));
+      if (typeof CompressionStream !== 'undefined') {
+        try { return 'z' + toB64Url(await pipeBytes(bytes, CompressionStream, 'deflate-raw')); } catch (e) {}
+      }
+      return 'j' + toB64Url(bytes);
+    }
+
+    async function decodeShare(code) {
+      const kind = code.charAt(0);
+      const bytes = fromB64Url(code.slice(1));
+      let raw = bytes;
+      if (kind === 'z') raw = await pipeBytes(bytes, DecompressionStream, 'deflate-raw');
+      else if (kind !== 'j') throw new Error('bad code');
+      return JSON.parse(new TextDecoder().decode(raw));
+    }
+
+    function sanitizeExpenses(list) {
+      const str = (v, n) => String(v == null ? '' : v).slice(0, n);
+      return list.slice(0, 500).map((e, i) => {
+        const amt = Number(e && e.amt);
+        const curr = e && (e.curr === 'KRW' || CURRENCIES[e.curr]) ? e.curr : 'KRW';
+        return {
+          id: str(e && e.id, 40).replace(/[^\w-]/g, '') || ('exp-imp-' + Date.now() + '-' + i),
+          day: str(e && e.day, 20), cat: str(e && e.cat, 30), item: str(e && e.item, 120),
+          curr, amt: isFinite(amt) && amt >= 0 ? amt : 0,
+          pay: str(e && e.pay, 30), memo: str(e && e.memo, 200)
+        };
+      });
+    }
+
+    async function copyText(text) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      return ok;
+    }
+
+    async function copyShare(asLink) {
+      if (appState.expenses.length === 0) { showToast('공유할 지출 내역이 없습니다'); return; }
+      const code = await encodeShare();
+      const text = asLink ? `${location.href.split('#')[0]}#d=${code}` : code;
+      if (asLink && location.protocol === 'file:') {
+        showToast('파일로 열린 상태라 링크가 동작하지 않아요. 코드 복사를 이용하세요');
+        return;
+      }
+      const ok = await copyText(text);
+      showToast(ok ? (asLink ? '링크를 복사했어요. 카톡에 붙여넣어 보내세요' : '코드를 복사했어요') : '복사에 실패했습니다');
+    }
+
+    async function importShareCode(code, needConfirm) {
+      let data;
+      try { data = await decodeShare(code.trim()); } catch (e) { showToast('공유 코드를 읽을 수 없습니다'); return false; }
+      if (!data || data.v !== 1 || !Array.isArray(data.e)) { showToast('올바른 공유 코드가 아닙니다'); return false; }
+      const list = sanitizeExpenses(data.e);
+      if (needConfirm && !window.confirm(`공유받은 지출 ${list.length}건을 불러올까요?\n이 기기에 저장된 현재 지출 내역은 대체됩니다.`)) return false;
+      appState.expenses = list;
+      appState.budgetKrw = Math.max(0, Number(data.b) || 0);
+      if (data.fx && typeof data.fx === 'object') {
+        FX_CODES.forEach((c) => {
+          const s = data.fx[c];
+          const cur = CURRENCIES[c];
+          if (!s) return;
+          const r = Number(s.r);
+          if (r >= cur.min && r <= cur.max) appState.fx[c].rate = r;
+          appState.fx[c].offset = Number(s.o) || 0;
+          appState.fx[c].auto = !!s.a;
+          appState.fx[c].base = 0;
+          appState.fx[c].at = 0;
+        });
+      }
+      saveExpenseState();
+      renderExpenseView();
+      switchTab('expense');
+      showToast(`지출 ${list.length}건을 불러왔습니다`);
+      refreshFxRate(false);
+      return true;
+    }
+
+    async function importFromHash() {
+      const m = location.hash.match(/^#d=([\w-]+)$/);
+      if (!m) return;
+      await importShareCode(m[1], true);
+      history.replaceState(null, '', location.pathname + location.search);
     }
 
     function exportExpensesToCsv() {
@@ -1816,6 +1951,14 @@
       $('sumModeDayBtn').addEventListener('click', () => { appState.expSummaryMode = 'day'; renderExpenseView(); });
       $('sumModePayBtn').addEventListener('click', () => { appState.expSummaryMode = 'pay'; renderExpenseView(); });
       $('expExportCsvBtn').addEventListener('click', exportExpensesToCsv);
+      $('expShareToggleBtn').addEventListener('click', () => $('sharePanel').classList.toggle('hidden'));
+      $('shareLinkBtn').addEventListener('click', () => copyShare(true));
+      $('shareCodeBtn').addEventListener('click', () => copyShare(false));
+      $('shareImportBtn').addEventListener('click', async () => {
+        const v = $('shareImportInput').value.trim().replace(/^.*#d=/, '');
+        if (!v) { showToast('코드를 붙여넣어 주세요'); return; }
+        if (await importShareCode(v, true)) $('shareImportInput').value = '';
+      });
       $('expClearAllBtn').addEventListener('click', () => {
         if (appState.expenses.length === 0) return;
         if (confirm('기록된 모든 여행 경비 내역을 삭제할까요?')) {
@@ -1851,7 +1994,8 @@
       renderRoute();
       renderExpenseView();
       switchTab('checklist');
-      refreshFxRate(false);
+      importFromHash().then(() => refreshFxRate(false));
+      window.addEventListener('hashchange', importFromHash);
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) refreshFxRate(false);
       });
